@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-
   static ThemeData lightTheme(BuildContext context) {
     return ThemeData().copyWith(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color.fromARGB(255, 60, 109, 94),
+        seedColor: const Color.fromARGB(255, 60, 129, 107),
+        surface: const Color.fromARGB(255, 60, 109, 74),
       ),
       textTheme: GoogleFonts.merriweatherTextTheme(
         Theme.of(context).textTheme,
@@ -21,7 +21,7 @@ class AppTheme {
         seedColor: const Color.fromARGB(255, 60, 109, 94),
         brightness: Brightness.dark,
       ),
-      textTheme: GoogleFonts.robotoTextTheme(
+      textTheme: GoogleFonts.nunitoSansTextTheme(
         Theme.of(context).textTheme,
       ),
     );
