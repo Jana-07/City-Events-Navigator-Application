@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:navigator_app/screens/home.dart';
+import 'package:navigator_app/screens/main_screen.dart';
 import 'package:navigator_app/theme.dart';
 
 void main() {
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: AppTheme.lightTheme(context),
-      home: HomeScreen(),
+      home: MainScreen(),
     );
   }
 }
