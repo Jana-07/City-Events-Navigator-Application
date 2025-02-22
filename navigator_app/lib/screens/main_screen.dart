@@ -13,11 +13,11 @@ class _MainScreenState extends State<MainScreen> {
   int currentScreenIndex = 2;
 
   final List<Widget> screens = [
-    ProfileScreen(),
-    ProfileScreen(),
-    ExploreScreen(),
-    ProfileScreen(),
-    ProfileScreen(),
+    Container(),
+    Container(),
+    const ExploreScreen(),
+    Container(),
+    const ProfileScreen(),
   ];
 
   @override

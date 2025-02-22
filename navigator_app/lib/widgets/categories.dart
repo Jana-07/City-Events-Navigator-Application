@@ -8,9 +8,10 @@ class Categories extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 24),
       scrollDirection: Axis.horizontal,
       child: Row(
-        spacing: 8,
+        spacing: 10,
         children: categories
             .map(
               (category) => CategoryItem(category: category),

@@ -24,7 +24,7 @@ class ExploreScreen extends StatelessWidget {
             children: [
               Container(
                 width: screenWidth,
-                height: screenHeight * 0.24,
+                height: screenHeight * 0.27,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.only(
@@ -33,26 +33,31 @@ class ExploreScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(
-                    right: 24,
-                    left: 24,
-                    top: MediaQuery.of(context).padding.top),
-                child: Column(
-                  children: [
-                    Row(
+              Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: 24,
+                      right: 24,
+                        top: MediaQuery.of(context).padding.top),
+                    child: Row(
                       children: [
+                        Spacer(),
                         Spacer(),
                         LocationButton(),
                         Spacer(),
-                        Icon(
-                          Icons.notifications_none,
+                        IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.notifications_none),
                           color: Colors.white,
                         ),
                       ],
                     ),
-                    SizedBox(height: screenHeight * 0.02),
-                    Row(
+                  ),
+                  SizedBox(height: screenHeight * 0.03),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Row(
                       children: [
                         Icon(
                           Icons.search,
@@ -66,10 +71,10 @@ class ExploreScreen extends StatelessWidget {
                         FiltersButton(),
                       ],
                     ),
-                    SizedBox(height: screenHeight * 0.035),
-                    Categories(),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: screenHeight * 0.05),
+                  Categories(),
+                ],
               ),
             ],
           ),
@@ -78,13 +83,13 @@ class ExploreScreen extends StatelessWidget {
           const SizedBox(height: 20),
           SizedBox(
             height: 300,
-            child: UpcomingEventsList(),
+            child: UpcomingEventsList(events: dummyEvents ?? []),
           ),
           const SizedBox(height: 40),
           SectionHeader(title: 'Recommendation'),
           SizedBox(
-            width: 400,
-            height: 400,
+            //width: 400,
+            height: 300,
             child: EventsList(events: dummyEvents),
           ),
         ],
