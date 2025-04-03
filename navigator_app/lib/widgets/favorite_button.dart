@@ -10,16 +10,18 @@ class FavoriteButton extends StatefulWidget {
 class _FavoriteButtonState extends State<FavoriteButton> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       width: 35,
       height: 35,
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 161, 179, 171),
+        //color: const Color.fromARGB(255, 161, 179, 171),
+        color: theme.colorScheme.onPrimary,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(
         Icons.favorite,
-        color: const Color.fromARGB(255, 20, 67, 22),
+        color: theme.primaryColor,
         size: 20,
       ),
     );

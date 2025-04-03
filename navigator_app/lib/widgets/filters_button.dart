@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:navigator_app/router/routes.dart';
+import 'package:navigator_app/services/auth_controller.dart';
 
-class FiltersButton extends StatelessWidget {
+class FiltersButton extends ConsumerWidget {
   const FiltersButton({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color.fromARGB(255, 101, 149, 116),
+        backgroundColor: theme.colorScheme.primaryContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30),
         ),
@@ -17,13 +23,28 @@ class FiltersButton extends StatelessWidget {
         ),
       ),
       //TODO: open filters page
-      onPressed: () {},
+      onPressed: () async {
+        try {
+          await ref.read(authControllerProvider.notifier).signOut();
+          if (context.mounted) {
+            context.go(Routes.splashScreen);
+          }
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Logout failed: ${e.toString()}'),
+              ),
+            );
+          }
+        }
+      },
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(6),
-            decoration: const BoxDecoration(
-              color:Color.fromARGB(255, 199, 225, 207),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondaryContainer,
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -34,10 +55,7 @@ class FiltersButton extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             'Filters',
-            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
+            style: Theme.of(context).textTheme.titleMedium,
           ),
         ],
       ),

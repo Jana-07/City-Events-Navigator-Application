@@ -9,6 +9,7 @@ class CategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Material(
       borderRadius: BorderRadius.circular(25),
       color: category.color,
@@ -21,16 +22,12 @@ class CategoryItem extends StatelessWidget {
             children: [
               Icon(
                 category.icon,
-                color: Theme.of(context).colorScheme.onPrimary,
+                color: theme.colorScheme.onPrimary,
               ),
-              const SizedBox(
-                width: 5,
-              ),
+              const SizedBox(width: 5),
               Text(
                 category.name,
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
+                style: theme.textTheme.titleMedium,
               ),
             ],
           ),

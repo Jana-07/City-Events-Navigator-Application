@@ -10,13 +10,13 @@ class UpcomingEventItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SizedBox(
       width: 280, // Ensuring fixed width
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(22),
         ),
-        color: Theme.of(context).colorScheme.onPrimary,
         child: InkWell(
           borderRadius: BorderRadius.circular(22),
           onTap: () {},
@@ -45,36 +45,31 @@ class UpcomingEventItem extends StatelessWidget {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          color: const Color.fromARGB(255, 151, 158, 155),
+                          //color: const Color.fromARGB(255, 151, 158, 155),
+                          color: theme.colorScheme.outlineVariant,
                         ),
                         child: Text.rich(
                           TextSpan(children: [
                             TextSpan(
                               text: '${DateFormat.d().format(event.date)}\n',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimaryFixedVariant,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
+                              style: theme.textTheme.titleMedium!.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryFixedVariant,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
                             ),
                             TextSpan(
                               text: DateFormat.MMM()
                                   .format(event.date)
                                   .toUpperCase(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelLarge!
-                                  .copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimaryFixedVariant,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              style: theme.textTheme.labelLarge!.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryFixedVariant,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ]),
                           textAlign: TextAlign.center,
@@ -96,9 +91,7 @@ class UpcomingEventItem extends StatelessWidget {
                     children: [
                       Text(
                         event.name,
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: theme.textTheme.titleLarge,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -107,13 +100,13 @@ class UpcomingEventItem extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.favorite,
-                            color: const Color.fromARGB(255, 76, 108, 86),
+                            color: theme.primaryColor,
                           ),
                           const SizedBox(width: 3),
                           Text(
                             '1k+ Favorite',
                             style: TextStyle(
-                              color: const Color.fromARGB(255, 76, 108, 86),
+                              color: theme.primaryColor,
                             ),
                           ),
                         ],
@@ -123,13 +116,11 @@ class UpcomingEventItem extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.location_on,
-                            color: const Color.fromARGB(255, 117, 114, 114),
+                            color: const Color.fromARGB(255, 84, 87, 84),
                           ),
                           Text(
                             event.address,
-                            style: TextStyle(
-                              color: const Color.fromARGB(255, 117, 114, 114),
-                            ),
+                            style: theme.textTheme.titleSmall,
                           ),
                         ],
                       ),
