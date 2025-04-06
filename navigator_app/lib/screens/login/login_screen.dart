@@ -10,81 +10,66 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //final size = MediaQuery.of(context).size;
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Color(0xffe6f8ea),
-        body: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(tDefaultSize),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+    final size = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.primaryFixedDim,
+              colorScheme.primaryFixed,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        padding: const EdgeInsets.all(tDefaultSize),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Image(
-                      image: AssetImage("assets/onbordicon.png"),
-                      width: 200,
-                      height: 200,
-                    ),
-                  ],
+                SizedBox(height: size.height * 0.05),
+                Image(
+                  image: AssetImage("assets/onbordicon.png"),
+                  width: 200,
+                  height: 200,
                 ),
-                Text(tLoginTitle,
-                    style: Theme.of(context).textTheme.headlineLarge),
-                Text(tLoginSubTitle,
-                    style: Theme.of(context).textTheme.bodyLarge),
-                const LoginForm(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(
-                      height: tFormHeight - 20,
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(builder: (context) => SignUpScreen()),
-                        // );
-                        context.go(Routes.registerScreen);
-                      },
-                      child: Text.rich(
-                        TextSpan(
-                            text: tDontHaveAnAccount,
-                            style: Theme.of(context).textTheme.bodyLarge,
-                            children: const [
-                              TextSpan(
-                                text: tSignup,
-                                style: TextStyle(color: Colors.green),
-                              )
-                            ]),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: tFormHeight - 20,
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.home,
-                        color: Colors.green, // Change icon color to green
-                        size: 30, // Change icon size to 30 pixels
-                      ),
-                      onPressed: () {
-                        //   Navigator.pushReplacement(
-                        //       context,
-                        //       MaterialPageRoute(
-                        //         builder: (context) => SplashScreen(),
-                        //       ));
-                        // },
-                        context.go(Routes.splashScreen);
-                      },
-                    )
-                  ],
-                )
               ],
             ),
-          ),
+            Text(tLoginTitle, style: theme.textTheme.headlineLarge),
+            const SizedBox(height: 10),
+            Text(tLoginSubTitle, style: theme.textTheme.bodyLarge),
+            const SizedBox(height: 15),
+            const LoginForm(),
+            Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  tDontHaveAnAccount,
+                  style: theme.textTheme.bodyLarge,
+                ),
+                TextButton(
+                  onPressed: () => context.go(Routes.registerScreen),
+                  child: Text(tSignup),
+                ),
+              ],
+            ),
+            const SizedBox(height: tFormHeight - 20),
+            IconButton(
+              icon: Icon(
+                Icons.home,
+                color: colorScheme.primary,
+                size: 30,
+              ),
+              onPressed: () => context.go(Routes.splashScreen),
+            ),
+          ],
         ),
       ),
     );

@@ -13,21 +13,24 @@ class _AdminProfileState extends State<AdminProfile>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      //backgroundColor: Colors.white,
       appBar: AppBar(
         leading: const Icon(
           Icons.arrow_back,
         ),
         actions: const [Icon(Icons.more_vert)],
-        backgroundColor: Colors.white,
+        //backgroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             const CircleAvatar(
               radius: 50,
-              backgroundColor: Colors.white,
+              //backgroundColor: Colors.white,
               backgroundImage: AssetImage('assets/person.JPG'),
             ),
             const Text(
@@ -45,9 +48,9 @@ class _AdminProfileState extends State<AdminProfile>
               child: OutlinedButton(
                 onPressed: () {},
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFFFFF),
-                  side: const BorderSide(
-                    color: Colors.blue,
+                  //backgroundColor: const Color(0xFFFFFFFF),
+                  side: BorderSide(
+                    color: colorScheme.primary,
                     width: 2,
                   ),
                   shape: RoundedRectangleBorder(
@@ -56,11 +59,12 @@ class _AdminProfileState extends State<AdminProfile>
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   minimumSize: const Size(double.infinity, 50),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.edit_calendar_outlined, color: Colors.blue),
-                    SizedBox(
+                    Icon(Icons.edit_calendar_outlined,
+                        color: colorScheme.primary),
+                    const SizedBox(
                       width: 30,
                     ),
                     Text(
@@ -68,7 +72,7 @@ class _AdminProfileState extends State<AdminProfile>
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
-                        color: Colors.blue,
+                        color: colorScheme.primary,
                       ),
                     ),
                   ],
@@ -95,9 +99,9 @@ class _AdminProfileState extends State<AdminProfile>
               child: OutlinedButton(
                 onPressed: () {},
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFFFFF),
-                  side: const BorderSide(
-                    color: Colors.blue,
+                  //backgroundColor: const Color(0xFFFFFFFF),
+                  side: BorderSide(
+                    color: colorScheme.primary,
                     width: 2,
                   ),
                   shape: RoundedRectangleBorder(
@@ -106,10 +110,10 @@ class _AdminProfileState extends State<AdminProfile>
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   minimumSize: const Size(double.infinity, 50),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.add, color: Colors.blue),
+                    Icon(Icons.add, color: colorScheme.primary),
                     SizedBox(
                       width: 30,
                     ),
@@ -118,7 +122,7 @@ class _AdminProfileState extends State<AdminProfile>
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
-                        color: Colors.blue,
+                        color: colorScheme.primary,
                       ),
                     ),
                   ],
@@ -141,7 +145,7 @@ class _AdminProfileState extends State<AdminProfile>
         tabName,
         style: TextStyle(
           color: _currentTab == tabName
-              ? Colors.blue
+              ? Theme.of(context).colorScheme.primary
               : Colors.black, // Highlight selected tab
 
           fontWeight:
@@ -160,8 +164,8 @@ class _AdminProfileState extends State<AdminProfile>
             alignment: Alignment.centerLeft,
             child: SizedBox(
               width: MediaQuery.of(context).size.width * 0.5,
-              child: const Divider(
-                color: Colors.blue,
+              child: Divider(
+                color: Theme.of(context).colorScheme.primary,
                 indent: 2,
                 endIndent: 4,
               ),
@@ -181,8 +185,8 @@ class _AdminProfileState extends State<AdminProfile>
               alignment: Alignment.centerRight,
               child: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.5,
-                child: const Divider(
-                  color: Colors.blue,
+                child: Divider(
+                  color: Theme.of(context).colorScheme.primary,
                   indent: 2,
                   endIndent: 4,
                 ),
@@ -237,8 +241,8 @@ class _AdminProfileState extends State<AdminProfile>
         ),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.blue,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
           ),
         ),

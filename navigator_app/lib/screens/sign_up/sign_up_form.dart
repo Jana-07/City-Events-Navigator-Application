@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/constant/size.dart';
 import 'package:navigator_app/constant/text.dart';
 import 'package:navigator_app/services/auth_controller.dart';
+import 'package:navigator_app/widgets/app_text_form_field.dart';
+import 'package:navigator_app/widgets/login_button.dart';
 
 class SignUpForm extends ConsumerStatefulWidget {
   const SignUpForm({super.key});
@@ -13,6 +15,8 @@ class SignUpForm extends ConsumerStatefulWidget {
 class _SignUpFormState extends ConsumerState<SignUpForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   BuildContext? _progressIndicatorContext;
 
   @override
@@ -20,6 +24,8 @@ class _SignUpFormState extends ConsumerState<SignUpForm> {
     // dispose controllers
     _emailController.dispose();
     _passwordController.dispose();
+    _usernameController.dispose();
+    _phoneController.dispose();
 
     // close loading dialog when closing page
     if (_progressIndicatorContext != null &&
@@ -80,72 +86,38 @@ class _SignUpFormState extends ConsumerState<SignUpForm> {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: tFormHeight - 10.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            TextFormField(
-              //controller: controller.fullname,
-              decoration: InputDecoration(
-                prefixIcon: Icon(Icons.person_outline_rounded),
-                label: Text(tFullName),
-                border: OutlineInputBorder(),
-              ),
+            AppTextFormField(
+              controller: _usernameController,
+              labelText: tFullName,
+              hintText: tFullName,
+              icon: Icons.person_outline_rounded,
             ),
             const SizedBox(height: tFormHeight - 20),
-            TextFormField(
+            AppTextFormField(
               controller: _emailController,
-              decoration: InputDecoration(
-                prefixIcon: Icon(Icons.email_outlined),
-                labelText: tEmail,
-                hintText: "**********@gmail.com",
-                border: OutlineInputBorder(),
-              ),
+              labelText: tEmail,
+              hintText: 'example@gmail.com',
+              icon: Icons.email_outlined,
             ),
             const SizedBox(height: tFormHeight - 20),
-            TextFormField(
-              //controller: controller.phoneNo,
-              decoration: InputDecoration(
-                prefixIcon: Icon(Icons.numbers_rounded),
-                labelText: tPhoneNo,
-                hintText: "05********",
-                border: OutlineInputBorder(),
-              ),
+            AppTextFormField(
+              controller: _phoneController,
+              labelText: tPhoneNo,
+              hintText: '05********',
+              icon: Icons.phone_iphone_rounded,
             ),
             const SizedBox(height: tFormHeight - 20),
-            TextFormField(
+            AppTextFormField(
               controller: _passwordController,
-              decoration: InputDecoration(
-                prefixIcon: Icon(Icons.lock),
-                labelText: tPassword,
-                hintText: "********",
-                border: OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  onPressed: null,
-                  icon: Icon(Icons.remove_red_eye_sharp),
-                ),
-              ),
+              labelText: tPassword,
+              hintText: tPassword,
+              icon: Icons.lock_outline_rounded,
+              isPassword: true,
             ),
-            const SizedBox(height: tFormHeight - 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _signup, // Call the sign-up function
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  minimumSize: Size(MediaQuery.of(context).size.width - 40, 70),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: Text(
-                  "Sign Up",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 23.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+            const SizedBox(height: tFormHeight),
+            LoginButton(text: 'Sign Up', onPressed: _signup),
           ],
         ),
       ),

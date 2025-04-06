@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:navigator_app/screens/event_list_screen.dart';
 
 class SectionHeader extends StatelessWidget {
-  const SectionHeader({super.key, required this.title, required this.category});
+  const SectionHeader({super.key, required this.title, required this.onTab});
 
   final String title;
-  final String category;
+  final void Function() onTab;
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +21,7 @@ class SectionHeader extends StatelessWidget {
           ),
           Spacer(),
           InkWell(
-            onTap: () {
-              context.push('/event');
-            },
+            onTap: onTab,
             borderRadius: BorderRadius.circular(20),
             child: Padding(
               padding: const EdgeInsets.only(top: 4, bottom: 4, left: 8),

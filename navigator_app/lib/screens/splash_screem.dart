@@ -1,29 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigator_app/router/routes.dart';
+import 'package:navigator_app/widgets/login_button.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key});
+  const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SignUpState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SignUpState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
+    //double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Color(0xffc3d9c9),
-      body: Center(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.primaryFixedDim,
+              colorScheme.primaryFixed,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 50), // Add space at the top
+            SizedBox(height: screenHeight * 0.05),
             Align(
               alignment: Alignment.topCenter,
-              child: Image.asset("assets/onbordicon.png"),
+              child: Image.asset(
+                "assets/onbordicon.png",
+                width: 220,
+                height: 220,
+              ),
             ),
-            SizedBox(height: 10), // Add space between image and text
+            SizedBox(height: 10),
             Text(
               "Unlock the future of",
               style: TextStyle(
@@ -35,117 +54,52 @@ class _SignUpState extends State<SplashScreen> {
             Text(
               "Events navigator app",
               style: TextStyle(
-                color: Colors.green,
+                color: colorScheme.primary,
                 fontSize: 30.0,
                 fontWeight: FontWeight.bold,
               ),
             ),
             SizedBox(
-              height: 30.0,
+              height: 40.0,
             ),
             Text(
               "Discover and experience unforgettable moments effortlessly",
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white,
+                color: colorScheme.onPrimaryFixed,
                 fontSize: 20.0,
               ),
             ),
-            // Add this after your existing GestureDetector widget
-            SizedBox(height: 20.0), // Spacing between buttons
-
-// Login Button
-            ElevatedButton(
-              onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => LoginScreen()),
-                // );
-                context.go(Routes.loginScreen);
-              },
+            SizedBox(height: 50.0),
+            LoginButton(
+              text: 'Sign In',
+              onPressed: () => context.go(Routes.loginScreen),
+            ),
+            SizedBox(height: 20.0),
+            LoginButton(
+              text: 'Sign Up',
+              onPressed: () => context.go(Routes.registerScreen),
+            ),
+            const SizedBox(height: 60),
+            ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                minimumSize: Size(MediaQuery.of(context).size.width - 40, 70),
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                minimumSize: Size(270, 60),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(40),
                 ),
+                elevation: 10,
+                shadowColor: Colors.black.withAlpha(150),
               ),
-              child: Text(
-                "Login",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 23.0,
-                  fontWeight: FontWeight.bold,
-                ),
+              icon: Image.asset(
+                'assets/google_logo.jpg',
+                height: 24,
               ),
+              label: const Text("Sign in with Google"),
+              //TODO:Google signIn
+              onPressed: () {},
             ),
-
-            SizedBox(height: 15.0), // Spacing between buttons
-
-// Sign Up Button
-            ElevatedButton(
-              onPressed: () {
-              //   Navigator.push(
-              //     context,
-              //     MaterialPageRoute(builder: (context) => SignUpScreen()),
-              //   );
-              context.go(Routes.registerScreen);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                minimumSize: Size(MediaQuery.of(context).size.width - 40, 70),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              child: Text(
-                "Sign Up",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 23.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 50.0,
-            ),
-            GestureDetector(
-              onTap: () {
-                //TODO:google sign in
-                //AuthMethod().singInWithGoogle(context);
-              },
-              child: Container(
-                height: 70,
-                margin: EdgeInsets.only(left: 20.0, right: 20.0),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      "assets/img1.png",
-                      height: 50,
-                      width: 50,
-                      fit: BoxFit.cover,
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    Text(
-                      "   Sign in with google",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 23.0,
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            )
           ],
         ),
       ),

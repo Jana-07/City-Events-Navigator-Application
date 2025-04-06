@@ -14,7 +14,6 @@ import 'package:navigator_app/services/firebase_auth_repository.dart';
 import 'package:navigator_app/services/first_launch_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-
 part 'go_router_provider.g.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -43,8 +42,7 @@ GoRouter goRouter(Ref ref) {
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation:
-        isFirstLaunch? Routes.splashScreen : Routes.exploreScreen,
+    initialLocation: isFirstLaunch ? Routes.splashScreen : Routes.exploreScreen,
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -99,7 +97,6 @@ GoRouter goRouter(Ref ref) {
       GoRoute(
         path: Routes.loginScreen,
         builder: (context, state) => const LoginScreen(),
-        
       ),
       GoRoute(
         path: Routes.registerScreen,
@@ -115,14 +112,17 @@ GoRouter goRouter(Ref ref) {
       ),
     ],
     redirect: (context, state) {
-  final currentLocation = state.uri.toString(); // Get current route
-  if (authState == null &&
-      currentLocation != '/welcome' &&
-      currentLocation != '/login' &&
-      currentLocation != '/register') {
-    return '/welcome';
-  }
-  return null;
-},
+      final currentLocation = state.uri.toString();
+      if (authState.valueOrNull == null &&
+          currentLocation != Routes.splashScreen &&
+          currentLocation != Routes.loginScreen &&
+          currentLocation != Routes.registerScreen) {
+        return Routes.splashScreen;
+      } else if (authState.valueOrNull != null &&
+          currentLocation == Routes.registerScreen) {
+        return Routes.exploreScreen;
+      }
+      return null;
+    },
   );
 }

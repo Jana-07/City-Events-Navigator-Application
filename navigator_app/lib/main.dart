@@ -4,10 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/firebase_options.dart';
 import 'package:navigator_app/flex_theme.dart';
 import 'package:navigator_app/router/go_router_provider.dart';
-import 'package:navigator_app/screens/navigation.dart';
-import 'package:navigator_app/screens/profile_navigation.dart';
-import 'package:navigator_app/theme.dart';
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 void main() async {
   

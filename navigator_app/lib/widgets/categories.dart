@@ -5,6 +5,9 @@ import 'package:navigator_app/data/category_data.dart';
 class Categories extends StatelessWidget {
   const Categories({super.key});
 
+  //TODO
+  //final List<String> categories;
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(

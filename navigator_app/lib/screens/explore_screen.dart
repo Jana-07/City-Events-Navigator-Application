@@ -85,7 +85,7 @@ class ExploreScreen extends ConsumerWidget {
           const SizedBox(height: 30),
           SectionHeader(
             title: 'Upcoming Events',
-            category: 'upcoming',
+            onTab: () => context.push('/event'),
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -95,7 +95,7 @@ class ExploreScreen extends ConsumerWidget {
           const SizedBox(height: 40),
           SectionHeader(
             title: 'Recommendation',
-            category: 'recommendation',
+            onTab: () => context.push('/event'),
           ),
           SizedBox(
             //width: 400,

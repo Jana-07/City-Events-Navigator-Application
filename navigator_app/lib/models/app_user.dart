@@ -1,5 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+enum UserRole {
+  guest,
+  user,
+  organizer,
+}
+
 class AppUser {
   const AppUser({
     required this.uid,
@@ -13,18 +19,13 @@ class AppUser {
   final String? email;
   final bool emailVerified;
   final String? displayName;
-  final String role;
+  final UserRole role;
 
-  static AppUser? fromUser(User? user) {
-    if (user == null) {
-      return null;
-    }
+  factory AppUser.fromUser(User firebaseUser, {UserRole role = UserRole.user}) {
     return AppUser(
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      emailVerified: user.emailVerified,
-      role: 'user',
+      uid: firebaseUser.uid,
+      email: firebaseUser.email,
+      role: role,
     );
   }
 }

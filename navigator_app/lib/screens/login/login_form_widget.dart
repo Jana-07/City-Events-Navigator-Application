@@ -6,6 +6,8 @@ import 'package:navigator_app/constant/text.dart';
 import 'package:navigator_app/router/routes.dart';
 import 'package:navigator_app/services/auth_controller.dart';
 import 'package:navigator_app/services/first_launch_provider.dart';
+import 'package:navigator_app/widgets/app_text_form_field.dart';
+import 'package:navigator_app/widgets/login_button.dart';
 
 class LoginForm extends ConsumerStatefulWidget {
   const LoginForm({super.key});
@@ -44,6 +46,8 @@ class _LoginFormState extends ConsumerState<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     ref.listen(authControllerProvider, (prev, state) async {
       if (state.isLoading) {
         await showDialog(
@@ -59,7 +63,8 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       }
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         if (_progressIndicatorContext != null &&
-            _progressIndicatorContext!.mounted) {
+            //_progressIndicatorContext!.mounted) {
+              Navigator.of(context).canPop()) {
           Navigator.of(_progressIndicatorContext!).pop();
           _progressIndicatorContext = null;
         }
@@ -78,35 +83,29 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: tFormHeight - 10.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            TextFormField(
+            AppTextFormField(
               controller: _emailController,
-              decoration: InputDecoration(
-                prefixIcon: Icon(Icons.person_outline_outlined),
-                labelText: tEmail,
-                hintText: tEmail,
-                border: OutlineInputBorder(),
-              ),
+              labelText: tEmail,
+              hintText: tEmail,
+              icon: Icons.person_2_outlined,
             ),
-            const SizedBox(height: tFormHeight - 20),
-            TextFormField(
+            SizedBox(height: tFormHeight - 20),
+            AppTextFormField(
               controller: _passwordController,
-              decoration: InputDecoration(
-                prefixIcon: Icon(Icons.fingerprint),
-                labelText: tPassword,
-                hintText: tPassword,
-                border: OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  onPressed: null,
-                  icon: Icon(Icons.remove_red_eye_sharp),
-                ),
-              ),
+              labelText: tPassword,
+              hintText: tPassword,
+              icon: Icons.lock_outline,
+              isPassword: true,
             ),
-            const SizedBox(height: tFormHeight - 20),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
+                child: Text(
+                  "Forget Password?",
+                  style: theme.textTheme.labelLarge,
+                ),
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
@@ -117,29 +116,22 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                         children: [
                           Text(
                             tResetViaEMail,
-                            style: Theme.of(context).textTheme.headlineSmall,
+                            style: theme.textTheme.headlineSmall,
                           ),
                           const SizedBox(height: tFormHeight),
                           Form(
                             child: Column(
                               children: [
-                                TextFormField(
-                                  decoration: InputDecoration(
-                                    label: Text(tEmail),
-                                    hintText: tEmail,
-                                    prefixIcon:
-                                        Icon(Icons.mail_outline_rounded),
-                                  ),
+                                AppTextFormField(
+                                  controller: _emailController,
+                                  labelText: tEmail,
+                                  hintText: tEmail,
+                                  icon: Icons.mail_outline_rounded,
                                 ),
-                                const SizedBox(height: 20),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      //Get.to(() => const OTPScreen());
-                                    },
-                                    child: Text("Will do it later"),
-                                  ),
+                                const SizedBox(height: 40),
+                                LoginButton(
+                                  text: 'Send Password Rest',
+                                  onPressed: () {},
                                 ),
                               ],
                             ),
@@ -149,36 +141,16 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                     ),
                   );
                 },
-                child: const Text(
-                  "Forget Password?",
-                  style: TextStyle(color: Colors.green),
-                ),
               ),
             ),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
+            const SizedBox(height: 18),
+            LoginButton(
+                text: 'Login',
                 onPressed: () async {
                   _signIn();
                   await ref.read(markAppLaunchedProvider.future);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  minimumSize: Size(MediaQuery.of(context).size.width - 40, 70),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: Text(
-                  "Login",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 23.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+                }),
+            
           ],
         ),
       ),
