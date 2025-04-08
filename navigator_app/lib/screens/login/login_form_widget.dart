@@ -63,14 +63,13 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       }
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         if (_progressIndicatorContext != null &&
-            //_progressIndicatorContext!.mounted) {
-              Navigator.of(context).canPop()) {
+            _progressIndicatorContext!.mounted) {
           Navigator.of(_progressIndicatorContext!).pop();
           _progressIndicatorContext = null;
         }
       });
       if (state.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(
+         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             behavior: SnackBarBehavior.floating,
             content: Text('Error: ${state.error}'),
@@ -150,7 +149,6 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   _signIn();
                   await ref.read(markAppLaunchedProvider.future);
                 }),
-            
           ],
         ),
       ),

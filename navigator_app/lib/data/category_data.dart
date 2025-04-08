@@ -9,16 +9,16 @@ final List<Category> categories = [
   ),
   Category(
     name: 'Food',
-    icon: Icons.restaurant_menu,
+    icon: Icons.restaurant_menu_outlined,
     color: Color.fromARGB(255, 184, 66, 66),
   ),
   Category(
     name: 'Sports',
-    icon: Icons.sports_basketball,
+    icon: Icons.sports_basketball_outlined,
     color: Color.fromARGB(255, 38, 141, 244),
   ),
   Category(
-    name: 'Art',
+    name: 'Galllery',
     icon: Icons.draw_outlined,
     color: Color.fromARGB(255, 95, 44, 95),
   ),
@@ -28,8 +28,13 @@ final List<Category> categories = [
     color: Color.fromARGB(255, 85, 85, 85),
   ),
   Category(
-    name: 'Tech',
-    icon: Icons.confirmation_number_outlined,
+    name: 'Education',
+    icon: Icons.cast_for_education_outlined,
     color: Color.fromARGB(255, 122, 205, 205),
+  ),
+  Category(
+    name: 'Other',
+    icon: Icons.add_to_photos_outlined,
+    color: Color.fromARGB(255, 76, 120, 83),
   ),
 ];
