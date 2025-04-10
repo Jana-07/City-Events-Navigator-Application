@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:navigator_app/models/event.dart';
+
 final List<Event> dummyEvents = [
   Event(
     id: 'event001',

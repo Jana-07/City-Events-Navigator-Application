@@ -50,7 +50,7 @@ class EventItem extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        event.name,
+                        event.title,
                         style: theme.textTheme.titleLarge,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -62,9 +62,13 @@ class EventItem extends StatelessWidget {
                             Icons.location_on,
                             color: const Color.fromARGB(255, 84, 87, 84),
                           ),
-                          Text(
-                            event.address,
-                            style: theme.textTheme.titleSmall,
+                          Flexible(
+                            child: Text(
+                              event.address,
+                              style: theme.textTheme.titleSmall,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),

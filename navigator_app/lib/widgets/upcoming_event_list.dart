@@ -17,7 +17,7 @@ class UpcomingEventsList extends StatelessWidget {
       itemBuilder: (ctx, index) {
         final event = events[index];
         return UpcomingEventItem(
-          key: ValueKey(event.name),
+          key: ValueKey(event.title),
           event: event,
         );
       },
