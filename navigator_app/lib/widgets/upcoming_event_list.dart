@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 
-import 'package:navigator_app/data/event_data.dart';
+import 'package:navigator_app/models/event.dart';
 import 'package:navigator_app/widgets/upcoming_events_item.dart';
 
 class UpcomingEventsList extends StatelessWidget {
-  const UpcomingEventsList({super.key});
+  const UpcomingEventsList({super.key, required this.events});
+
+  final List<Event> events;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return ListView.separated(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      itemCount: events.length,
       scrollDirection: Axis.horizontal,
-      children:
-          dummyEvents.map((event) => UpcomingEventItem(event: event)).toList(),
+      itemBuilder: (ctx, index) {
+        final event = events[index];
+        return UpcomingEventItem(
+          key: ValueKey(event.name),
+          event: event,
+        );
+      },
+      separatorBuilder: (ctx, index) => const SizedBox(width: 20),
     );
   }
 }

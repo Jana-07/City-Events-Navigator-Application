@@ -9,29 +9,32 @@ class CategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        shape: BoxShape.rectangle,
+    return Material(
+      borderRadius: BorderRadius.circular(25),
+      color: category.color,
+      child: InkWell(
+        onTap: () {},
         borderRadius: BorderRadius.circular(25),
-        color: category.color,
-      ),
-      child: Row(
-        children: [
-          Icon(
-            category.icon,
-            color: Theme.of(context).colorScheme.onPrimary,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              Icon(
+                category.icon,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              Text(
+                category.name,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+              ),
+            ],
           ),
-          const SizedBox(
-            width: 5,
-          ),
-          Text(
-            category.name,
-            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-          ),
-        ],
+        ),
       ),
     );
   }

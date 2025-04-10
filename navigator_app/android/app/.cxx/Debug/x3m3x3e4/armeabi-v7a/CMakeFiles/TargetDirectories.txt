@@ -1,0 +1,2 @@
+C:/Users/janax/City-Events-Navigator-Application/navigator_app/android/app/.cxx/Debug/x3m3x3e4/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/janax/City-Events-Navigator-Application/navigator_app/android/app/.cxx/Debug/x3m3x3e4/armeabi-v7a/CMakeFiles/rebuild_cache.dir

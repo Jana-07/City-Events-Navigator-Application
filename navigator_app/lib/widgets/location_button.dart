@@ -21,12 +21,25 @@ class _LocationButtonState extends State<LocationButton> {
   final TextEditingController locationController = TextEditingController();
 
   @override
+  void dispose() {
+    locationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return DropdownMenu(
       hintText: 'Select City',
       //TODO
       //initialSelection: Current user location,
       controller: locationController,
+      onSelected: (String? city) {
+        setState(() {
+          if (city != null) {
+            locationController.text = city;
+          }
+        });
+      },
       dropdownMenuEntries: cities
           .map<DropdownMenuEntry<String>>(
             (String city) => DropdownMenuEntry(value: city, label: city),
