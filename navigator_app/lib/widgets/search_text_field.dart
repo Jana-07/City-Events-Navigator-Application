@@ -6,22 +6,17 @@ class SearchTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextEditingController searchController = TextEditingController();
-    
+    final theme = Theme.of(context);
     return TextField(
       controller: searchController,
-      //color and text theme of the searched text
-      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
+      style: theme.textTheme.titleMedium,
       decoration: InputDecoration(
+        fillColor: theme.primaryColor,
         border: InputBorder.none,
         hintText: 'Search..',
-        hintStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              color: Theme.of(context).colorScheme.onPrimary.withAlpha(130),
-              fontSize: 20,
-            ),
+        hintStyle: theme.textTheme.titleMedium,
       ),
-      cursorColor: Theme.of(context).colorScheme.onPrimary.withAlpha(130),
+      cursorColor: theme.colorScheme.onPrimary.withAlpha(130),
     );
   }
 }

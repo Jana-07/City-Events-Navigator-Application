@@ -1,61 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:navigator_app/screens/explore_screen.dart';
-import 'package:navigator_app/screens/profile_screen.dart';
+import 'package:go_router/go_router.dart';
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class Navigation extends StatelessWidget {
+  const Navigation({
+    required this.navigationShell,
+    Key? key,
+    //super.key,
+  }) : super(key: key ?? const ValueKey<String>('MainScreen'));
 
-  @override
-  State<MainScreen> createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  int currentScreenIndex = 2;
-
-  final List<Widget> screens = [
-    Container(),
-    Container(),
-    const ExploreScreen(),
-    Container(),
-    const ProfileScreen(),
-  ];
+  final StatefulNavigationShell navigationShell;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      body: screens[currentScreenIndex],
-      bottomNavigationBar: NavigationBarTheme(
+      body: navigationShell,
+      bottomNavigationBar: 
+      NavigationBarTheme(
         data: NavigationBarThemeData(
-          backgroundColor: Colors.white, // Whole bar background color
-          indicatorColor: Theme.of(context).colorScheme.secondary,
-          indicatorShape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25), // Rounded corners
-          ),
+          indicatorColor: theme.primaryColor,
           labelTextStyle:
               WidgetStateProperty.resolveWith((Set<WidgetState> states) {
             if (states.contains(WidgetState.selected)) {
               return TextStyle(
-                color: Theme.of(context).colorScheme.secondary,
+                color: theme.primaryColor,
                 fontWeight: FontWeight.bold,
               );
             }
-            return TextStyle(color: const Color.fromARGB(255, 78, 78, 78)); // Default label color
+            return TextStyle(
+                color: const Color.fromARGB(255, 96, 96, 96)); // Default label color
           }),
           iconTheme: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
             if (states.contains(WidgetState.selected)) {
               return IconThemeData(color: Colors.white); // Selected icon color
             }
-            return IconThemeData(color: Colors.grey); // Default icon color
+            return IconThemeData(color: const Color.fromARGB(255, 96, 96, 96)); // Default icon color
           }),
         ),
-        child: NavigationBar(
-          onDestinationSelected: (int index) {
-            setState(() {
-              currentScreenIndex = index;
-            });
-          },
-          selectedIndex: currentScreenIndex,
-          destinations: [
+        child: 
+        NavigationBar(
+          selectedIndex: navigationShell.currentIndex,
+          onDestinationSelected: navigationShell.goBranch,
+          destinations: const [
             NavigationDestination(
               icon: Icon(Icons.settings),
               label: 'Settings',

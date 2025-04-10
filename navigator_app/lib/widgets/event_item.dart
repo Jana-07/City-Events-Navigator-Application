@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+
 import 'package:navigator_app/models/event.dart';
 import 'package:navigator_app/widgets/favorite_button.dart';
-import 'package:intl/intl.dart';
 
 class EventItem extends StatelessWidget {
   const EventItem({super.key, required this.event});
@@ -11,25 +11,25 @@ class EventItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     const String image =
         'https://platinumlist.net/guide/wp-content/uploads/2024/08/Saudi-National-Day-1.jpg';
     return SizedBox(
       height: 140,
       child: Card(
         clipBehavior: Clip.hardEdge,
-        color: Colors.white,
         child: InkWell(
           onTap: () {},
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(8),
-             child: Row(
+            child: Row(
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.network(
                     image,
-                    width: 100,
+                    width: 110,
                     height: 110,
                     fit: BoxFit.cover,
                   ),
@@ -42,46 +42,29 @@ class EventItem extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            DateFormat('yyyy-MM-dd').format(event.date),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall!
-                                .copyWith(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
+                              DateFormat('EEE, MMMM d, h:mm a')
+                                  .format(event.date),
+                              style: theme.textTheme.labelLarge),
                           Spacer(),
                           FavoriteButton(),
                         ],
                       ),
                       Text(
                         event.name,
-                        style:
-                            Theme.of(context).textTheme.titleMedium!.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
+                        style: theme.textTheme.titleLarge,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 24),
                       Row(
                         children: [
                           Icon(
                             Icons.location_on,
-                            color: const Color.fromARGB(255, 120, 120, 120),
+                            color: const Color.fromARGB(255, 84, 87, 84),
                           ),
                           Text(
                             event.address,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(
-                                  fontWeight: FontWeight.w300,
-                                  color:
-                                      const Color.fromARGB(255, 120, 120, 120),
-                                ),
+                            style: theme.textTheme.titleSmall,
                           ),
                         ],
                       ),

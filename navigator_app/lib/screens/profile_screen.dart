@@ -1,7 +1,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:navigator_app/constant/tool_utilities.dart';
+import 'package:go_router/go_router.dart';
+import 'package:navigator_app/data/category_data.dart';
+import 'package:navigator_app/data/event_data.dart';
+import 'package:navigator_app/widgets/category_item.dart';
+import 'package:navigator_app/widgets/events_list.dart';
+import 'package:navigator_app/widgets/section_header.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,23 +18,26 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      //backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        //backgroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.edit_calendar_rounded,
-            color: ToolsUtilites.buttonColor,
+            color: colorScheme.primary,
           ),
           onPressed: () {
             // Handle back button press
           },
         ),
-        title: const Text(
+        title: Text(
           'Edit Profile',
           style: TextStyle(
-            color: Colors.green,
+            color: colorScheme.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -58,90 +66,107 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 20),
             const Text(
-              'Interest',
+              'Interests',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 10),
             Wrap(
               spacing: 8.0,
-              children: <Widget>[
-                _buildInterestChip('Conferences'),
-                _buildInterestChip('Sport'),
-                _buildInterestChip('Festivals'),
-                _buildInterestChip('Art'),
-                _buildInterestChip('Movie'),
-                _buildInterestChip('Others'),
-              ],
+              runSpacing: 8.0,
+              children: categories
+                  .map((category) => CategoryItem(category: category))
+                  .toList(),
             ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Favorite',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('See All'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            _buildEventCard(
-              'Winter at Tantora',
-              '1ST MAY-SAT-2:00 PM',
 
-              'Al-Ula',
-              'assets/w.JPG', // Replace with your image path
+            // Wrap(
+            //   spacing: 8.0,
+            //   children: <Widget>[
+            //     _buildInterestChip('Conferences'),
+            //     _buildInterestChip('Sport'),
+            //     _buildInterestChip('Festivals'),
+            //     _buildInterestChip('Art'),
+            //     _buildInterestChip('Movie'),
+            //     _buildInterestChip('Others'),
+            //   ],
+            // ),
+            const SizedBox(height: 40),
+            SectionHeader(
+              title: 'Favorite',
+              onTab: () => context.push('/event'),
             ),
-            _buildEventCard(
-              'Jeddah Season',
-              '1ST MAY-SAT-2:00 PM',
-
-              'Jeddah',
-
-              'assets/ww.JPG', // Replace with your image path
+            SizedBox(
+              //width: 400,
+              height: 300,
+              child: EventsList(events: dummyEvents),
             ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Recent events',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('See All'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            _buildEventCard(
-              'Jeddah Season',
-              '1ST MAY-SAT-2:00 PM',
+            //   Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       const Text(
+            //         'Favorite',
+            //         style: TextStyle(
+            //           fontSize: 18,
+            //           fontWeight: FontWeight.bold,
+            //         ),
+            //       ),
+            //       TextButton(
+            //         onPressed: () {},
+            //         child: const Text('See All'),
+            //       ),
+            //     ],
+            //   ),
+            //   const SizedBox(height: 10),
+            //   _buildEventCard(
+            //     'Winter at Tantora',
+            //     '1ST MAY-SAT-2:00 PM',
 
-              'Jeddah',
+            //     'Al-Ula',
+            //     'assets/w.JPG', // Replace with your image path
+            //   ),
+            //   _buildEventCard(
+            //     'Jeddah Season',
+            //     '1ST MAY-SAT-2:00 PM',
 
-              'assets/ww.JPG', // Replace with your image path
-            ),
-            _buildEventCard(
-              'Jeddah Season',
-              '1ST MAY-SAT-2:00 PM',
+            //     'Jeddah',
 
-              'Jeddah',
-              'assets/ww.JPG', // Replace with your image path
-            ),
+            //     'assets/ww.JPG', // Replace with your image path
+            //   ),
+            //   const SizedBox(height: 20),
+            //   Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: [
+            //       const Text(
+            //         'Recent events',
+            //         style: TextStyle(
+            //           fontSize: 18,
+            //           fontWeight: FontWeight.bold,
+            //         ),
+            //       ),
+            //       TextButton(
+            //         onPressed: () {},
+            //         child: const Text('See All'),
+            //       ),
+            //     ],
+            //   ),
+            //   const SizedBox(height: 10),
+            //   _buildEventCard(
+            //     'Jeddah Season',
+            //     '1ST MAY-SAT-2:00 PM',
+
+            //     'Jeddah',
+
+            //     'assets/ww.JPG', // Replace with your image path
+            //   ),
+            //   _buildEventCard(
+            //     'Jeddah Season',
+            //     '1ST MAY-SAT-2:00 PM',
+
+            //     'Jeddah',
+            //     'assets/ww.JPG', // Replace with your image path
+            //   ),
           ],
         ),
       ),
@@ -162,51 +187,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildEventCard(
-    String time,
-    String title,
-    String subtitle,
-    String image, {
-    String? location,
-    // Add image parameter
-  }) {
-    return Card(
-      color: Colors.white,
-      child: ListTile(
-        leading: Image.asset(
-          image,
-          width: 50, // Adjust size as needed
-          height: 200,
-          fit: BoxFit.fill,
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.green,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              time,
-              style: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            Row(
-              children: [const Icon(Icons.location_on), Text(subtitle)],
-            ),
-            //if (subtitle.isNotEmpty) Text(subtitle),
-          ],
-        ),
-        trailing: const Icon(Icons.favorite_border),
-      ),
-    );
-  }
+  // Widget _buildEventCard(
+  //   String time,
+  //   String title,
+  //   String subtitle,
+  //   String image, {
+  //   String? location,
+  //   // Add image parameter
+  // }) {
+  //   return Card(
+  //     color: Colors.white,
+  //     child: ListTile(
+  //       leading: Image.asset(
+  //         image,
+  //         width: 50, // Adjust size as needed
+  //         height: 200,
+  //         fit: BoxFit.fill,
+  //       ),
+  //       title: Text(
+  //         title,
+  //         style: const TextStyle(
+  //           color: Colors.green,
+  //           fontWeight: FontWeight.bold,
+  //         ),
+  //       ),
+  //       subtitle: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             time,
+  //             style: const TextStyle(
+  //               color: Colors.black,
+  //               fontWeight: FontWeight.bold,
+  //             ),
+  //           ),
+  //           const SizedBox(
+  //             height: 30,
+  //           ),
+  //           Row(
+  //             children: [const Icon(Icons.location_on), Text(subtitle)],
+  //           ),
+  //           //if (subtitle.isNotEmpty) Text(subtitle),
+  //         ],
+  //       ),
+  //       trailing: const Icon(Icons.favorite_border),
+  //     ),
+  //   );
+  //}
 }

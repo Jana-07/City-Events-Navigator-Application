@@ -28,8 +28,9 @@ class _LocationButtonState extends State<LocationButton> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return DropdownMenu(
-      hintText: 'Select City',
+      hintText: 'Select a City',
       //TODO
       //initialSelection: Current user location,
       controller: locationController,
@@ -49,20 +50,15 @@ class _LocationButtonState extends State<LocationButton> {
       requestFocusOnTap: true,
       enableFilter: true,
       textAlign: TextAlign.end,
-      textStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
+      textStyle: theme.textTheme.titleMedium,
       inputDecorationTheme: InputDecorationTheme(
-        hintStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
-              color: Theme.of(context).colorScheme.onPrimary.withAlpha(200),
-              fontWeight: FontWeight.w500,
-            ),
+        hintStyle: theme.textTheme.titleMedium,
         border: InputBorder.none,
-        suffixIconColor: Theme.of(context).colorScheme.onPrimary,
+        suffixIconColor: theme.colorScheme.onPrimary,
       ),
       trailingIcon: Icon(
         Icons.arrow_drop_down,
-        color: Theme.of(context).colorScheme.onPrimary,
+        color: theme.colorScheme.onPrimary,
       ),
     );
   }

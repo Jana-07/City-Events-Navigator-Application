@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:navigator_app/data/event_data.dart';
 
 import 'package:navigator_app/widgets/categories.dart';
@@ -9,13 +11,15 @@ import 'package:navigator_app/widgets/search_text_field.dart';
 import 'package:navigator_app/widgets/section_header.dart';
 import 'package:navigator_app/widgets/upcoming_event_list.dart';
 
-class ExploreScreen extends StatelessWidget {
+class ExploreScreen extends ConsumerWidget {
   const ExploreScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return SingleChildScrollView(
       child: Column(
@@ -26,7 +30,7 @@ class ExploreScreen extends StatelessWidget {
                 width: screenWidth,
                 height: screenHeight * 0.27,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
+                  color: theme.primaryColor,
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(35),
                     bottomRight: Radius.circular(35),
@@ -37,8 +41,8 @@ class ExploreScreen extends StatelessWidget {
                 children: [
                   Padding(
                     padding: EdgeInsets.only(
-                      left: 24,
-                      right: 24,
+                        left: 24,
+                        right: 24,
                         top: MediaQuery.of(context).padding.top),
                     child: Row(
                       children: [
@@ -49,7 +53,7 @@ class ExploreScreen extends StatelessWidget {
                         IconButton(
                           onPressed: () {},
                           icon: Icon(Icons.notifications_none),
-                          color: Colors.white,
+                          color: colorScheme.onPrimary,
                         ),
                       ],
                     ),
@@ -61,7 +65,7 @@ class ExploreScreen extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.search,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: colorScheme.onPrimary,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -79,14 +83,20 @@ class ExploreScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 30),
-          SectionHeader(title: 'Upcoming Events'),
+          SectionHeader(
+            title: 'Upcoming Events',
+            onTab: () => context.push('/event'),
+          ),
           const SizedBox(height: 20),
           SizedBox(
             height: 300,
             child: UpcomingEventsList(events: dummyEvents ?? []),
           ),
           const SizedBox(height: 40),
-          SectionHeader(title: 'Recommendation'),
+          SectionHeader(
+            title: 'Recommendation',
+            onTab: () => context.push('/event'),
+          ),
           SizedBox(
             //width: 400,
             height: 300,
