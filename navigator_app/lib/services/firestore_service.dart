@@ -1,8 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-/// A service class that handles direct interactions with Firebase Firestore.
-/// This class provides low-level access to Firestore operations.
 class FirestoreService {
   FirestoreService({
     FirebaseFirestore? firestore,

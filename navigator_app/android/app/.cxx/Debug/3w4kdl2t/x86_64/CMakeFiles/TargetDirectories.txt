@@ -1,0 +1,2 @@
+C:/Users/Admin/flutter_projects/City-Events-Navigator-Application/navigator_app/android/app/.cxx/Debug/3w4kdl2t/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/Admin/flutter_projects/City-Events-Navigator-Application/navigator_app/android/app/.cxx/Debug/3w4kdl2t/x86_64/CMakeFiles/rebuild_cache.dir

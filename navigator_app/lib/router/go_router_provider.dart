@@ -10,7 +10,7 @@ import 'package:navigator_app/screens/navigation.dart';
 import 'package:navigator_app/router/routes.dart';
 import 'package:navigator_app/screens/sign_up/sign_up_screen.dart';
 import 'package:navigator_app/screens/splash_screem.dart';
-import 'package:navigator_app/services/firebase_auth_repository.dart';
+import 'package:navigator_app/services/firebase_rivrpod_provider.dart';
 import 'package:navigator_app/services/first_launch_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

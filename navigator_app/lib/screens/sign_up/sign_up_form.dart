@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/constant/size.dart';
 import 'package:navigator_app/constant/text.dart';
 import 'package:navigator_app/services/auth_controller.dart';
+import 'package:navigator_app/services/firebase_rivrpod_provider.dart';
 import 'package:navigator_app/widgets/app_text_form_field.dart';
 import 'package:navigator_app/widgets/login_button.dart';
 
@@ -30,7 +31,7 @@ class _SignUpFormState extends ConsumerState<SignUpForm> {
     // close loading dialog when closing page
     if (_progressIndicatorContext != null &&
         _progressIndicatorContext!.mounted) {
-      Navigator.of(_progressIndicatorContext!).pop();
+      //Navigator.of(_progressIndicatorContext!).pop();
       _progressIndicatorContext = null;
     }
     super.dispose();
@@ -38,6 +39,7 @@ class _SignUpFormState extends ConsumerState<SignUpForm> {
 
   Future<void> _signup() async {
     final auth = ref.read(authControllerProvider.notifier);
+    //final authRepo = ref.watch(authRepositoryProvider);
     await auth.createUserWithEmailAndPassword(
       _emailController.text.trim(),
       _passwordController.text.trim(),
@@ -66,7 +68,7 @@ class _SignUpFormState extends ConsumerState<SignUpForm> {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         if (_progressIndicatorContext != null &&
             _progressIndicatorContext!.mounted) {
-          Navigator.of(_progressIndicatorContext!).pop();
+          //Navigator.of(_progressIndicatorContext!).pop();
           _progressIndicatorContext = null;
         }
       });

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:navigator_app/constant/size.dart';
 import 'package:navigator_app/constant/text.dart';
-import 'package:navigator_app/router/routes.dart';
 import 'package:navigator_app/services/auth_controller.dart';
+import 'package:navigator_app/services/firebase_rivrpod_provider.dart';
 import 'package:navigator_app/services/first_launch_provider.dart';
 import 'package:navigator_app/widgets/app_text_form_field.dart';
 import 'package:navigator_app/widgets/login_button.dart';
@@ -37,11 +36,12 @@ class _LoginFormState extends ConsumerState<LoginForm> {
 
   Future<void> _signIn() async {
     final auth = ref.watch(authControllerProvider.notifier);
-
+    final authRepo = ref.watch(authRepositoryProvider);
     await auth.signInWithEmailAndPassword(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
+    print(authRepo.currentUser?.email ?? 'null!');
   }
 
   @override
@@ -64,7 +64,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         if (_progressIndicatorContext != null &&
             _progressIndicatorContext!.mounted) {
-          Navigator.of(_progressIndicatorContext!).pop();
+          //Navigator.of(_progressIndicatorContext!).pop();
           _progressIndicatorContext = null;
         }
       });

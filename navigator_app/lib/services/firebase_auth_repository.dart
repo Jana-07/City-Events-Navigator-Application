@@ -1,26 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:navigator_app/models/app_user.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-part 'firebase_auth_repository.g.dart';
-
-@Riverpod(keepAlive: true)
-FirebaseAuthRepository authRepository(Ref ref) {
-  final auth = ref.watch(firebaseAuthProvider);
-  return FirebaseAuthRepository(auth);
-}
-
-@Riverpod(keepAlive: true)
-FirebaseAuth firebaseAuth(Ref ref) {
-  return FirebaseAuth.instance;
-}
-
-@Riverpod(keepAlive: true)
-Stream<AppUser?> authStateChanges(Ref ref) {
-  final auth = ref.watch(authRepositoryProvider);
-  return auth.authStateChanges();
-}
+import 'package:navigator_app/services/exception_errors.dart';
 
 class FirebaseAuthRepository {
   FirebaseAuthRepository(this._firebaseAuth);
@@ -36,27 +16,67 @@ class FirebaseAuthRepository {
     return _firebaseAuth.authStateChanges().map(_convertUser);
   }
 
-  Future<void> signInWithEmailAndPassword({
+  Future<AppUser> signInWithEmailAndPassword({
     required String email,
     required String password,
-  }) {
-    return _firebaseAuth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+  }) async {
+    try {
+      final userCredential = await _firebaseAuth
+          .signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          )
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => throw NetworkException(),
+          );
+      final user = _convertUser(userCredential.user);
+      if (user == null) {
+        throw AuthException('Failed to get user data after sign in');
+      }
+
+      return user;
+    } on FirebaseAuthException catch (e) {
+      throw AuthException.fromCode(e.code);
+    } on Exception catch (e) {
+      throw AuthException('Unexpected error: $e');
+    }
   }
 
-  Future<void> createUserWithEmailAndPassword({
+  Future<AppUser> createUserWithEmailAndPassword({
     required String email,
     required String password,
-  }) {
-    return _firebaseAuth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+  }) async {
+    try {
+      final userCredential = await _firebaseAuth
+          .createUserWithEmailAndPassword(
+            email: email,
+            password: password,
+          )
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => throw NetworkException(),
+          );
+      final user = _convertUser(userCredential.user);
+      if (user == null) {
+        throw AuthException('Failed to get user data after sign in');
+      }
+
+      return user;
+    } on FirebaseAuthException catch (e) {
+      throw AuthException.fromCode(e.code);
+    } on Exception catch (e) {
+      throw AuthException('Unexpected error: $e');
+    }
   }
 
   Future<void> signOut() async {
-    return _firebaseAuth.signOut();
+    try {
+    await _firebaseAuth.signOut();
+  } on FirebaseAuthException catch (e) {
+    throw AuthException('Sign out error: ${e.message}');
+  } on Exception catch (e) {
+    throw AuthException('Unexpected error during sign out: $e');
+  }
   }
 }
