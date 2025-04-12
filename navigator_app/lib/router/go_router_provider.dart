@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:navigator_app/screens/event_list_screen.dart';
-import 'package:navigator_app/screens/explore_screen.dart';
-import 'package:navigator_app/screens/login/login_screen.dart';
-import 'package:navigator_app/screens/profile_screen.dart';
-import 'package:navigator_app/screens/admin_profile.dart';
-import 'package:navigator_app/screens/navigation.dart';
-import 'package:navigator_app/router/routes.dart';
-import 'package:navigator_app/screens/sign_up/sign_up_screen.dart';
-import 'package:navigator_app/screens/splash_screem.dart';
-import 'package:navigator_app/services/firebase_rivrpod_provider.dart';
-import 'package:navigator_app/services/first_launch_provider.dart';
+import 'package:navigator_app/data/event_data.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import 'package:navigator_app/router/routes.dart';
+import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
+import 'package:navigator_app/providers/first_launch_provider.dart';
+
+import 'package:navigator_app/ui/screens/screens.dart';
 
 part 'go_router_provider.g.dart';
 
@@ -52,7 +48,7 @@ GoRouter goRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.settingScreen,
-                builder: (context, state) => Container(),
+                builder: (context, state) => const CreateEditEventScreen(),
               ),
             ],
           ),
@@ -60,7 +56,7 @@ GoRouter goRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.eventsScreen,
-                builder: (context, state) => Container(),
+                builder: (context, state) => EventDetailsScreen(event:  dummyEvents[1],),
               ),
             ],
           ),
@@ -76,7 +72,7 @@ GoRouter goRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.profileScreen,
-                builder: (context, state) => const ProfileScreen(),
+                builder: (context, state) => const SearchFilterScreen(),
               ),
             ],
           ),
@@ -84,7 +80,7 @@ GoRouter goRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.adminpScreen,
-                builder: (context, state) => const AdminProfile(),
+                builder: (context, state) => const FilterScreen(),
               ),
             ],
           ),

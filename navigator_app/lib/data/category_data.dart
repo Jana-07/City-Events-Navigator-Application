@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:navigator_app/models/categoy.dart';
+import 'package:navigator_app/data/models/categoy.dart';
 
 final List<Category> categories = [
   Category(
