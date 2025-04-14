@@ -55,7 +55,7 @@ class LoginScreen extends StatelessWidget {
                   style: theme.textTheme.bodyLarge,
                 ),
                 TextButton(
-                  onPressed: () => context.go(Routes.registerScreen),
+                  onPressed: () => context.go(Routes.register),
                   child: Text(tSignup),
                 ),
               ],
@@ -67,7 +67,7 @@ class LoginScreen extends StatelessWidget {
                 color: colorScheme.primary,
                 size: 30,
               ),
-              onPressed: () => context.go(Routes.splashScreen),
+              onPressed: () => context.go(Routes.splash),
             ),
           ],
         ),

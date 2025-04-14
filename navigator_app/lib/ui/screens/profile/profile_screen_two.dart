@@ -16,7 +16,7 @@ class ProfileScreenTwo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final currentUserAsync = ref.watch(currentUserProvider);
+    final currentUserAsync = ref.watch(authStateChangesProvider);
 
     return currentUserAsync.when(
       data: (user) {

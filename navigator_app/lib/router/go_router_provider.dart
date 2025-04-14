@@ -11,7 +11,6 @@ import 'package:navigator_app/providers/first_launch_provider.dart';
 import 'package:navigator_app/ui/screens/screens.dart';
 
 part 'go_router_provider.g.dart';
-
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 @riverpod
@@ -24,13 +23,13 @@ GoRouter goRouter(Ref ref) {
       navigatorKey: _rootNavigatorKey,
       routes: [
         GoRoute(
-          path: '/loading',
+          path: Routes.loading,
           builder: (context, state) => const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           ),
         ),
       ],
-      initialLocation: '/loading',
+      initialLocation: Routes.loading,
     );
   }
 
@@ -38,68 +37,98 @@ GoRouter goRouter(Ref ref) {
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: isFirstLaunch ? Routes.splashScreen : Routes.exploreScreen,
+    initialLocation: isFirstLaunch ? Routes.splash : Routes.explore,
+    debugLogDiagnostics: true,
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             Navigation(navigationShell: navigationShell),
         branches: [
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.settingScreen,
-                builder: (context, state) => const CreateEditEventScreen(),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.settings,
+              builder: (context, state) => const SettingsScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.events,
+              builder: (context, state) => EventDetailsScreen(
+                event: dummyEvents[1],
               ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.eventsScreen,
-                builder: (context, state) => EventDetailsScreen(event:  dummyEvents[1],),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.exploreScreen,
-                builder: (context, state) => const ExploreScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.profileScreen,
-                builder: (context, state) => const SearchFilterScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.adminpScreen,
-                builder: (context, state) => const FilterScreen(),
-              ),
-            ],
-          ),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.explore,
+              builder: (context, state) => const ExploreScreen(),
+              routes: [
+                GoRoute(
+                  path: Routes.exploreDetails,
+                  name: Routes.eventDetailsName,
+                  builder: (context, state) {
+                    final eventId = state.pathParameters['eventId'] ?? '';
+                    final event = dummyEvents.firstWhere(
+                      (e) => e.id == eventId,
+                      orElse: () => dummyEvents.first,
+                    );
+                    return EventDetailsScreen(event: event);
+                  },
+                ),
+                GoRoute(
+                  path: Routes.exploreSearch,
+                  builder: (context, state) => const SearchFilterScreen(),
+                ),
+                GoRoute(
+                  path: Routes.exploreFilter,
+                  builder: (context, state) => const FilterScreen(),
+                ),
+              ],
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.profile,
+              builder: (context, state) => const SearchFilterScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.admin,
+              builder: (context, state) => const ProfileScreen(),
+              routes: [
+                GoRoute(
+                  path: Routes.adminCreate,
+                  name: Routes.createEventName,
+                  builder: (context, state) => const CreateEditEventScreen(),
+                ),
+                GoRoute(
+                  path: Routes.adminEdit,
+                  name: Routes.editEventName,
+                  builder: (context, state) {
+                    final eventId = state.pathParameters['eventId'] ?? '';
+                    return CreateEditEventScreen(eventId: eventId);
+                  },
+                ),
+              ],
+            ),
+          ]),
         ],
       ),
       GoRoute(
-        path: Routes.splashScreen,
+        path: Routes.splash,
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
-        path: Routes.loginScreen,
+        path: Routes.login,
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
-        path: Routes.registerScreen,
+        path: Routes.register,
         builder: (context, state) => const SignUpScreen(),
       ),
       GoRoute(
-        path: '/event',
+        path: Routes.eventList,
         builder: (context, state) {
           final title = state.uri.queryParameters['title'] ?? 'Events';
           final filter = state.uri.queryParameters['filter'] ?? 'all';
@@ -109,15 +138,21 @@ GoRouter goRouter(Ref ref) {
     ],
     redirect: (context, state) {
       final currentLocation = state.uri.toString();
-      if (authState.valueOrNull == null &&
-          currentLocation != Routes.splashScreen &&
-          currentLocation != Routes.loginScreen &&
-          currentLocation != Routes.registerScreen) {
-        return Routes.splashScreen;
-      } else if (authState.valueOrNull != null &&
-          currentLocation == Routes.registerScreen) {
-        return Routes.exploreScreen;
+      final isLoggedIn = authState.valueOrNull != null;
+
+      if (!isLoggedIn &&
+          currentLocation != Routes.splash &&
+          currentLocation != Routes.login &&
+          currentLocation != Routes.register) {
+        return Routes.splash;
       }
+
+      if (isLoggedIn &&
+          (currentLocation == Routes.login ||
+              currentLocation == Routes.register)) {
+        return Routes.explore;
+      }
+
       return null;
     },
   );

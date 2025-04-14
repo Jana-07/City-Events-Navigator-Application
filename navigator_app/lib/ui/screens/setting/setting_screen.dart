@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
+import 'package:navigator_app/ui/controllers/auth_controller.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -8,13 +9,13 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final currentUserAsync = ref.watch(currentUserProvider);
+    final currentUserAsync = ref.watch(authStateChangesProvider);
 
     return currentUserAsync.when(
       data: (user) {
-        if (user == null) {
-          return const Center(child: Text('Please sign in to access settings'));
-        }
+         if (user == null) {
+           return const Center(child: Text('Please sign in to access settings'));
+         }
 
         return Scaffold(
           appBar: AppBar(
@@ -143,7 +144,8 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   onPressed: () {
                     // Sign out
-                    ref.read(authRepositoryProvider).signOut();
+                    //ref.read(authRepositoryProvider).signOut();
+                    ref.read(authControllerProvider.notifier).signOut();
                   },
                   child: const Text('Sign Out'),
                 ),

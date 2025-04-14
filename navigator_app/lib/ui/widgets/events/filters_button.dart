@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigator_app/router/routes.dart';
-import 'package:navigator_app/ui/controllers/auth_controller.dart';
 
 class FiltersButton extends ConsumerWidget {
   const FiltersButton({super.key});
@@ -22,22 +21,8 @@ class FiltersButton extends ConsumerWidget {
           vertical: 8,
         ),
       ),
-      //TODO: open filters page
-      onPressed: () async {
-        try {
-          await ref.read(authControllerProvider.notifier).signOut();
-          if (context.mounted) {
-            context.go(Routes.splashScreen);
-          }
-        } catch (e) {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Logout failed: ${e.toString()}'),
-              ),
-            );
-          }
-        }
+      onPressed: () {
+        context.push('${Routes.explore}/${Routes.exploreFilter}');
       },
       child: Row(
         children: [

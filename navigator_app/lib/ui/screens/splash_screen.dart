@@ -73,12 +73,12 @@ class _SplashScreenState extends State<SplashScreen> {
             SizedBox(height: 50.0),
             LoginButton(
               text: 'Sign In',
-              onPressed: () => context.go(Routes.loginScreen),
+              onPressed: () => context.go(Routes.login),
             ),
             SizedBox(height: 20.0),
             LoginButton(
               text: 'Sign Up',
-              onPressed: () => context.go(Routes.registerScreen),
+              onPressed: () => context.go(Routes.register),
             ),
             const SizedBox(height: 60),
             ElevatedButton.icon(
