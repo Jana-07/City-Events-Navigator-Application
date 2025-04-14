@@ -104,6 +104,9 @@ class AppAnimations {
               animation: curvedAnimation,
               child: child,
             );
+          case TransitionType.slideFromTop:
+            // TODO: Handle this case.
+            throw UnimplementedError();
         }
       },
     );
@@ -205,7 +208,7 @@ enum TransitionType {
   slideFromRight,
   slideFromLeft,
   slideFromBottom,
-  fadeAndScale,
+  fadeAndScale, slideFromTop,
 }
 
 /// Extension for AnimationController to simplify common patterns
@@ -365,6 +368,9 @@ class _AnimatedAppearanceState extends State<AnimatedAppearance>
           animation: _animation,
           child: widget.child,
         );
+      case TransitionType.slideFromTop:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
   }
 }

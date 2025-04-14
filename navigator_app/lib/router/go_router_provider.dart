@@ -11,6 +11,7 @@ import 'package:navigator_app/providers/first_launch_provider.dart';
 import 'package:navigator_app/ui/screens/screens.dart';
 
 part 'go_router_provider.g.dart';
+
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 @riverpod
@@ -44,12 +45,14 @@ GoRouter goRouter(Ref ref) {
         builder: (context, state, navigationShell) =>
             Navigation(navigationShell: navigationShell),
         branches: [
+          //Setting Route
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.settings,
               builder: (context, state) => const SettingsScreen(),
             ),
           ]),
+          //Events Route
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.events,
@@ -58,6 +61,7 @@ GoRouter goRouter(Ref ref) {
               ),
             ),
           ]),
+          //Explore Events Route
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.explore,
@@ -75,23 +79,17 @@ GoRouter goRouter(Ref ref) {
                     return EventDetailsScreen(event: event);
                   },
                 ),
-                GoRoute(
-                  path: Routes.exploreSearch,
-                  builder: (context, state) => const SearchFilterScreen(),
-                ),
-                GoRoute(
-                  path: Routes.exploreFilter,
-                  builder: (context, state) => const FilterScreen(),
-                ),
               ],
             ),
           ]),
+          //Event Map Route (soon)
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.profile,
-              builder: (context, state) => const SearchFilterScreen(),
+              builder: (context, state) => Container(),
             ),
           ]),
+          //Profile Route
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.admin,
@@ -134,6 +132,10 @@ GoRouter goRouter(Ref ref) {
           final filter = state.uri.queryParameters['filter'] ?? 'all';
           return EventListScreen(title: title, initialFilter: filter);
         },
+      ),
+      GoRoute(
+        path: Routes.filters,
+        builder: (context, state) => const FilterScreen(),
       ),
     ],
     redirect: (context, state) {

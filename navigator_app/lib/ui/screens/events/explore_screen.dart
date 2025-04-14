@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigator_app/data/event_data.dart';
+import 'package:navigator_app/data/generate_data.dart';
 
 import 'package:navigator_app/ui/widgets/events/categories.dart';
 import 'package:navigator_app/ui/widgets/events/events_list.dart';
@@ -102,6 +103,8 @@ class ExploreScreen extends ConsumerWidget {
             height: 300,
             child: EventsList(events: dummyEvents),
           ),
+          const SizedBox(height: 20,),
+          GenerateData(),
         ],
       ),
     );

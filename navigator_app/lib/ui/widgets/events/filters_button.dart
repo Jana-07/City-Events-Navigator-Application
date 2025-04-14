@@ -22,7 +22,7 @@ class FiltersButton extends ConsumerWidget {
         ),
       ),
       onPressed: () {
-        context.push('${Routes.explore}/${Routes.exploreFilter}');
+        context.push(Routes.filters);
       },
       child: Row(
         children: [

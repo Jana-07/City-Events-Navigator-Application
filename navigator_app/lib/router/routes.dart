@@ -6,7 +6,7 @@ class Routes {
   static const String explore = '/explore';
   static const String exploreDetails = 'details/:eventId';
   static const String exploreSearch = 'search';
-  static const String exploreFilter = 'filter';
+  static const String filters = '/filters';
   static const String settings = '/settings';
   static const String events = '/events';
   static const String profile = '/profile';
