@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:navigator_app/data/models/event.dart';
 import 'package:intl/intl.dart';
+import 'package:navigator_app/router/routes.dart';
 import 'package:navigator_app/ui/widgets/common/favorite_button.dart';
 
 class UpcomingEventItem extends StatelessWidget {
@@ -12,16 +14,22 @@ class UpcomingEventItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SizedBox(
-      width: 280, // Ensuring fixed width
+      width: 280,
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(22),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(22),
-          onTap: () {},
+          onTap: () {
+            context.pushNamed(
+              Routes.eventDetailsName,
+              pathParameters: {'eventId': event.id},
+              extra: event,
+            );
+          },
           child: Padding(
-            padding: EdgeInsets.all(14),
+            padding: EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -30,9 +38,9 @@ class UpcomingEventItem extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: Image.network(
-                        'https://platinumlist.net/guide/wp-content/uploads/2024/08/Saudi-National-Day-1.jpg',
+                        event.imageURL,
                         width: 260,
-                        height: 150,
+                        height: 160,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -45,13 +53,13 @@ class UpcomingEventItem extends StatelessWidget {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          //color: const Color.fromARGB(255, 151, 158, 155),
                           color: theme.colorScheme.outlineVariant,
                         ),
                         child: Text.rich(
                           TextSpan(children: [
                             TextSpan(
-                              text: '${DateFormat.d().format(event.startDate)}\n',
+                              text:
+                                  '${DateFormat.d().format(event.startDate)}\n',
                               style: theme.textTheme.titleMedium!.copyWith(
                                 color: Theme.of(context)
                                     .colorScheme
@@ -99,32 +107,14 @@ class UpcomingEventItem extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            Icons.favorite,
-                            color: theme.primaryColor,
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            '1k+ Favorite',
-                            style: TextStyle(
-                              color: theme.primaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Icon(
                             Icons.location_on,
                             color: const Color.fromARGB(255, 84, 87, 84),
                           ),
-                          Flexible(
-                            child: Text(
-                              event.address,
-                              style: theme.textTheme.titleSmall,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                          Text(
+                            event.address,
+                            style: theme.textTheme.titleSmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),

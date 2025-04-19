@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import 'package:navigator_app/data/models/event.dart';
+import 'package:navigator_app/router/routes.dart';
 import 'package:navigator_app/ui/widgets/common/favorite_button.dart';
 
 class EventItem extends StatelessWidget {
@@ -12,14 +14,18 @@ class EventItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    const String image =
-        'https://platinumlist.net/guide/wp-content/uploads/2024/08/Saudi-National-Day-1.jpg';
     return SizedBox(
       height: 140,
       child: Card(
         clipBehavior: Clip.hardEdge,
         child: InkWell(
-          onTap: () {},
+          onTap: () {
+            context.pushNamed(
+              Routes.eventDetailsName,
+              pathParameters: {'eventId': event.id},
+              extra: event,
+            );
+          },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(8),
@@ -28,7 +34,7 @@ class EventItem extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.network(
-                    image,
+                    event.imageURL,
                     width: 110,
                     height: 110,
                     fit: BoxFit.cover,
@@ -60,7 +66,7 @@ class EventItem extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.location_on,
-                            color: const Color.fromARGB(255, 84, 87, 84),
+                            color: const Color.fromARGB(200, 84, 87, 84),
                           ),
                           Flexible(
                             child: Text(

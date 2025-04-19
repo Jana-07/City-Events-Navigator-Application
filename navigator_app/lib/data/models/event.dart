@@ -19,6 +19,7 @@ class Event {
   final String ticketURL;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DocumentSnapshot? snapshot;
 
   Event({
     required this.id,
@@ -39,6 +40,7 @@ class Event {
     this.ticketURL = '',
     required this.createdAt,
     this.updatedAt,
+    this.snapshot,
   });
 
   // Create from Firestore document
@@ -64,6 +66,7 @@ class Event {
       ticketURL: data['ticketURL'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+      snapshot: doc,
     );
   }
 

@@ -63,7 +63,6 @@ class FirestoreService {
     if (limit != null) {
       query = query.limit(limit);
     }
-    
     return query.snapshots();
   }
 

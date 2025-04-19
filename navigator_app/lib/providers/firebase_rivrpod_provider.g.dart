@@ -113,7 +113,7 @@ final userRepositoryProvider = Provider<UserRepository>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef UserRepositoryRef = ProviderRef<UserRepository>;
-String _$eventRepositoryHash() => r'f4197ad9eb3c127011196405c54da547ef520cf3';
+String _$eventRepositoryHash() => r'5e6df19e4818627b59818e4f311fd2cd92b53da4';
 
 /// Provider for EventRepository
 ///
@@ -168,11 +168,9 @@ final userRoleProvider = AutoDisposeStreamProvider<String>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef UserRoleRef = AutoDisposeStreamProviderRef<String>;
-String _$eventsHash() => r'481aba613be136cb6500098940143acb011aa9b5';
+String _$eventsHash() => r'ee84d35b2989fad2ad87e4968201e86ce91578f9';
 
-/// Provider for events based on user role
-///
-/// Copied from [events].
+/// See also [events].
 @ProviderFor(events)
 final eventsProvider = AutoDisposeStreamProvider<List<Event>>.internal(
   events,

@@ -51,7 +51,7 @@ class _EventListScreenState extends State<EventListScreen> {
                 ],
               ),
             ),
-            Expanded(child: EventsList(events: dummyEvents)),
+            Flexible(child: EventsList()),
           ],
         ));
   }

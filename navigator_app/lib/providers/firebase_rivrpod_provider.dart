@@ -5,6 +5,7 @@ import 'package:navigator_app/data/models/event.dart';
 import 'package:navigator_app/data/repositories/event_repository.dart';
 import 'package:navigator_app/data/repositories/firebase_auth_repository.dart';
 import 'package:navigator_app/data/repositories/user_repository.dart';
+import 'package:navigator_app/data/services/cloudinary_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:navigator_app/data/models/app_user.dart';
 
@@ -43,6 +44,13 @@ FirestoreService firestoreService(Ref ref) {
   return FirestoreService(firestore: firestore);
 }
 
+
+// /// Provider for FirestoreService
+// @Riverpod(keepAlive: true)
+// CloudinaryService cloudinaryService(Ref ref) {
+//   return cloudinaryService(ref);
+// }
+
 /// Provider for UserRepository
 @Riverpod(keepAlive: true)
 UserRepository userRepository(Ref ref) {
@@ -54,7 +62,7 @@ UserRepository userRepository(Ref ref) {
 @Riverpod(keepAlive: true)
 EventRepository eventRepository(Ref ref) {
   final firestoreService = ref.watch(firestoreServiceProvider);
-  return EventRepository(firestoreService);
+  return EventRepository(firestoreService, CloudinaryService());
 }
 
 
@@ -93,25 +101,8 @@ Stream<String> userRole(Ref ref) {
   );
 }
 
-/// Provider for events based on user role
 @riverpod
 Stream<List<Event>> events(Ref ref) {
   final eventRepository = ref.watch(eventRepositoryProvider);
-  final userRole = ref.watch(userRoleProvider);
-  
-  return userRole.when(
-    data: (role) {
-      switch (role) {
-        case 'organizer':
-          return eventRepository.streamAllEvents();
-        case 'regular':
-          return eventRepository.streamPublicEvents();
-        case 'guest':
-        default:
-          return eventRepository.streamPublicEvents(limit: 10);
-      }
-    },
-    loading: () => Stream.value([]),
-    error: (_, __) => Stream.value([]),
-  );
+  return eventRepository.streamEvents();
 }

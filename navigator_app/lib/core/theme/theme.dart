@@ -35,11 +35,11 @@ abstract final class AppTheme {
         color: Colors.white,
       ),
       titleSmall: GoogleFonts.merriweather().copyWith(
-        color: grey,
+        color: grey.withAlpha(200),
         fontWeight: FontWeight.w500,
       ),
       labelLarge: TextStyle().copyWith(
-        color: primary,
+        color: primary.withAlpha(200),
         fontSize: 15,
         fontWeight: FontWeight.w700,
       ),

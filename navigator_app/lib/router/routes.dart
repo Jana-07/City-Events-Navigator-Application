@@ -3,8 +3,8 @@ class Routes {
   static const String splash = '/splash';
   static const String login = '/login';
   static const String register = '/register';
-  static const String explore = '/explore';
-  static const String exploreDetails = 'details/:eventId';
+  static const String home = '/';
+  static const String eventDetails = '/details/:eventId';
   static const String exploreSearch = 'search';
   static const String filters = '/filters';
   static const String settings = '/settings';

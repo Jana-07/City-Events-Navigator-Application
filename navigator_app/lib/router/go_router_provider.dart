@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigator_app/data/event_data.dart';
+import 'package:navigator_app/data/models/event.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:navigator_app/router/routes.dart';
@@ -38,7 +39,7 @@ GoRouter goRouter(Ref ref) {
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: isFirstLaunch ? Routes.splash : Routes.explore,
+    initialLocation: isFirstLaunch ? Routes.splash : Routes.home,
     debugLogDiagnostics: true,
     routes: [
       StatefulShellRoute.indexedStack(
@@ -56,29 +57,27 @@ GoRouter goRouter(Ref ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.events,
-              builder: (context, state) => EventDetailsScreen(
-                event: dummyEvents[1],
-              ),
+              builder: (context, state) => CreateEditEventScreen(),
             ),
           ]),
           //Explore Events Route
           StatefulShellBranch(routes: [
             GoRoute(
-              path: Routes.explore,
+              path: Routes.home,
               builder: (context, state) => const ExploreScreen(),
               routes: [
-                GoRoute(
-                  path: Routes.exploreDetails,
-                  name: Routes.eventDetailsName,
-                  builder: (context, state) {
-                    final eventId = state.pathParameters['eventId'] ?? '';
-                    final event = dummyEvents.firstWhere(
-                      (e) => e.id == eventId,
-                      orElse: () => dummyEvents.first,
-                    );
-                    return EventDetailsScreen(event: event);
-                  },
-                ),
+                // GoRoute(
+                //   path: Routes.exploreDetails,
+                //   name: Routes.eventDetailsName,
+                //   builder: (context, state) {
+                //     final eventId = state.pathParameters['eventId'] ?? '';
+                //     final event = dummyEvents.firstWhere(
+                //       (e) => e.id == eventId,
+                //       orElse: () => dummyEvents.first,
+                //     );
+                //     return EventDetailsScreen(event: event);
+                //   },
+                // ),
               ],
             ),
           ]),
@@ -137,6 +136,14 @@ GoRouter goRouter(Ref ref) {
         path: Routes.filters,
         builder: (context, state) => const FilterScreen(),
       ),
+      GoRoute(
+        path: Routes.eventDetails,
+        name: Routes.eventDetailsName,
+        builder: (context, state) {
+          final event = state.extra as Event;
+          return EventDetailsScreen(event: event);
+        },
+      ),
     ],
     redirect: (context, state) {
       final currentLocation = state.uri.toString();
@@ -152,7 +159,7 @@ GoRouter goRouter(Ref ref) {
       if (isLoggedIn &&
           (currentLocation == Routes.login ||
               currentLocation == Routes.register)) {
-        return Routes.explore;
+        return Routes.home;
       }
 
       return null;

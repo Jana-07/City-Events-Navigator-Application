@@ -100,7 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SizedBox(
               //width: 400,
               height: 300,
-              child: EventsList(events: dummyEvents),
+              child: EventsList(),
             ),
             //   Row(
             //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
