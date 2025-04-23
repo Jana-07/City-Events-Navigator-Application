@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/data/models/event.dart';
+import 'package:navigator_app/data/models/favorite.dart';
 import 'package:navigator_app/data/repositories/event_repository.dart';
 import 'package:navigator_app/data/repositories/firebase_auth_repository.dart';
 import 'package:navigator_app/data/repositories/user_repository.dart';
@@ -44,6 +45,13 @@ FirestoreService firestoreService(Ref ref) {
   return FirestoreService(firestore: firestore);
 }
 
+/// Provider for user favorites
+@riverpod
+Stream<List<FavoriteEvent>> userFavorites(Ref ref, String userId) {
+  final userRepository = ref.watch(userRepositoryProvider);
+  return userRepository.streamUserFavorites(userId);
+}
+
 
 // /// Provider for FirestoreService
 // @Riverpod(keepAlive: true)
@@ -79,7 +87,7 @@ Stream<AppUser?> currentUser(Ref ref) {
       }
       return userRepository.streamUser(user.uid);
     },
-    loading: () => Stream.value(null),
+    loading: () => Stream.value(AppUser.guest()),
     error: (_, __) => Stream.value(AppUser.guest()),
   );
 }
@@ -105,4 +113,16 @@ Stream<String> userRole(Ref ref) {
 Stream<List<Event>> events(Ref ref) {
   final eventRepository = ref.watch(eventRepositoryProvider);
   return eventRepository.streamEvents();
+}
+
+@riverpod
+Future<Event?> getEventById(Ref ref, String eventId) {
+  final eventRepository = ref.watch(eventRepositoryProvider);
+  return eventRepository.getEvent(eventId);
+}
+
+@riverpod
+Future<AppUser?> getUserById(Ref ref, String userId) {
+  final userRepository = ref.watch(userRepositoryProvider);
+  return userRepository.getUser(userId);
 }

@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigator_app/data/category_data.dart';
-import 'package:navigator_app/data/event_data.dart';
 import 'package:navigator_app/ui/widgets/events/category_item.dart';
 import 'package:navigator_app/ui/widgets/events/events_list.dart';
 import 'package:navigator_app/ui/widgets/common/section_header.dart';
@@ -22,7 +21,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      //backgroundColor: Colors.white,
       appBar: AppBar(
         //backgroundColor: Colors.white,
         leading: IconButton(
@@ -43,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -100,7 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SizedBox(
               //width: 400,
               height: 300,
-              child: EventsList(),
+              child: EventsList(filter: 'favorite'),
             ),
             //   Row(
             //     mainAxisAlignment: MainAxisAlignment.spaceBetween,

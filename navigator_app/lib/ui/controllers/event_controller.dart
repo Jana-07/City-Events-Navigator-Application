@@ -28,7 +28,7 @@ class EventsController extends _$EventsController {
         _allEvents = events;
         _lastDocument = events.isNotEmpty
             ? events.last.snapshot
-            : null; // Assuming snapshot is stored
+            : null;
         _hasMore = true;
 
         final filtered = _filterEvents(events, filter);

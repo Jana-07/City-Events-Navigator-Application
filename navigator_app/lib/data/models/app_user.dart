@@ -18,6 +18,7 @@ class AppUser {
     this.preferredLanguage = 'en',
     this.profilePhotoURL = '',
     required this.createdAt,
+    required this.phoneNumber,
   });
 
   final String uid;
@@ -29,6 +30,7 @@ class AppUser {
   final String preferredLanguage;
   final String profilePhotoURL;
   final DateTime createdAt;
+  final String phoneNumber;
 
   // Create a guest user
   factory AppUser.guest() {
@@ -38,8 +40,11 @@ class AppUser {
       email: '',
       role: 'guest',
       createdAt: DateTime.now(),
+      phoneNumber: '',
     );
   }
+  
+  bool get isGuest => uid == 'guest';
 
    // Create App User from Firestore document
   factory AppUser.fromDocument(DocumentSnapshot doc) {
@@ -77,6 +82,7 @@ class AppUser {
       preferredLanguage: data['preferredLanguage'] ?? 'en',
       profilePhotoURL: data['profilePhotoURL'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      phoneNumber: data['phoneNumber'] ?? '',
     );
   }
 
@@ -88,6 +94,7 @@ class AppUser {
       role: role,
       profilePhotoURL: firebaseUser.photoURL ?? '',
       createdAt: DateTime.now(),
+      phoneNumber: firebaseUser.phoneNumber ?? '',
     );
   }
 
@@ -102,6 +109,7 @@ class AppUser {
       'preferredLanguage': preferredLanguage,
       'profilePhotoURL': profilePhotoURL,
       'createdAt': Timestamp.fromDate(createdAt),
+      'phoneNumber' : phoneNumber,
     };
   }
 
@@ -114,6 +122,7 @@ class AppUser {
     List<String>? preferences,
     String? preferredLanguage,
     String? profilePhotoURL,
+    String? phoneNumber,
   }) {
     return AppUser(
       uid: uid,
@@ -125,6 +134,7 @@ class AppUser {
       preferredLanguage: preferredLanguage ?? this.preferredLanguage,
       profilePhotoURL: profilePhotoURL ?? this.profilePhotoURL,
       createdAt: createdAt,
+      phoneNumber: phoneNumber?? this.phoneNumber,
     );
   }
 }

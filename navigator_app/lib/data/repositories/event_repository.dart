@@ -41,6 +41,10 @@ class EventRepository {
     });
   }
 
+  DocumentReference<Map<String, dynamic>> eventRef(String eventId) {
+    return _firestoreService.collection('events').doc(eventId);
+  }
+
   Stream<List<Event>> streamEvents({
     int limit = 10,
   }) {

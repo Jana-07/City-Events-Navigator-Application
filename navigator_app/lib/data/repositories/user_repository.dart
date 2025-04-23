@@ -152,7 +152,7 @@ class UserRepository {
   // FAVORITES SUBCOLLECTION METHODS
   
   // Get all favorites for a user
-  Future<List<Favorite>> getUserFavorites(String userId) async {
+  Future<List<FavoriteEvent>> getUserFavorites(String userId) async {
     if (userId == 'guest') {
       return [];
     }
@@ -162,11 +162,11 @@ class UserRepository {
       queryBuilder: (query) => query.orderBy('addedAt', descending: true),
     );
     
-    return snapshot.docs.map((doc) => Favorite.fromDocument(doc)).toList();
+    return snapshot.docs.map((doc) => FavoriteEvent.fromDocument(doc)).toList();
   }
   
   // Stream all favorites for a user
-  Stream<List<Favorite>> streamUserFavorites(String userId) {
+  Stream<List<FavoriteEvent>> streamUserFavorites(String userId) {
     if (userId == 'guest') {
       return Stream.value([]);
     }
@@ -175,12 +175,12 @@ class UserRepository {
       'users/$userId/favorites',
       queryBuilder: (query) => query.orderBy('addedAt', descending: true),
     ).map((snapshot) {
-      return snapshot.docs.map((doc) => Favorite.fromDocument(doc)).toList();
+      return snapshot.docs.map((doc) => FavoriteEvent.fromDocument(doc)).toList();
     });
   }
   
   // Add event to favorites
-  Future<void> addFavorite(String userId, Favorite favorite) async {
+  Future<void> addFavorite(String userId, FavoriteEvent favorite) async {
     if (userId == 'guest') {
       return;
     }

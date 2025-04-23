@@ -1,13 +1,7 @@
-import 'package:cloudinary_flutter/image/cld_image.dart';
-import 'package:cloudinary_url_gen/transformation/resize/resize.dart';
-import 'package:cloudinary_url_gen/transformation/transformation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:navigator_app/data/event_data.dart';
-import 'package:navigator_app/data/generate_data.dart';
 
-import 'package:navigator_app/main.dart';
 
 import 'package:navigator_app/ui/widgets/events/categories.dart';
 import 'package:navigator_app/ui/widgets/events/events_list.dart';
@@ -105,7 +99,7 @@ class ExploreScreen extends ConsumerWidget {
           ),
           SizedBox(
             //width: 400,
-            height: 300,
+            height: 280,
             child: EventsList(), // this work fine
           ),
           const SizedBox(

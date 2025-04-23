@@ -65,20 +65,6 @@ GoRouter goRouter(Ref ref) {
             GoRoute(
               path: Routes.home,
               builder: (context, state) => const ExploreScreen(),
-              routes: [
-                // GoRoute(
-                //   path: Routes.exploreDetails,
-                //   name: Routes.eventDetailsName,
-                //   builder: (context, state) {
-                //     final eventId = state.pathParameters['eventId'] ?? '';
-                //     final event = dummyEvents.firstWhere(
-                //       (e) => e.id == eventId,
-                //       orElse: () => dummyEvents.first,
-                //     );
-                //     return EventDetailsScreen(event: event);
-                //   },
-                // ),
-              ],
             ),
           ]),
           //Event Map Route (soon)
@@ -140,8 +126,8 @@ GoRouter goRouter(Ref ref) {
         path: Routes.eventDetails,
         name: Routes.eventDetailsName,
         builder: (context, state) {
-          final event = state.extra as Event;
-          return EventDetailsScreen(event: event);
+          final eventId = state.pathParameters['eventId']!;
+          return EventDetailsScreen(eventId: eventId);
         },
       ),
     ],

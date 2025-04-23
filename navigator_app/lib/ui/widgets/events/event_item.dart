@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import 'package:navigator_app/data/models/event.dart';
-import 'package:navigator_app/router/routes.dart';
 import 'package:navigator_app/ui/widgets/common/favorite_button.dart';
 
 class EventItem extends StatelessWidget {
-  const EventItem({super.key, required this.event});
+  const EventItem({
+    super.key,
+    //required this.event,
+    required this.onToggle,
+    required this.eventId,
+    required this.title,
+    required this.address,
+    required this.date,
+    required this.imageURL,
+  });
 
-  final Event event;
+  //final Event event;
+  final void Function() onToggle;
+  final String eventId;
+  final String title;
+  final String address;
+  final DateTime date;
+  final String imageURL;
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +32,7 @@ class EventItem extends StatelessWidget {
       child: Card(
         clipBehavior: Clip.hardEdge,
         child: InkWell(
-          onTap: () {
-            context.pushNamed(
-              Routes.eventDetailsName,
-              pathParameters: {'eventId': event.id},
-              extra: event,
-            );
-          },
+          onTap: onToggle,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(8),
@@ -34,7 +41,7 @@ class EventItem extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.network(
-                    event.imageURL,
+                    imageURL,
                     width: 110,
                     height: 110,
                     fit: BoxFit.cover,
@@ -47,16 +54,19 @@ class EventItem extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Text(
-                              DateFormat('EEE, MMMM d, h:mm a')
-                                  .format(event.startDate),
+                          Text(DateFormat('EEE, MMMM d, h:mm a').format(date),
                               style: theme.textTheme.labelLarge),
                           Spacer(),
-                          FavoriteButton(),
+                          FavoriteButton(
+                              eventId: eventId,
+                              title: title,
+                              address: address,
+                              date: date,
+                              imageURL: imageURL),
                         ],
                       ),
                       Text(
-                        event.title,
+                        title,
                         style: theme.textTheme.titleLarge,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -70,7 +80,7 @@ class EventItem extends StatelessWidget {
                           ),
                           Flexible(
                             child: Text(
-                              event.address,
+                              address,
                               style: theme.textTheme.titleSmall,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

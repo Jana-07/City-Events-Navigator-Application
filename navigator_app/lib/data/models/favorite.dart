@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Favorite {
+class FavoriteEvent {
   final String id;
   final DateTime addedAt;
   final String eventAddress;
@@ -11,7 +11,7 @@ class Favorite {
   final bool notify;
   final int reminderTime; // Time in minutes before event to send reminder
 
-  Favorite({
+  FavoriteEvent({
     required this.id,
     required this.addedAt,
     required this.eventAddress,
@@ -24,10 +24,10 @@ class Favorite {
   });
 
   // Create from Firestore document
-  factory Favorite.fromDocument(DocumentSnapshot doc) {
+  factory FavoriteEvent.fromDocument(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
     
-    return Favorite(
+    return FavoriteEvent(
       id: doc.id,
       addedAt: (data['addedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       eventAddress: data['eventAddress'] ?? '',
@@ -55,7 +55,7 @@ class Favorite {
   }
 
   // Create a copy with updated fields
-  Favorite copyWith({
+  FavoriteEvent copyWith({
     DateTime? addedAt,
     String? eventAddress,
     String? eventImageURL,
@@ -65,7 +65,7 @@ class Favorite {
     bool? notify,
     int? reminderTime,
   }) {
-    return Favorite(
+    return FavoriteEvent(
       id: id,
       addedAt: addedAt ?? this.addedAt,
       eventAddress: eventAddress ?? this.eventAddress,

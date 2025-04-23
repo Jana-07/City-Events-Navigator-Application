@@ -368,7 +368,7 @@ class ProfileScreenTwo extends ConsumerWidget {
 
   Widget _buildFavoritesList(
       BuildContext context, WidgetRef ref, String userId) {
-    return StreamBuilder<List<Favorite>>(
+    return StreamBuilder<List<FavoriteEvent>>(
         stream: ref.read(userRepositoryProvider).streamUserFavorites(userId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
