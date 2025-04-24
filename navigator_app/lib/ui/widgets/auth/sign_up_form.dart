@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/core/constant/size.dart';
 import 'package:navigator_app/core/constant/text.dart';
+import 'package:navigator_app/data/category_data.dart';
+import 'package:navigator_app/data/models/categoy.dart';
 import 'package:navigator_app/ui/controllers/auth_controller.dart';
-import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
 import 'package:navigator_app/ui/widgets/common/app_text_form_field.dart';
 import 'package:navigator_app/ui/widgets/common/login_button.dart';
 
@@ -15,17 +16,22 @@ class SignUpForm extends ConsumerStatefulWidget {
 
 class _SignUpFormState extends ConsumerState<SignUpForm> {
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final TextEditingController _preferencesController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final List<String> _selectedCategories = [];
   BuildContext? _progressIndicatorContext;
 
   @override
   void dispose() {
-    // dispose controllers
     _emailController.dispose();
-    _passwordController.dispose();
     _usernameController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _preferencesController.dispose();
     _phoneController.dispose();
 
     // close loading dialog when closing page
@@ -41,8 +47,11 @@ class _SignUpFormState extends ConsumerState<SignUpForm> {
     final auth = ref.read(authControllerProvider.notifier);
     //final authRepo = ref.watch(authRepositoryProvider);
     await auth.createUserWithEmailAndPassword(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+      userName: _usernameController.text.trim(),
+      phoneNumber: _phoneController.text.trim(),
+      preferences: _selectedCategories,
     );
   }
 
@@ -117,6 +126,38 @@ class _SignUpFormState extends ConsumerState<SignUpForm> {
               hintText: tPassword,
               icon: Icons.lock_outline_rounded,
               isPassword: true,
+            ),
+            const SizedBox(height: tFormHeight - 20),
+            AppTextFormField(
+              controller: _confirmPasswordController,
+              labelText: tPassword,
+              hintText: tPassword,
+              icon: Icons.lock_outline_rounded,
+              isPassword: true,
+            ),
+            const SizedBox(height: tFormHeight),
+            Text(
+              'Choose your categoires preferences:',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: tFormHeight - 20),
+            Wrap(
+              spacing: 8,
+              children: categories.map((category) {
+                final isSelected = _selectedCategories.contains(category.name);
+                return ChoiceChip(
+                  label: Text(category.name),
+                  selected: isSelected,
+                  selectedColor: Theme.of(context).colorScheme.primary.withAlpha(125),
+                  onSelected: (selected) {
+                    setState(() {
+                      isSelected
+                          ? _selectedCategories.remove(category.name)
+                          : _selectedCategories.add(category.name);
+                    });
+                  },
+                );
+              }).toList(),
             ),
             const SizedBox(height: tFormHeight),
             LoginButton(text: 'Sign Up', onPressed: _signup),

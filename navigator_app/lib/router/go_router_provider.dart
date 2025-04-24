@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigator_app/data/event_data.dart';
 import 'package:navigator_app/data/models/event.dart';
+import 'package:navigator_app/ui/controllers/user_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:navigator_app/router/routes.dart';
@@ -70,16 +71,17 @@ GoRouter goRouter(Ref ref) {
           //Event Map Route (soon)
           StatefulShellBranch(routes: [
             GoRoute(
-              path: Routes.profile,
+              path: Routes.exploreSearch,
               builder: (context, state) => Container(),
             ),
           ]),
           //Profile Route
           StatefulShellBranch(routes: [
             GoRoute(
-              path: Routes.admin,
+              path: Routes.profile,
               builder: (context, state) => const ProfileScreen(),
               routes: [
+                
                 GoRoute(
                   path: Routes.adminCreate,
                   name: Routes.createEventName,
@@ -152,3 +154,4 @@ GoRouter goRouter(Ref ref) {
     },
   );
 }
+

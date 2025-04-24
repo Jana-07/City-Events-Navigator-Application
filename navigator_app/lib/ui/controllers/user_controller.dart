@@ -14,16 +14,16 @@ part 'user_controller.g.dart';
 @riverpod
 class UserController extends _$UserController {
   late final UserRepository _userRepository;
-  
+
   @override
   Future<AppUser> build() async {
     final authState = ref.watch(authStateChangesProvider);
     _userRepository = ref.watch(userRepositoryProvider);
-    
+
     if (authState.value == null) {
       return AppUser.guest();
     }
-    
+
     try {
       // Get user
       final user = await _userRepository.getUser(authState.value!.uid);
@@ -135,14 +135,15 @@ class UserControllerWidget extends ConsumerWidget {
       value: userAsync,
       data: builder,
       loadingWidget: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading user profile...'),
-          ],
-        ),
+        child: CircularProgressIndicator(),
+        // Column(
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   children: [
+        //     CircularProgressIndicator(),
+        //     SizedBox(height: 16),
+        //     Text('Loading user profile...'),
+        //   ],
+        // ),
       ),
       errorWidget: (error, stackTrace) {
         return Center(

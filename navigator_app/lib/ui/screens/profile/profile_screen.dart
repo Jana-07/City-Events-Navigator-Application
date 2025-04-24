@@ -1,20 +1,13 @@
-import 'dart:math';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:navigator_app/data/category_data.dart';
-import 'package:navigator_app/ui/widgets/events/category_item.dart';
+import 'package:navigator_app/ui/controllers/user_controller.dart';
 import 'package:navigator_app/ui/widgets/events/events_list.dart';
 import 'package:navigator_app/ui/widgets/common/section_header.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -22,214 +15,120 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        //backgroundColor: Colors.white,
-        leading: IconButton(
+        title: TextButton.icon(
+          onPressed: () {
+            //Navigte to edit profile screen
+          },
+          label: Text(
+            'Edit Profile',
+            style: TextStyle(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           icon: Icon(
             Icons.edit_calendar_rounded,
             color: colorScheme.primary,
           ),
-          onPressed: () {
-            // Handle back button press
-          },
         ),
-        title: Text(
-          'Edit Profile',
-          style: TextStyle(
-            color: colorScheme.primary,
-            fontWeight: FontWeight.bold,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(8.0),
+          child: UserControllerWidget(
+            builder: (user) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        user.userName,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.grey[200],
+                        child: ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl: user.profilePhotoURL,
+                            fit: BoxFit.cover,
+                            width: 80,
+                            height: 80,
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => Image.asset(
+                              'assets/person.jpg',
+                              fit: BoxFit.cover,
+                              width: 80,
+                              height: 80,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 30),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Interests',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        _buildInterestsList(context, user.preferences),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 50),
+                  SectionHeader(
+                    title: 'Favorite',
+                    onTab: () => context.push('/event'),
+                  ),
+                  SizedBox(
+                    //width: 400,
+                    height: 300,
+                    child: EventsList(filter: 'favorite'),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  'Noura  \n0512345678  \nemail@gmail.com',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.white,
-                  backgroundImage: AssetImage('assets/person.JPG'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Interests',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8.0,
-              runSpacing: 8.0,
-              children: categories
-                  .map((category) => CategoryItem(category: category))
-                  .toList(),
-            ),
-
-            // Wrap(
-            //   spacing: 8.0,
-            //   children: <Widget>[
-            //     _buildInterestChip('Conferences'),
-            //     _buildInterestChip('Sport'),
-            //     _buildInterestChip('Festivals'),
-            //     _buildInterestChip('Art'),
-            //     _buildInterestChip('Movie'),
-            //     _buildInterestChip('Others'),
-            //   ],
-            // ),
-            const SizedBox(height: 40),
-            SectionHeader(
-              title: 'Favorite',
-              onTab: () => context.push('/event'),
-            ),
-            SizedBox(
-              //width: 400,
-              height: 300,
-              child: EventsList(filter: 'favorite'),
-            ),
-            //   Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: [
-            //       const Text(
-            //         'Favorite',
-            //         style: TextStyle(
-            //           fontSize: 18,
-            //           fontWeight: FontWeight.bold,
-            //         ),
-            //       ),
-            //       TextButton(
-            //         onPressed: () {},
-            //         child: const Text('See All'),
-            //       ),
-            //     ],
-            //   ),
-            //   const SizedBox(height: 10),
-            //   _buildEventCard(
-            //     'Winter at Tantora',
-            //     '1ST MAY-SAT-2:00 PM',
-
-            //     'Al-Ula',
-            //     'assets/w.JPG', // Replace with your image path
-            //   ),
-            //   _buildEventCard(
-            //     'Jeddah Season',
-            //     '1ST MAY-SAT-2:00 PM',
-
-            //     'Jeddah',
-
-            //     'assets/ww.JPG', // Replace with your image path
-            //   ),
-            //   const SizedBox(height: 20),
-            //   Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //     children: [
-            //       const Text(
-            //         'Recent events',
-            //         style: TextStyle(
-            //           fontSize: 18,
-            //           fontWeight: FontWeight.bold,
-            //         ),
-            //       ),
-            //       TextButton(
-            //         onPressed: () {},
-            //         child: const Text('See All'),
-            //       ),
-            //     ],
-            //   ),
-            //   const SizedBox(height: 10),
-            //   _buildEventCard(
-            //     'Jeddah Season',
-            //     '1ST MAY-SAT-2:00 PM',
-
-            //     'Jeddah',
-
-            //     'assets/ww.JPG', // Replace with your image path
-            //   ),
-            //   _buildEventCard(
-            //     'Jeddah Season',
-            //     '1ST MAY-SAT-2:00 PM',
-
-            //     'Jeddah',
-            //     'assets/ww.JPG', // Replace with your image path
-            //   ),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget _buildInterestChip(String label) {
-    return Chip(
-      label: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      backgroundColor: Colors
-          .primaries[Random().nextInt(Colors.primaries.length)], // Random color
+  Widget _buildInterestsList(BuildContext context, List<String> interests) {
+    if (interests.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.0),
+        child: Text('No interests added yet'),
+      );
+    }
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: interests.map((interest) {
+        return Chip(
+          label: Text(interest),
+          backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+        );
+      }).toList(),
     );
   }
-
-  // Widget _buildEventCard(
-  //   String time,
-  //   String title,
-  //   String subtitle,
-  //   String image, {
-  //   String? location,
-  //   // Add image parameter
-  // }) {
-  //   return Card(
-  //     color: Colors.white,
-  //     child: ListTile(
-  //       leading: Image.asset(
-  //         image,
-  //         width: 50, // Adjust size as needed
-  //         height: 200,
-  //         fit: BoxFit.fill,
-  //       ),
-  //       title: Text(
-  //         title,
-  //         style: const TextStyle(
-  //           color: Colors.green,
-  //           fontWeight: FontWeight.bold,
-  //         ),
-  //       ),
-  //       subtitle: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text(
-  //             time,
-  //             style: const TextStyle(
-  //               color: Colors.black,
-  //               fontWeight: FontWeight.bold,
-  //             ),
-  //           ),
-  //           const SizedBox(
-  //             height: 30,
-  //           ),
-  //           Row(
-  //             children: [const Icon(Icons.location_on), Text(subtitle)],
-  //           ),
-  //           //if (subtitle.isNotEmpty) Text(subtitle),
-  //         ],
-  //       ),
-  //       trailing: const Icon(Icons.favorite_border),
-  //     ),
-  //   );
-  //}
 }

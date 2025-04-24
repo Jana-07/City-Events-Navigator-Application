@@ -28,49 +28,46 @@ class SignUpScreen extends StatelessWidget {
           ),
         ),
         padding: const EdgeInsets.all(tDefaultSize),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: size.height * 0.05),
-                Image(
-                  image: AssetImage("assets/onbordicon.png"),
-                  width: 200,
-                  height: 200,
-                ),
-              ],
-            ),
-            Text(tSignUpTitle, style: theme.textTheme.headlineLarge),
-            const SizedBox(height: 18),
-            Text(tSignUpSubTitle, style: theme.textTheme.bodyLarge),
-            const SizedBox(height: 8),
-            const SignUpForm(),
-            Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  tAlreadyHaveAnAccount,
-                  style: theme.textTheme.bodyLarge,
-                ),
-                TextButton(
-                  onPressed: () => context.go(Routes.login),
-                  child: Text(tLogin),
-                ),
-              ],
-            ),
-            const SizedBox(height: tFormHeight - 20),
-            IconButton(
-              icon: Icon(
-                Icons.home,
-                color: colorScheme.primary,
-                size: 30,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: size.height * 0.02),
+              Image(
+                image: AssetImage("assets/onbordicon.png"),
+                width: 200,
+                height: 200,
               ),
-              onPressed: () => context.go(Routes.splash),
-            ),
-          ],
+              Text(tSignUpTitle, style: theme.textTheme.headlineLarge),
+              const SizedBox(height: 18),
+              Text(tSignUpSubTitle, style: theme.textTheme.bodyLarge),
+              const SizedBox(height: 8),
+              const SignUpForm(),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    tAlreadyHaveAnAccount,
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                  TextButton(
+                    onPressed: () => context.go(Routes.login),
+                    child: Text(tLogin),
+                  ),
+                ],
+              ),
+              const SizedBox(height: tFormHeight - 20),
+              IconButton(
+                icon: Icon(
+                  Icons.home,
+                  color: colorScheme.primary,
+                  size: 30,
+                ),
+                onPressed: () => context.go(Routes.splash),
+              ),
+            ],
+          ),
         ),
       ),
     );
