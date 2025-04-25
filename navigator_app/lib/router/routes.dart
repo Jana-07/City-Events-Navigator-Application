@@ -16,11 +16,14 @@ class Routes {
   static const String adminEdit = 'edit/:eventId';
   static const String eventsList = '/events';
   static const String loading = '/loading';
+  static const String map = '/map';
+
 
   // Named route identifiers
   static const String eventDetailsName = 'eventDetails';
   static const String createEventName = 'createEvent';
   static const String editEventName = 'editEvent';
   static const String eventListName = 'eventList';
+   static const String mapName = 'map';
   
 }

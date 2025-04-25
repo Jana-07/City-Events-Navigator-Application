@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:navigator_app/ui/screens/map/map_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:navigator_app/router/routes.dart';
@@ -69,8 +70,9 @@ GoRouter goRouter(Ref ref) {
           //Event Map Route (soon)
           StatefulShellBranch(routes: [
             GoRoute(
-              path: Routes.exploreSearch,
-              builder: (context, state) => Container(),
+              path: Routes.map,
+              name: Routes.mapName,
+              builder: (context, state) => const MapScreen(),
             ),
           ]),
           //Profile Route
