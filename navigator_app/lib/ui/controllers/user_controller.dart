@@ -116,6 +116,29 @@ class UserController extends _$UserController {
       state = AsyncValue.error(e, st);
     }
   }
+
+  Future<void> updatePreferredLanguage(String language) async {
+    final currentUser = state.value;
+    if (currentUser == null || currentUser.isGuest) {
+      return;
+    }
+
+    state = const AsyncValue.loading();
+
+    try {
+      // Update role in repository
+      await _userRepository.updateUserPreferredLanguage(currentUser.uid, language);
+
+      // Update local state
+      final updatedUser = currentUser.copyWith(
+        preferredLanguage: language,
+      );
+
+      state = AsyncValue.data(updatedUser);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
 }
 
 /// A widget that displays user data with error handling

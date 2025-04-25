@@ -49,20 +49,27 @@ class _UpcomingEventsListState extends ConsumerState<UpcomingEventsList> {
         eventsControllerProvider(filter: widget.filter, sortBy: widget.sortBy));
 
     return eventsAsync.when(
-      data: (events) => ListView.separated(
-        controller: _scrollController,
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        itemCount: events.length,
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (ctx, index) {
-          final event = events[index];
-          return UpcomingEventItem(
-            key: ValueKey(event.title),
-            event: event,
+      data: (events) {
+        if (events.isEmpty) {
+          return Center(
+            child: Text('No events available'),
           );
-        },
-        separatorBuilder: (ctx, index) => const SizedBox(width: 20),
-      ),
+        }
+        return ListView.separated(
+          controller: _scrollController,
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          itemCount: events.length,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (ctx, index) {
+            final event = events[index];
+            return UpcomingEventItem(
+              key: ValueKey(event.title),
+              event: event,
+            );
+          },
+          separatorBuilder: (ctx, index) => const SizedBox(width: 20),
+        );
+      },
       loading: () => const Center(
         child: CircularProgressIndicator(),
       ),

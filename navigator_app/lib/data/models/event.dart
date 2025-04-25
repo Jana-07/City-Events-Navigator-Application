@@ -134,3 +134,29 @@ class Event {
     );
   }
 }
+
+class UnifiedEvent {
+  final String id;
+  final String title;
+  final String address;
+  final DateTime date;
+  final String imageURL;
+
+  UnifiedEvent({
+    required this.id,
+    required this.title,
+    required this.address,
+    required this.date,
+    required this.imageURL,
+  });
+}
+
+extension EventToUnified on Event {
+  UnifiedEvent toUnified() => UnifiedEvent(
+        id: id,
+        title: title,
+        address: address,
+        date: startDate,
+        imageURL: imageURL,
+      );
+}

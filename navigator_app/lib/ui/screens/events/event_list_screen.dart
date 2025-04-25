@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:navigator_app/data/event_data.dart';
 import 'package:navigator_app/ui/widgets/events/events_list.dart';
 import 'package:navigator_app/ui/widgets/events/filters_button.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen(
-      {super.key, required this.title, required this.initialFilter});
+      {super.key, required this.title, this.initialFilter = 'all'});
 
   final String title;
   final String initialFilter;
@@ -51,7 +49,9 @@ class _EventListScreenState extends State<EventListScreen> {
                 ],
               ),
             ),
-            Flexible(child: EventsList()),
+            Flexible(
+              child: EventsList(filter: widget.initialFilter),
+            ),
           ],
         ));
   }

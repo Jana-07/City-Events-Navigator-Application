@@ -160,11 +160,11 @@ class EventsControllerWidget extends ConsumerWidget {
   final Widget Function(List<Event>) builder;
 
   const EventsControllerWidget({
-    Key? key,
+    super.key,
     this.filter = 'all',
     this.sortBy = 'date',
     required this.builder,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

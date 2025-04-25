@@ -170,27 +170,153 @@ class _IsEventFavoriteProviderElement
 }
 
 String _$userFavoritesStreamHash() =>
-    r'10d1cc236c6002ced1cd4429b03c031a8f004f14';
+    r'0ab45811ec6cc218c9c2d965c003ed27aa4a3768';
 
 /// Provider for user favorites stream
 ///
 /// Copied from [userFavoritesStream].
 @ProviderFor(userFavoritesStream)
-final userFavoritesStreamProvider =
-    AutoDisposeStreamProvider<List<FavoriteEvent>>.internal(
-  userFavoritesStream,
-  name: r'userFavoritesStreamProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$userFavoritesStreamHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+const userFavoritesStreamProvider = UserFavoritesStreamFamily();
+
+/// Provider for user favorites stream
+///
+/// Copied from [userFavoritesStream].
+class UserFavoritesStreamFamily
+    extends Family<AsyncValue<List<FavoriteEvent>>> {
+  /// Provider for user favorites stream
+  ///
+  /// Copied from [userFavoritesStream].
+  const UserFavoritesStreamFamily();
+
+  /// Provider for user favorites stream
+  ///
+  /// Copied from [userFavoritesStream].
+  UserFavoritesStreamProvider call(
+    int? limit,
+  ) {
+    return UserFavoritesStreamProvider(
+      limit,
+    );
+  }
+
+  @override
+  UserFavoritesStreamProvider getProviderOverride(
+    covariant UserFavoritesStreamProvider provider,
+  ) {
+    return call(
+      provider.limit,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'userFavoritesStreamProvider';
+}
+
+/// Provider for user favorites stream
+///
+/// Copied from [userFavoritesStream].
+class UserFavoritesStreamProvider
+    extends AutoDisposeStreamProvider<List<FavoriteEvent>> {
+  /// Provider for user favorites stream
+  ///
+  /// Copied from [userFavoritesStream].
+  UserFavoritesStreamProvider(
+    int? limit,
+  ) : this._internal(
+          (ref) => userFavoritesStream(
+            ref as UserFavoritesStreamRef,
+            limit,
+          ),
+          from: userFavoritesStreamProvider,
+          name: r'userFavoritesStreamProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$userFavoritesStreamHash,
+          dependencies: UserFavoritesStreamFamily._dependencies,
+          allTransitiveDependencies:
+              UserFavoritesStreamFamily._allTransitiveDependencies,
+          limit: limit,
+        );
+
+  UserFavoritesStreamProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.limit,
+  }) : super.internal();
+
+  final int? limit;
+
+  @override
+  Override overrideWith(
+    Stream<List<FavoriteEvent>> Function(UserFavoritesStreamRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: UserFavoritesStreamProvider._internal(
+        (ref) => create(ref as UserFavoritesStreamRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        limit: limit,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<FavoriteEvent>> createElement() {
+    return _UserFavoritesStreamProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is UserFavoritesStreamProvider && other.limit == limit;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, limit.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef UserFavoritesStreamRef
-    = AutoDisposeStreamProviderRef<List<FavoriteEvent>>;
+mixin UserFavoritesStreamRef
+    on AutoDisposeStreamProviderRef<List<FavoriteEvent>> {
+  /// The parameter `limit` of this provider.
+  int? get limit;
+}
+
+class _UserFavoritesStreamProviderElement
+    extends AutoDisposeStreamProviderElement<List<FavoriteEvent>>
+    with UserFavoritesStreamRef {
+  _UserFavoritesStreamProviderElement(super.provider);
+
+  @override
+  int? get limit => (origin as UserFavoritesStreamProvider).limit;
+}
+
 String _$eventFavoriteStatusHash() =>
     r'ae9772518d6106c0f11f2ec61721ae26c858a15e';
 
@@ -339,7 +465,7 @@ class _EventFavoriteStatusProviderElement
 }
 
 String _$favoriteControllerHash() =>
-    r'e86f749f6760bfa54676604dad3dcf7b439e7dfb';
+    r'f7a8cf8068b01ef0aa93750b37223730701e841d';
 
 /// A controller for managing favorite events
 ///

@@ -146,10 +146,13 @@ class FavoriteController extends _$FavoriteController {
   }
 
   // Stream favorites
-  Stream<List<FavoriteEvent>> streamFavorites() {
+  Stream<List<FavoriteEvent>> streamFavorites({int? limit}) {
     if (!_isUserLoggedIn()) return Stream.value([]);
 
     final userId = _getCurrentUserId()!;
+    if(limit != null) {
+      return _userRepository.streamUserFavorites(userId, limit: limit);
+    }
     return _userRepository.streamUserFavorites(userId);
   }
 }
@@ -163,7 +166,11 @@ Future<bool> isEventFavorite(Ref ref, String eventId) async {
 
 /// Provider for user favorites stream
 @riverpod
-Stream<List<FavoriteEvent>> userFavoritesStream(Ref ref) {
-  // Use read instead of watch to avoid circular dependency
-  return ref.read(favoriteControllerProvider.notifier).streamFavorites();
+Stream<List<FavoriteEvent>> userFavoritesStream(Ref ref, int? limit) {
+  final favoriteController = ref.watch(favoriteControllerProvider.notifier);
+  if(limit != null) {
+    return favoriteController.streamFavorites(limit: limit);
+  }
+
+  return favoriteController.streamFavorites();
 }

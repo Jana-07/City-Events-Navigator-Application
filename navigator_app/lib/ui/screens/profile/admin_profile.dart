@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:navigator_app/data/models/app_user.dart';
 
 class AdminProfile extends StatefulWidget {
-  const AdminProfile({super.key});
+  final AppUser user;
+  
+  const AdminProfile({super.key, required this.user});
 
   @override
   State<AdminProfile> createState() => _AdminProfileState();
@@ -17,38 +20,47 @@ class _AdminProfileState extends State<AdminProfile>
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      //backgroundColor: Colors.white,
       appBar: AppBar(
-        leading: const Icon(
-          Icons.arrow_back,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+          },
         ),
-        actions: const [Icon(Icons.more_vert)],
-        //backgroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {
+              // Show more options
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const CircleAvatar(
+            const SizedBox(height: 20),
+            CircleAvatar(
               radius: 50,
-              //backgroundColor: Colors.white,
-              backgroundImage: AssetImage('assets/person.JPG'),
+              backgroundImage: widget.user.profilePhotoURL.isNotEmpty
+                  ? NetworkImage(widget.user.profilePhotoURL) as ImageProvider
+                  : const AssetImage('assets/person.jpg'),
             ),
-            const Text(
-              'Admin\n0512345678  \nadmin@gmail.com',
-              style: TextStyle(
-                fontSize: 17,
+            const SizedBox(height: 10),
+            Text(
+              widget.user.userName,
+              style: const TextStyle(
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 20),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.5,
               child: OutlinedButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Navigate to edit profile
+                },
                 style: OutlinedButton.styleFrom(
-                  //backgroundColor: const Color(0xFFFFFFFF),
                   side: BorderSide(
                     color: colorScheme.primary,
                     width: 2,
@@ -64,9 +76,7 @@ class _AdminProfileState extends State<AdminProfile>
                   children: [
                     Icon(Icons.edit_calendar_outlined,
                         color: colorScheme.primary),
-                    const SizedBox(
-                      width: 30,
-                    ),
+                    const SizedBox(width: 30),
                     Text(
                       'Edit Profile',
                       style: TextStyle(
@@ -79,9 +89,7 @@ class _AdminProfileState extends State<AdminProfile>
                 ),
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -97,9 +105,10 @@ class _AdminProfileState extends State<AdminProfile>
           ? SizedBox(
               width: MediaQuery.of(context).size.width * 0.5,
               child: OutlinedButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Navigate to add event screen
+                },
                 style: OutlinedButton.styleFrom(
-                  //backgroundColor: const Color(0xFFFFFFFF),
                   side: BorderSide(
                     color: colorScheme.primary,
                     width: 2,
@@ -114,9 +123,7 @@ class _AdminProfileState extends State<AdminProfile>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.add, color: colorScheme.primary),
-                    SizedBox(
-                      width: 30,
-                    ),
+                    const SizedBox(width: 30),
                     Text(
                       'Add Event',
                       style: TextStyle(
@@ -147,7 +154,6 @@ class _AdminProfileState extends State<AdminProfile>
           color: _currentTab == tabName
               ? Theme.of(context).colorScheme.primary
               : Colors.black, // Highlight selected tab
-
           fontWeight:
               _currentTab == tabName ? FontWeight.w900 : FontWeight.w800,
           fontSize: 17,
@@ -171,9 +177,12 @@ class _AdminProfileState extends State<AdminProfile>
               ),
             ),
           ),
-          const Text(
-            "Enjoy your favorite dishe and a lovely your friends and family and have a great time. Food from local food trucks will be available for purchase. ...Read More",
-            style: TextStyle(fontSize: 16),
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              "Enjoy your favorite dishes and a lovely time with your friends and family. Food from local food trucks will be available for purchase. ...Read More",
+              style: TextStyle(fontSize: 16),
+            ),
           ),
         ],
       );
@@ -195,22 +204,18 @@ class _AdminProfileState extends State<AdminProfile>
             _buildEventCard(
               "A virtual evening of smooth jazz",
               '1ST MAY-SAT-2:00 PM',
-
               'Al-Ula',
               'assets/w.JPG', // Replace with your image path
             ),
             _buildEventCard(
               "Jo malone london's mother's day",
               "1ST MAY-SAT-2:00 PM",
-
               'Jeddah',
-
               'assets/ww.JPG', // Replace with your image path
             ),
             _buildEventCard(
               "Women's leadership conference",
               "1ST MAY-SAT-2:00 PM",
-
               'Al-Ula',
               'assets/w.JPG', // Replace with your image path
             ),
@@ -223,15 +228,14 @@ class _AdminProfileState extends State<AdminProfile>
   }
 
   Widget _buildEventCard(
-    String time,
     String title,
-    String subtitle,
-    String image, {
-    String? location,
-    // Add image parameter
-  }) {
+    String time,
+    String location,
+    String image,
+  ) {
     return Card(
       color: Colors.white,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: ListTile(
         leading: Image.asset(
           image,
@@ -256,14 +260,11 @@ class _AdminProfileState extends State<AdminProfile>
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ),
-
-            //if (subtitle.isNotEmpty) Text(subtitle),
+            const SizedBox(height: 4),
+            Text(location),
+            const SizedBox(height: 20),
           ],
         ),
-        //trailing: const Icon(Icons.favorite_border),
       ),
     );
   }

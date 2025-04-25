@@ -40,146 +40,148 @@ class EventDetailsScreen extends ConsumerWidget {
 
         return organizerFuture.when(
           data: (organizer) {
-            return CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  expandedHeight: 250,
-                  pinned: true,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Image.network(
-                          event.imageURL,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.image_not_supported,
-                                      size: 50)),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withAlpha(180)
-                              ],
+            return Scaffold(
+              body: CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    expandedHeight: 250,
+                    pinned: true,
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.network(
+                            event.imageURL,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                    color: Colors.grey[300],
+                                    child: const Icon(Icons.image_not_supported,
+                                        size: 50)),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withAlpha(180)
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  actions: [
-                    FavoriteButton(
-                      eventId: event.id,
-                      title: event.title,
-                      address: event.address,
-                      imageURL: event.imageURL,
-                      date: event.startDate,
+                    leading: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
                     ),
-                  ],
-                  actionsPadding: const EdgeInsets.all(10),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(event.title,
-                            style: Theme.of(context).textTheme.headlineMedium),
-                        const SizedBox(height: 24),
-                        _buildInfoItem(
-                          icon: Icons.calendar_today,
-                          title: DateFormat('d MMMM, yyyy')
-                              .format(event.startDate),
-                          subtitle:
-                              '${DateFormat('h:mm a').format(event.startDate)} - ${DateFormat('h:mm a').format(event.endDate)}',
-                          iconBackgroundColor: Colors.green.withAlpha(25),
-                          iconColor: Colors.green,
-                        ),
-                        const SizedBox(height: 16),
-                        _buildInfoItem(
-                          icon: Icons.location_on,
-                          title: event.address,
-                          subtitle: event.address,
-                          iconBackgroundColor: Colors.green.withAlpha(25),
-                          iconColor: Colors.green,
-                        ),
-                        const SizedBox(height: 16),
-                        _buildOrganizerItem(
-                          name: organizer != null? organizer.userName : 'organizer not found',
-                          role: 'Organizer',
-                          imageUrl: organizer != null? organizer.userName : '',
-                        ),
-                        const SizedBox(height: 24),
-                        const Text('About Event',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            RatingBarIndicator(
-                              rating: event.averageRating,
-                              itemCount: 5,
-                              itemSize: 20,
-                              direction: Axis.horizontal,
-                              itemBuilder: (context, _) => const Icon(
-                                  Icons.star_rate_rounded,
-                                  color: Colors.amber),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              event.averageRating.toString(),
+                    actions: [
+                      FavoriteButton(
+                        eventId: event.id,
+                        title: event.title,
+                        address: event.address,
+                        imageURL: event.imageURL,
+                        date: event.startDate,
+                      ),
+                    ],
+                    actionsPadding: const EdgeInsets.all(10),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(event.title,
+                              style: Theme.of(context).textTheme.headlineMedium),
+                          const SizedBox(height: 24),
+                          _buildInfoItem(
+                            icon: Icons.calendar_today,
+                            title: DateFormat('d MMMM, yyyy')
+                                .format(event.startDate),
+                            subtitle:
+                                '${DateFormat('h:mm a').format(event.startDate)} - ${DateFormat('h:mm a').format(event.endDate)}',
+                            iconBackgroundColor: Colors.green.withAlpha(25),
+                            iconColor: Colors.green,
+                          ),
+                          const SizedBox(height: 16),
+                          _buildInfoItem(
+                            icon: Icons.location_on,
+                            title: event.address,
+                            subtitle: event.address,
+                            iconBackgroundColor: Colors.green.withAlpha(25),
+                            iconColor: Colors.green,
+                          ),
+                          const SizedBox(height: 16),
+                          _buildOrganizerItem(
+                            name: organizer != null? organizer.userName : 'organizer not found',
+                            role: 'Organizer',
+                            imageUrl: organizer != null? organizer.userName : '',
+                          ),
+                          const SizedBox(height: 24),
+                          const Text('About Event',
                               style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(event.description,
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[700],
-                                height: 1.5)),
-                        const SizedBox(height: 32),
-                        Row(
-                          children: [
-                            _buildInfoItemRounded(
-                              icon: Icons.attach_money_rounded,
-                              iconBackgroundColor: Colors.black.withAlpha(25),
-                              iconColor: Colors.black,
-                              title: event.price == 0
-                                  ? 'Free'
-                                  : event.price.toString(),
-                            ),
-                            const SizedBox(width: 30),
-                            _buildInfoItemRounded(
-                              icon: category.icon,
-                              iconBackgroundColor:
-                                  category.color.withAlpha(200),
-                              iconColor: Colors.white,
-                              title: category.name,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 32),
-                        _buildGoToMapButton(context),
-                        const SizedBox(height: 24),
-                      ],
+                                  fontSize: 20, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              RatingBarIndicator(
+                                rating: event.averageRating,
+                                itemCount: 5,
+                                itemSize: 20,
+                                direction: Axis.horizontal,
+                                itemBuilder: (context, _) => const Icon(
+                                    Icons.star_rate_rounded,
+                                    color: Colors.amber),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                event.averageRating.toString(),
+                                style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(event.description,
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[700],
+                                  height: 1.5)),
+                          const SizedBox(height: 32),
+                          Row(
+                            children: [
+                              _buildInfoItemRounded(
+                                icon: Icons.attach_money_rounded,
+                                iconBackgroundColor: Colors.black.withAlpha(25),
+                                iconColor: Colors.black,
+                                title: event.price == 0
+                                    ? 'Free'
+                                    : event.price.toString(),
+                              ),
+                              const SizedBox(width: 30),
+                              _buildInfoItemRounded(
+                                icon: category.icon,
+                                iconBackgroundColor:
+                                    category.color.withAlpha(200),
+                                iconColor: Colors.white,
+                                title: category.name,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+                          _buildGoToMapButton(context),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),

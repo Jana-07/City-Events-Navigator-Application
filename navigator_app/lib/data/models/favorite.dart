@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:navigator_app/data/models/event.dart';
 
 class FavoriteEvent {
   final String id;
@@ -77,4 +78,14 @@ class FavoriteEvent {
       reminderTime: reminderTime ?? this.reminderTime,
     );
   }
+}
+
+extension FavoriteEventToUnified on FavoriteEvent {
+  UnifiedEvent toUnified() => UnifiedEvent(
+        id: id,
+        title: eventTitle,
+        address: eventAddress,
+        date: eventStartDate,
+        imageURL: eventImageURL,
+      );
 }

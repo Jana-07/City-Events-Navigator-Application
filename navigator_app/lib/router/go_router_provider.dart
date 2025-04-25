@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:navigator_app/data/event_data.dart';
-import 'package:navigator_app/data/models/event.dart';
-import 'package:navigator_app/ui/controllers/user_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:navigator_app/router/routes.dart';
@@ -37,6 +34,7 @@ GoRouter goRouter(Ref ref) {
   }
 
   final isFirstLaunch = firstLaunchAsync.value!;
+  final isGuestUser = authState.value == null;
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
@@ -57,7 +55,7 @@ GoRouter goRouter(Ref ref) {
           //Events Route
           StatefulShellBranch(routes: [
             GoRoute(
-              path: Routes.events,
+              path: Routes.filters,
               builder: (context, state) => CreateEditEventScreen(),
             ),
           ]),
@@ -81,7 +79,6 @@ GoRouter goRouter(Ref ref) {
               path: Routes.profile,
               builder: (context, state) => const ProfileScreen(),
               routes: [
-                
                 GoRoute(
                   path: Routes.adminCreate,
                   name: Routes.createEventName,
@@ -113,7 +110,8 @@ GoRouter goRouter(Ref ref) {
         builder: (context, state) => const SignUpScreen(),
       ),
       GoRoute(
-        path: Routes.eventList,
+        path: Routes.eventsList,
+        name: Routes.eventListName,
         builder: (context, state) {
           final title = state.uri.queryParameters['title'] ?? 'Events';
           final filter = state.uri.queryParameters['filter'] ?? 'all';
@@ -137,19 +135,46 @@ GoRouter goRouter(Ref ref) {
       final currentLocation = state.uri.toString();
       final isLoggedIn = authState.valueOrNull != null;
 
-      if (!isLoggedIn &&
-          currentLocation != Routes.splash &&
-          currentLocation != Routes.login &&
-          currentLocation != Routes.register) {
-        return Routes.splash;
+     // Define public routes
+      final publicRoutes = [
+        Routes.splash,
+        Routes.login,
+        Routes.register,
+      ];
+      
+      // Define guest-accessible routes
+      final guestAccessibleRoutes = [
+        Routes.home,
+        Routes.eventsList,
+        Routes.eventDetails,
+        Routes.filters,
+        Routes.exploreSearch,
+      ];
+      
+      // Check if current location is a public route
+      final isPublicRoute = publicRoutes.any((route) => 
+          currentLocation == route || currentLocation.startsWith(route));
+      
+      // Check if current location is a guest-accessible route
+      final isGuestAccessibleRoute = guestAccessibleRoutes.any((route) => 
+          currentLocation == route || currentLocation.startsWith(route));
+      
+      // Allow access to public routes regardless of authentication
+      if (isPublicRoute) {
+        return null;
       }
-
-      if (isLoggedIn &&
-          (currentLocation == Routes.login ||
-              currentLocation == Routes.register)) {
+      
+      // If user has chosen guest mode and is trying to access a guest-accessible route
+      if (isGuestUser && isGuestAccessibleRoute) {
+        return null;
+      }
+      
+      // If logged in, don't allow access to login/register
+      if (isLoggedIn && isPublicRoute) {
         return Routes.home;
       }
-
+      
+      // For all other cases, allow the navigation
       return null;
     },
   );
