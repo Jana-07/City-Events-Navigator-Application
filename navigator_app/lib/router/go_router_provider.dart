@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:navigator_app/ui/screens/cities_screen.dart';
+import 'package:navigator_app/ui/screens/events/event_list_screen_two.dart';
 import 'package:navigator_app/ui/screens/map/map_screen.dart';
+import 'package:navigator_app/ui/screens/map/map_screen2.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:navigator_app/router/routes.dart';
@@ -56,8 +60,8 @@ GoRouter goRouter(Ref ref) {
           //Events Route
           StatefulShellBranch(routes: [
             GoRoute(
-              path: Routes.filters,
-              builder: (context, state) => CreateEditEventScreen(),
+              path: Routes.cities,
+              builder: (context, state) => CityGridScreen(),
             ),
           ]),
           //Explore Events Route
@@ -72,7 +76,7 @@ GoRouter goRouter(Ref ref) {
             GoRoute(
               path: Routes.map,
               name: Routes.mapName,
-              builder: (context, state) => const MapScreen(),
+              builder: (context, state) => const MapScreenTwo(),
             ),
           ]),
           //Profile Route
@@ -81,11 +85,6 @@ GoRouter goRouter(Ref ref) {
               path: Routes.profile,
               builder: (context, state) => const ProfileScreen(),
               routes: [
-                GoRoute(
-                  path: Routes.adminCreate,
-                  name: Routes.createEventName,
-                  builder: (context, state) => const CreateEditEventScreen(),
-                ),
                 GoRoute(
                   path: Routes.adminEdit,
                   name: Routes.editEventName,
@@ -98,6 +97,14 @@ GoRouter goRouter(Ref ref) {
             ),
           ]),
         ],
+      ),
+      GoRoute(
+        path: Routes.adminCreate,
+        name: Routes.createEventName,
+        builder: (context, state) {
+          final LatLng location = state.extra as LatLng;
+          return CreateEditEventScreen(location: location);
+        }
       ),
       GoRoute(
         path: Routes.splash,
@@ -117,7 +124,7 @@ GoRouter goRouter(Ref ref) {
         builder: (context, state) {
           final title = state.uri.queryParameters['title'] ?? 'Events';
           final filter = state.uri.queryParameters['filter'] ?? 'all';
-          return EventListScreen(title: title, initialFilter: filter);
+          return EventListScreenTwo(title: title, initialFilter: filter);
         },
       ),
       GoRoute(
@@ -137,13 +144,13 @@ GoRouter goRouter(Ref ref) {
       final currentLocation = state.uri.toString();
       final isLoggedIn = authState.valueOrNull != null;
 
-     // Define public routes
+      // Define public routes
       final publicRoutes = [
         Routes.splash,
         Routes.login,
         Routes.register,
       ];
-      
+
       // Define guest-accessible routes
       final guestAccessibleRoutes = [
         Routes.home,
@@ -152,33 +159,32 @@ GoRouter goRouter(Ref ref) {
         Routes.filters,
         Routes.exploreSearch,
       ];
-      
+
       // Check if current location is a public route
-      final isPublicRoute = publicRoutes.any((route) => 
+      final isPublicRoute = publicRoutes.any((route) =>
           currentLocation == route || currentLocation.startsWith(route));
-      
+
       // Check if current location is a guest-accessible route
-      final isGuestAccessibleRoute = guestAccessibleRoutes.any((route) => 
+      final isGuestAccessibleRoute = guestAccessibleRoutes.any((route) =>
           currentLocation == route || currentLocation.startsWith(route));
-      
+
       // Allow access to public routes regardless of authentication
       if (isPublicRoute) {
         return null;
       }
-      
+
       // If user has chosen guest mode and is trying to access a guest-accessible route
       if (isGuestUser && isGuestAccessibleRoute) {
         return null;
       }
-      
+
       // If logged in, don't allow access to login/register
       if (isLoggedIn && isPublicRoute) {
         return Routes.home;
       }
-      
+
       // For all other cases, allow the navigation
       return null;
     },
   );
 }
-

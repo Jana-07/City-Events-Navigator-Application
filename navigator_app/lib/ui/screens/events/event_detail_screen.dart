@@ -3,13 +3,9 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:navigator_app/data/category_data.dart';
-import 'package:navigator_app/data/models/app_user.dart';
 import 'package:navigator_app/data/models/categoy.dart';
-import 'package:navigator_app/data/repositories/user_repository.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
-import 'package:navigator_app/ui/controllers/event_controller.dart';
 import 'package:navigator_app/ui/widgets/common/favorite_button.dart';
-import '../../../data/models/event.dart';
 
 class EventDetailsScreen extends ConsumerWidget {
   final String eventId;
@@ -28,7 +24,7 @@ class EventDetailsScreen extends ConsumerWidget {
         if (event == null) {
           return const Text('Event not found');
         }
-        final organizerFuture = ref.watch(getUserByIdProvider(event.creatorID));
+        final organizerFuture = ref.read(getUserByIdProvider(event.creatorID));
         final category = categories.firstWhere(
           (category) => category.name == event.category,
           orElse: () => Category(

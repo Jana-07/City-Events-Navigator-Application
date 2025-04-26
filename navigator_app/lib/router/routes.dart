@@ -17,6 +17,7 @@ class Routes {
   static const String eventsList = '/events';
   static const String loading = '/loading';
   static const String map = '/map';
+  static const String cities = '/cities';
 
 
   // Named route identifiers

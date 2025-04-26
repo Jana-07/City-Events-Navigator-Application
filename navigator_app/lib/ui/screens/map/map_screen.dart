@@ -436,124 +436,12 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                           ),
                         ),
-
-                        // Positioned(
-                        //   top: 8,
-                        //   right: 8,
-                        //   child: Material(
-                        //     color: Colors.transparent,
-                        //     child: InkWell(
-                        //       borderRadius: BorderRadius.circular(20),
-                        //       onTap: () async {
-                        //         final docId = event['id'];
-                        //         final isFav = event['isFavorite'] ?? false;
-                        //
-                        //         try {
-                        //           await FirebaseFirestore.instance
-                        //               .collection('tappedLocations')
-                        //               .doc(docId)
-                        //               .update({'isFavorite': !isFav});
-                        //
-                        //           ScaffoldMessenger.of(context).showSnackBar(
-                        //             SnackBar(
-                        //               content: Text(
-                        //                 isFav ? 'Removed from favorites' : 'Marked as favorite',
-                        //               ),
-                        //             ),
-                        //           );
-                        //
-                        //           await fetchEventsFromFirebase();
-                        //         } catch (e) {
-                        //           print('Error updating favorite: $e');
-                        //           ScaffoldMessenger.of(context).showSnackBar(
-                        //             SnackBar(content: Text('Error: $e')),
-                        //           );
-                        //         }
-                        //       },
-                        //       child: Icon(
-                        //         (event['isFavorite'] ?? false)
-                        //             ? Icons.favorite
-                        //             : Icons.favorite_border,
-                        //         color: Colors.red,
-                        //         size: 28,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
                       ],
                     );
                   },
                 ),
               ),
             ),
-
-          // Positioned(
-          //   bottom: _selectedEvent != null ? 140 : 20,
-          //   left: 20,
-          //   right: 20,
-          //   child: Container(
-          //     height: 150,
-          //     child: ListView.builder(
-          //       scrollDirection: Axis.horizontal,
-          //       itemCount: _events.where((e) => e['category'] == _selectedCategory).length,
-          //       itemBuilder: (context, index) {
-          //         final filteredEvents = _events.where((e) => e['category'] == _selectedCategory).toList();
-          //         final event = filteredEvents[index];
-          //         final DateTime? timestamp = event['timestamp'];
-          //         final formattedDate = timestamp != null
-          //             ? DateFormat('MMM dd, yyyy – h:mm a').format(timestamp)
-          //             : 'No Date';
-          //         return Container(
-          //           width: 250,
-          //           margin: const EdgeInsets.symmetric(horizontal: 8),
-          //           padding: const EdgeInsets.all(12),
-          //           decoration: BoxDecoration(
-          //             color: Colors.white,
-          //             borderRadius: BorderRadius.circular(12),
-          //             boxShadow: [
-          //               BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 6, offset: Offset(0, 3)),
-          //             ],
-          //           ),
-          //           child: Column(
-          //             crossAxisAlignment: CrossAxisAlignment.start,
-          //               children: [
-          //                 Text('Date: $formattedDate'),
-          //                 const SizedBox(height: 6),
-          //
-          //                 Text(
-          //                   'Name: ${event['name'] ?? 'No Name'}',
-          //                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          //                 ),
-          //                 const SizedBox(height: 6),
-          //                 Text(
-          //                   'Description: ${event['description'] ?? 'No Description'}',
-          //                   style: const TextStyle(fontSize: 13),
-          //                 ),
-          //                 const SizedBox(height: 6),
-          //                 const Spacer(),
-          //                 ElevatedButton(
-          //                   onPressed: () {
-          //                     _mapController?.animateCamera(
-          //                       CameraUpdate.newLatLng(event['position']),
-          //                     );
-          //                   },
-          //                   child: const Text('View on Map',style:TextStyle(
-          //                     color: Colors.white,
-          //                   ),),
-          //                   style: ElevatedButton.styleFrom(
-          //                     backgroundColor: Colors.green,
-          //                     padding: const EdgeInsets.symmetric(horizontal: 20),
-          //                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          //                   ),
-          //                 ),
-          //               ]
-          //
-          //           ),
-          //         );
-          //       },
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );

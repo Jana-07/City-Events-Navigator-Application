@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:navigator_app/data/models/event.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,11 +11,13 @@ import 'dart:io';
 
 class CreateEditEventScreen extends ConsumerStatefulWidget {
   final String? eventId;
+  final LatLng? location;
 
   const CreateEditEventScreen({
     this.eventId,
-    Key? key,
-  }) : super(key: key);
+    this.location,
+    super.key,
+  });
 
   @override
   ConsumerState<CreateEditEventScreen> createState() =>
