@@ -1,12 +1,17 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:navigator_app/core/constant/cloudinary_config.dart';
 import 'package:navigator_app/data/models/review.dart';
+import 'package:navigator_app/data/services/cloudinary_service.dart';
 import 'package:navigator_app/data/services/firestore_service.dart';
 import '../models/event.dart';
 
 class EventRepository {
-  EventRepository(this._firestoreService);
+  EventRepository(this._firestoreService, this._cloudinaryService);
 
   final FirestoreService _firestoreService;
+  final CloudinaryService _cloudinaryService;
 
   // Get event by ID
   Future<Event?> getEvent(String eventId) async {
@@ -34,6 +39,61 @@ class EventRepository {
     return _firestoreService.streamCollection('events').map((snapshot) {
       return snapshot.docs.map((doc) => Event.fromDocument(doc)).toList();
     });
+  }
+
+  DocumentReference<Map<String, dynamic>> eventRef(String eventId) {
+    return _firestoreService.collection('events').doc(eventId);
+  }
+
+  Stream<List<Event>> streamEvents({
+    int limit = 10,
+  }) {
+    return _firestoreService
+        .streamCollection(
+      'events',
+      queryBuilder: (query) => query.orderBy('createdAt', descending: true),
+      limit: limit,
+    )
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => Event.fromDocument(doc)).toList();
+    });
+  }
+
+  // Paginated fetch for "load more" functionality
+  // This is used when you need to load events beyond the initial limit
+  Future<(List<Event>, DocumentSnapshot?)> fetchMoreEvents({
+    int limit = 10,
+    DocumentSnapshot? startAfterDocument,
+    List<String> fields = const [],
+  }) async {
+    try {
+      final querySnapshot = await _firestoreService.getCollection(
+        'events',
+        queryBuilder: (query) {
+          query = query.orderBy('createdAt', descending: true);
+
+          if (startAfterDocument != null) {
+            query = query.startAfterDocument(startAfterDocument);
+          }
+          
+          return query;
+        },
+        limit: limit,
+      );
+      // Determine if we have more documents to fetch
+      final lastDocument =
+          querySnapshot.docs.length == limit ? querySnapshot.docs.last : null;
+
+      // Convert documents to Event objects
+      final events =
+          querySnapshot.docs.map((doc) => Event.fromDocument(doc)).toList();
+
+      // Return both events and last document as cursor
+      return (events, lastDocument);
+    } catch (e) {
+      print('Error fetching events: $e');
+      return (<Event>[], null);
+    }
   }
 
   // Stream public events (for regular users)
@@ -152,6 +212,26 @@ class EventRepository {
     return snapshot.docs.map((doc) => Review.fromDocument(doc)).toList();
   }
 
+  // Upload event main image and update Firestore
+  Future<String> uploadEventMainImage(File imageFile, String eventId) async {
+    // Create folder path for the event
+    final folder = CloudinaryConfig.eventImagePath(eventId);
+
+    // Upload image to Cloudinary
+    final result = await _cloudinaryService.uploadImage(imageFile, folder);
+
+    // Get secure URL from response
+    final imageUrl = result['secure_url'];
+    print('URL: $imageUrl');
+    // Update event document in Firestore
+    await _firestoreService
+        .collection('events')
+        .doc(eventId)
+        .update({'imageURL': imageUrl});
+
+    return imageUrl;
+  }
+
   // Stream all reviews for an event
   Stream<List<Review>> streamEventReviews(String eventId) {
     return _firestoreService
@@ -253,144 +333,149 @@ class EventRepository {
   }
 
 // Comprehensive search events function with multiple filters
-Future<List<Event>> searchEvents({
-  String? query,
-  String? category,
-  List<String>? tags,
-  double? minPrice,
-  double? maxPrice,
-  DateTime? startDate,
-  DateTime? endDate,
-  String? location,
-  String? creatorId,
-  bool? isFeatured,
-  String? sortBy,
-  bool descending = false,
-  int? limit,
-  DocumentSnapshot? startAfterDocument,
-}) async {
-  try {
-    // Define the queryBuilder as a function declaration instead of a variable assignment
-    Query<Map<String, dynamic>> buildQuery(Query<Map<String, dynamic>> query) {
-      // Apply filters that can be done directly in Firestore
-      
-      // Creator filter
-      if (creatorId != null && creatorId.isNotEmpty) {
-        query = query.where('creatorID', isEqualTo: creatorId);
-      }
-      
-      // Category filter
-      if (category != null && category.isNotEmpty && category != 'All') {
-        query = query.where('category', isEqualTo: category);
-      }
-      
-      // Featured filter
-      if (isFeatured != null && isFeatured) {
-        query = query.where('isFeatured', isEqualTo: true);
-      }
-      
-      // Single tag filter (if only one tag is provided)
-      if (tags != null && tags.length == 1) {
-        query = query.where('tags', arrayContains: tags.first);
-      }
-      
-      // Date range filter - can only use one range filter in Firestore
-      if (startDate != null && endDate != null) {
-        query = query
-            .where('startDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
-            .where('startDate', isLessThanOrEqualTo: Timestamp.fromDate(endDate));
-      } else if (startDate != null) {
-        query = query.where('startDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate));
-      } else if (endDate != null) {
-        query = query.where('startDate', isLessThanOrEqualTo: Timestamp.fromDate(endDate));
-      }
-      
-      // Apply sorting
-      if (sortBy != null) {
-        switch (sortBy) {
-          case 'date':
-            query = query.orderBy('startDate', descending: descending);
-            break;
-          case 'price':
-            query = query.orderBy('price', descending: descending);
-            break;
-          case 'rating':
-            query = query.orderBy('averageRating', descending: descending);
-            break;
-          case 'popularity':
-            query = query.orderBy('reviewsCount', descending: descending);
-            break;
-          default:
-            query = query.orderBy('startDate', descending: false);
+  Future<List<Event>> searchEvents({
+    String? query,
+    String? category,
+    List<String>? tags,
+    double? minPrice,
+    double? maxPrice,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? location,
+    String? creatorId,
+    bool? isFeatured,
+    String? sortBy,
+    bool descending = false,
+    int? limit,
+    DocumentSnapshot? startAfterDocument,
+  }) async {
+    try {
+      // Define the queryBuilder as a function declaration instead of a variable assignment
+      Query<Map<String, dynamic>> buildQuery(
+          Query<Map<String, dynamic>> query) {
+        // Apply filters that can be done directly in Firestore
+
+        // Creator filter
+        if (creatorId != null && creatorId.isNotEmpty) {
+          query = query.where('creatorID', isEqualTo: creatorId);
         }
-      } else {
-        // Default sorting by date
-        query = query.orderBy('startDate', descending: false);
+
+        // Category filter
+        if (category != null && category.isNotEmpty && category != 'All') {
+          query = query.where('category', isEqualTo: category);
+        }
+
+        // Featured filter
+        if (isFeatured != null && isFeatured) {
+          query = query.where('isFeatured', isEqualTo: true);
+        }
+
+        // Single tag filter (if only one tag is provided)
+        if (tags != null && tags.length == 1) {
+          query = query.where('tags', arrayContains: tags.first);
+        }
+
+        // Date range filter - can only use one range filter in Firestore
+        if (startDate != null && endDate != null) {
+          query = query
+              .where('startDate',
+                  isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+              .where('startDate',
+                  isLessThanOrEqualTo: Timestamp.fromDate(endDate));
+        } else if (startDate != null) {
+          query = query.where('startDate',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(startDate));
+        } else if (endDate != null) {
+          query = query.where('startDate',
+              isLessThanOrEqualTo: Timestamp.fromDate(endDate));
+        }
+
+        // Apply sorting
+        if (sortBy != null) {
+          switch (sortBy) {
+            case 'date':
+              query = query.orderBy('startDate', descending: descending);
+              break;
+            case 'price':
+              query = query.orderBy('price', descending: descending);
+              break;
+            case 'rating':
+              query = query.orderBy('averageRating', descending: descending);
+              break;
+            case 'popularity':
+              query = query.orderBy('reviewsCount', descending: descending);
+              break;
+            default:
+              query = query.orderBy('startDate', descending: false);
+          }
+        } else {
+          // Default sorting by date
+          query = query.orderBy('startDate', descending: false);
+        }
+
+        // Apply pagination if startAfterDocument is provided
+        if (startAfterDocument != null) {
+          query = query.startAfterDocument(startAfterDocument);
+        }
+
+        return query;
       }
-      
-      // Apply pagination if startAfterDocument is provided
-      if (startAfterDocument != null) {
-        query = query.startAfterDocument(startAfterDocument);
+
+      // Execute the query using your existing FirestoreService
+      final snapshot = await _firestoreService.getCollection(
+        'events',
+        queryBuilder: buildQuery, // Pass the function reference
+        limit: limit,
+      );
+
+      // Convert to Event objects
+      List<Event> events =
+          snapshot.docs.map((doc) => Event.fromDocument(doc)).toList();
+
+      // Apply remaining filters in-memory
+
+      // Text search filter
+      if (query != null && query.isNotEmpty) {
+        final lowercaseQuery = query.toLowerCase();
+        events = events.where((event) {
+          return event.title.toLowerCase().contains(lowercaseQuery) ||
+              event.description.toLowerCase().contains(lowercaseQuery) ||
+              event.address.toLowerCase().contains(lowercaseQuery) ||
+              event.category.toLowerCase().contains(lowercaseQuery);
+        }).toList();
       }
-      
-      return query;
+
+      // Multiple tags filter
+      if (tags != null && tags.length > 1) {
+        events = events.where((event) {
+          return tags.any((tag) => event.tags.contains(tag));
+        }).toList();
+      }
+
+      // Price range filter (if not already applied in Firestore query)
+      if ((minPrice != null || maxPrice != null) &&
+          (startDate != null || endDate != null)) {
+        // Only apply in-memory if date range is used in Firestore
+        events = events.where((event) {
+          if (minPrice != null && event.price < minPrice) return false;
+          if (maxPrice != null && event.price > maxPrice) return false;
+          return true;
+        }).toList();
+      }
+
+      // Location filter
+      if (location != null && location.isNotEmpty) {
+        final lowercaseLocation = location.toLowerCase();
+        events = events.where((event) {
+          return event.address.toLowerCase().contains(lowercaseLocation); //||
+          //(event.city?.toLowerCase() ?? '').contains(lowercaseLocation);
+        }).toList();
+      }
+
+      return events;
+    } catch (e) {
+      print('Error searching events: $e');
+      rethrow;
     }
-    
-    // Execute the query using your existing FirestoreService
-    final snapshot = await _firestoreService.getCollection(
-      'events',
-      queryBuilder: buildQuery, // Pass the function reference
-      limit: limit,
-    );
-    
-    // Convert to Event objects
-    List<Event> events = snapshot.docs.map((doc) => Event.fromDocument(doc)).toList();
-    
-    // Apply remaining filters in-memory
-    
-    // Text search filter
-    if (query != null && query.isNotEmpty) {
-      final lowercaseQuery = query.toLowerCase();
-      events = events.where((event) {
-        return event.title.toLowerCase().contains(lowercaseQuery) ||
-               event.description.toLowerCase().contains(lowercaseQuery) ||
-               event.address.toLowerCase().contains(lowercaseQuery) ||
-               event.category.toLowerCase().contains(lowercaseQuery);
-      }).toList();
-    }
-    
-    // Multiple tags filter
-    if (tags != null && tags.length > 1) {
-      events = events.where((event) {
-        return tags.any((tag) => event.tags.contains(tag));
-      }).toList();
-    }
-    
-    // Price range filter (if not already applied in Firestore query)
-    if ((minPrice != null || maxPrice != null) && 
-        (startDate != null || endDate != null)) { // Only apply in-memory if date range is used in Firestore
-      events = events.where((event) {
-        if (minPrice != null && event.price < minPrice) return false;
-        if (maxPrice != null && event.price > maxPrice) return false;
-        return true;
-      }).toList();
-    }
-    
-    // Location filter
-    if (location != null && location.isNotEmpty) {
-      final lowercaseLocation = location.toLowerCase();
-      events = events.where((event) {
-        return event.address.toLowerCase().contains(lowercaseLocation); //||
-               //(event.city?.toLowerCase() ?? '').contains(lowercaseLocation);
-      }).toList();
-    }
-    
-    return events;
-  } catch (e) {
-    print('Error searching events: $e');
-    rethrow;
   }
-}
-
-
 }

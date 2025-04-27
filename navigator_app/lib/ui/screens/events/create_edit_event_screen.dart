@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:navigator_app/data/models/event.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
-
 class CreateEditEventScreen extends ConsumerStatefulWidget {
   final String? eventId;
+  final LatLng? location;
 
   const CreateEditEventScreen({
     this.eventId,
-    Key? key,
-  }) : super(key: key);
+    this.location,
+    super.key,
+  });
 
   @override
-  ConsumerState<CreateEditEventScreen> createState() => _CreateEditEventScreenState();
+  ConsumerState<CreateEditEventScreen> createState() =>
+      _CreateEditEventScreenState();
 }
 
 class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
@@ -35,7 +37,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   TimeOfDay _startTime = TimeOfDay.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 1, hours: 2));
   TimeOfDay _endTime = TimeOfDay.now();
-  
+
   String _selectedCategory = 'Music';
   List<String> _selectedTags = [];
   List<String> _imageURLs = [];
@@ -87,6 +89,10 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   // Added for custom location selection
   LatLng? _selectedLocation;
   final _locationTextController = TextEditingController();
+  late File _imageFile;
+  List<File>? _imagesFiles = null;
+  bool _isLoading = false;
+  bool _isEditing = false;
 
   final List<String> _categories = [
     'Music',
@@ -100,7 +106,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
     'Entertainment',
     'Travel',
   ];
-  
+
   final List<String> _availableTags = [
     'Family Friendly',
     'Outdoor',
@@ -122,9 +128,11 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   @override
   void initState() {
     super.initState();
+    
     selectedCity = 'Riyadh'; // Set default city
     _selectedLocation = cityCoordinates['Riyadh']; // Initialize selected location
     _updateLocationText(); // Initialize location text
+
     _isEditing = widget.eventId != null;
     if (_isEditing) {
       _loadEventData();
@@ -139,6 +147,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
     _priceController.dispose();
     _ticketURLController.dispose();
     _locationTextController.dispose(); // Dispose the new controller
+
     super.dispose();
   }
 
@@ -150,18 +159,19 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
     try {
       final event = await ref.read(eventRepositoryProvider).getEvent(widget.eventId!);
       
+
       if (event != null) {
         _titleController.text = event.title;
         _descriptionController.text = event.description;
         _addressController.text = event.address;
         _priceController.text = event.price.toString();
         _ticketURLController.text = event.ticketURL;
-        
+
         _startDate = event.startDate;
         _startTime = TimeOfDay.fromDateTime(event.startDate);
         _endDate = event.endDate;
         _endTime = TimeOfDay.fromDateTime(event.endDate);
-        
+
         _selectedCategory = event.category;
         _selectedTags = List<String>.from(event.tags);
         _imageURLs = List<String>.from(event.imageURLs);
@@ -172,6 +182,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           _selectedLocation = LatLng(event.location.latitude, event.location.longitude);
           _updateLocationText();
         }
+
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -190,7 +201,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final currentUserAsync = ref.watch(authStateChangesProvider);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Event' : 'Create Event'),
@@ -213,7 +224,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           if (_isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           return Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -269,6 +280,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
+
         ),
         const SizedBox(height: 8),
         const Text('Add images to showcase your event (main image first)'),
@@ -282,10 +294,12 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
               if (index == _imageURLs.length) {
                 return _buildAddImageButton();
               }
+
               
               final imageUrl = _imageURLs[index];
               final isMainImage = index == 0;
               
+
               return Stack(
                 children: [
                   Padding(
@@ -315,6 +329,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
                                 color: Colors.grey[300],
                                 child: const Icon(Icons.image, size: 48),
                               ),
+
                         ),
                       ),
                     ),
@@ -399,6 +414,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
+
         ),
         const SizedBox(height: 16),
         TextFormField(
@@ -443,6 +459,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
+
         ),
         const SizedBox(height: 16),
         Row(
@@ -682,6 +699,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
+
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
@@ -723,6 +741,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
+
         ),
         const SizedBox(height: 8),
         const Text('Select tags that describe your event'),
@@ -763,6 +782,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
+
         ),
         const SizedBox(height: 16),
         TextFormField(
@@ -800,28 +820,41 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    
+
     if (image != null) {
       setState(() {
         _isLoading = true;
       });
       
+//       try {
+//         final File imageFile = File(image.path);
+//         final String fileName = 'events/${DateTime.now().millisecondsSinceEpoch}_${image.name}';
+        
+//         final Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
+//         final UploadTask uploadTask = storageRef.putFile(imageFile);
+        
+//         final TaskSnapshot taskSnapshot = await uploadTask;
+//         final String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+        
+//         setState(() {
+//           _imageURLs.add(downloadUrl);
+//           if (_imageURLs.length == 1) {
+//             _mainImageURL = downloadUrl;
+//           }
+//         });
+
       try {
-        final File imageFile = File(image.path);
-        final String fileName = 'events/${DateTime.now().millisecondsSinceEpoch}_${image.name}';
-        
-        final Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
-        final UploadTask uploadTask = storageRef.putFile(imageFile);
-        
-        final TaskSnapshot taskSnapshot = await uploadTask;
-        final String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-        
-        setState(() {
-          _imageURLs.add(downloadUrl);
-          if (_imageURLs.length == 1) {
-            _mainImageURL = downloadUrl;
-          }
-        });
+        _imageFile = File(image.path);
+
+        final String fileName =
+            'events/${DateTime.now().millisecondsSinceEpoch}_${image.name}';
+
+        // setState(() {
+        //   _imageURLs.add(downloadUrl);
+        //   if (_imageURLs.length == 1) {
+        //     _mainImageURL = downloadUrl;
+        //   }
+        // });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error uploading image: $e')),
@@ -852,7 +885,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    
+
     if (picked != null && picked != _startDate) {
       setState(() {
         _startDate = picked;
@@ -880,6 +913,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           final startTimeMinutes = _startTime.hour * 60 + _startTime.minute;
           final endTimeMinutes = _endTime.hour * 60 + _endTime.minute;
           
+
           if (endTimeMinutes <= startTimeMinutes) {
             _endTime = TimeOfDay(
               hour: (_startTime.hour + 2) % 24,
@@ -898,7 +932,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       firstDate: _startDate,
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    
+
     if (picked != null && picked != _endDate) {
       setState(() {
         _endDate = picked;
@@ -911,7 +945,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       context: context,
       initialTime: _endTime,
     );
-    
+
     if (picked != null && picked != _endTime) {
       setState(() {
         _endTime = picked;
@@ -920,11 +954,19 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   }
 
   void _saveEvent(String userId) async {
+//     if (!_formKey.currentState!.validate()) {
+//       return;
+//     }
+    
+//     if (_imageURLs.isEmpty) {
+
+    final eventRepository = ref.watch(eventRepositoryProvider);
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    
-    if (_imageURLs.isEmpty) {
+
+    if (!await _imageFile.exists()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please add at least one image')),
       );
@@ -942,6 +984,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       _isLoading = true;
     });
     
+
     try {
       final startDateTime = DateTime(
         _startDate.year,
@@ -950,7 +993,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         _startTime.hour,
         _startTime.minute,
       );
-      
+
       final endDateTime = DateTime(
         _endDate.year,
         _endDate.month,
@@ -958,12 +1001,13 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         _endTime.hour,
         _endTime.minute,
       );
-      
+
       final event = Event(
         id: _isEditing ? widget.eventId! : '',
         title: _titleController.text,
         description: _descriptionController.text,
         location: GeoPoint(_selectedLocation!.latitude, _selectedLocation!.longitude),
+
         address: _addressController.text,
         startDate: startDateTime,
         endDate: endDateTime,
@@ -973,25 +1017,35 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         ticketURL: _ticketURLController.text,
         imageURL: _mainImageURL,
         imageURLs: _imageURLs,
+
         creatorID: userId,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         averageRating: 0,
         reviewsCount: 0,
       );
-      
+
+      final eventId = await eventRepository.saveEvent(event);
+
+      // Upload main image
+      final mainImageUrl = await eventRepository.uploadEventMainImage(
+        _imageFile,
+        eventId,
+      );
+      print(mainImageUrl);
+
       if (_isEditing) {
-        await ref.read(eventRepositoryProvider).saveEvent(event);
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Event updated successfully')),
         );
       } else {
-        await ref.read(eventRepositoryProvider).saveEvent(event);
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Event created successfully')),
         );
       }
-      
+
       if (mounted) {
         context.pop();
       }
@@ -1014,6 +1068,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Delete Event'),
         content: const Text('Are you sure you want to delete this event? This action cannot be undone.'),
+
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -1035,13 +1090,13 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       await ref.read(eventRepositoryProvider).deleteEvent(widget.eventId!);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Event deleted successfully')),
       );
-      
+
       if (mounted) {
         context.pop();
       }

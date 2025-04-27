@@ -32,7 +32,7 @@ class ProfileScreenTwo extends ConsumerWidget {
                 floating: false,
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
-                  title: Text(user.userName),
+                  title: Text('Jana'),
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -75,7 +75,7 @@ class ProfileScreenTwo extends ConsumerWidget {
                       const SizedBox(height: 24),
                       _buildSectionHeader(context, 'My Interests'),
                       const SizedBox(height: 8),
-                      _buildInterestsList(context, user.preferences),
+                      _buildInterestsList(context, ['food', 'classid']),
                     ],
                   ),
                 ),
@@ -368,7 +368,7 @@ class ProfileScreenTwo extends ConsumerWidget {
 
   Widget _buildFavoritesList(
       BuildContext context, WidgetRef ref, String userId) {
-    return StreamBuilder<List<Favorite>>(
+    return StreamBuilder<List<FavoriteEvent>>(
         stream: ref.read(userRepositoryProvider).streamUserFavorites(userId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

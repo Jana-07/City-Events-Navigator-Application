@@ -19,6 +19,7 @@ class Event {
   final String ticketURL;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DocumentSnapshot? snapshot;
 
   Event({
     required this.id,
@@ -39,6 +40,7 @@ class Event {
     this.ticketURL = '',
     required this.createdAt,
     this.updatedAt,
+    this.snapshot,
   });
 
   // Create from Firestore document
@@ -64,6 +66,7 @@ class Event {
       ticketURL: data['ticketURL'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+      snapshot: doc,
     );
   }
 
@@ -130,4 +133,30 @@ class Event {
       updatedAt: updatedAt ?? DateTime.now(),
     );
   }
+}
+
+class UnifiedEvent {
+  final String id;
+  final String title;
+  final String address;
+  final DateTime date;
+  final String imageURL;
+
+  UnifiedEvent({
+    required this.id,
+    required this.title,
+    required this.address,
+    required this.date,
+    required this.imageURL,
+  });
+}
+
+extension EventToUnified on Event {
+  UnifiedEvent toUnified() => UnifiedEvent(
+        id: id,
+        title: title,
+        address: address,
+        date: startDate,
+        imageURL: imageURL,
+      );
 }

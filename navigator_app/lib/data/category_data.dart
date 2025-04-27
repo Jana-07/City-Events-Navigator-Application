@@ -37,4 +37,9 @@ final List<Category> categories = [
     icon: Icons.add_to_photos_outlined,
     color: Color.fromARGB(255, 76, 120, 83),
   ),
+  Category(
+    name: 'Business',
+    icon: Icons.business_sharp,
+    color: Color.fromARGB(255, 51, 66, 134),
+  ),
 ];

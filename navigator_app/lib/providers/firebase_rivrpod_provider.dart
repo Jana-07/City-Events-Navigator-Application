@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/data/models/event.dart';
+import 'package:navigator_app/data/models/favorite.dart';
 import 'package:navigator_app/data/repositories/event_repository.dart';
 import 'package:navigator_app/data/repositories/firebase_auth_repository.dart';
 import 'package:navigator_app/data/repositories/user_repository.dart';
+import 'package:navigator_app/data/services/cloudinary_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:navigator_app/data/models/app_user.dart';
 
@@ -43,6 +45,20 @@ FirestoreService firestoreService(Ref ref) {
   return FirestoreService(firestore: firestore);
 }
 
+/// Provider for user favorites
+@riverpod
+Stream<List<FavoriteEvent>> userFavorites(Ref ref, String userId) {
+  final userRepository = ref.watch(userRepositoryProvider);
+  return userRepository.streamUserFavorites(userId);
+}
+
+
+// /// Provider for FirestoreService
+// @Riverpod(keepAlive: true)
+// CloudinaryService cloudinaryService(Ref ref) {
+//   return cloudinaryService(ref);
+// }
+
 /// Provider for UserRepository
 @Riverpod(keepAlive: true)
 UserRepository userRepository(Ref ref) {
@@ -54,7 +70,7 @@ UserRepository userRepository(Ref ref) {
 @Riverpod(keepAlive: true)
 EventRepository eventRepository(Ref ref) {
   final firestoreService = ref.watch(firestoreServiceProvider);
-  return EventRepository(firestoreService);
+  return EventRepository(firestoreService, CloudinaryService());
 }
 
 
@@ -71,7 +87,7 @@ Stream<AppUser?> currentUser(Ref ref) {
       }
       return userRepository.streamUser(user.uid);
     },
-    loading: () => Stream.value(null),
+    loading: () => Stream.value(AppUser.guest()),
     error: (_, __) => Stream.value(AppUser.guest()),
   );
 }
@@ -93,25 +109,20 @@ Stream<String> userRole(Ref ref) {
   );
 }
 
-/// Provider for events based on user role
 @riverpod
 Stream<List<Event>> events(Ref ref) {
   final eventRepository = ref.watch(eventRepositoryProvider);
-  final userRole = ref.watch(userRoleProvider);
-  
-  return userRole.when(
-    data: (role) {
-      switch (role) {
-        case 'organizer':
-          return eventRepository.streamAllEvents();
-        case 'regular':
-          return eventRepository.streamPublicEvents();
-        case 'guest':
-        default:
-          return eventRepository.streamPublicEvents(limit: 10);
-      }
-    },
-    loading: () => Stream.value([]),
-    error: (_, __) => Stream.value([]),
-  );
+  return eventRepository.streamEvents();
+}
+
+@riverpod
+Future<Event?> getEventById(Ref ref, String eventId) {
+  final eventRepository = ref.watch(eventRepositoryProvider);
+  return eventRepository.getEvent(eventId);
+}
+
+@riverpod
+Future<AppUser?> getUserById(Ref ref, String userId) {
+  final userRepository = ref.watch(userRepositoryProvider);
+  return userRepository.getUser(userId);
 }

@@ -100,6 +100,14 @@ class _SplashScreenState extends State<SplashScreen> {
               //TODO:Google signIn
               onPressed: () {},
             ),
+            Spacer(),
+            TextButton.icon(
+                  onPressed: () => context.go(Routes.home),
+                  label: Text('Join as a Guest'),
+                  icon: Icon(Icons.keyboard_arrow_right_rounded),
+                  iconAlignment: IconAlignment.end,
+                ),
+                const SizedBox(height: 20),
           ],
         ),
       ),

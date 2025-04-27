@@ -38,8 +38,13 @@ class AuthController extends _$AuthController {
         ));
   }
 
-  Future<void> createUserWithEmailAndPassword(
-      String email, String password) async {
+  Future<void> createUserWithEmailAndPassword({
+    required String email,
+    required String password,
+    required String userName,
+    required String phoneNumber,
+    required List<String> preferences,
+  }) async {
     if (email.isEmpty || password.isEmpty) {
       state = AuthLoadingState(LoadingStateEnum.error,
           AuthException('Email and password cannot be empty'));
@@ -50,13 +55,17 @@ class AuthController extends _$AuthController {
       state = AuthLoadingState(LoadingStateEnum.error, InvalidEmailException());
       return;
     }
-    final user =  await _executeAuthAction<AppUser>(
+    final user = await _executeAuthAction<AppUser>(
         () => _authRepository.createUserWithEmailAndPassword(
               email: email,
               password: password,
             ));
 
-    await _userRepository.saveUser(user);
+    await _userRepository.saveUser(user.copyWith(
+      userName: userName,
+      phoneNumber: phoneNumber,
+      preferences: preferences,
+    ));
   }
 
   Future<void> signOut() async {
