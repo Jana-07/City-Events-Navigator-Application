@@ -85,16 +85,16 @@ GoRouter goRouter(Ref ref) {
             GoRoute(
               path: Routes.profile,
               builder: (context, state) => const ProfileScreen(),
-              routes: [
-                GoRoute(
-                  path: Routes.adminEdit,
-                  name: Routes.editEventName,
-                  builder: (context, state) {
-                    final eventId = state.pathParameters['eventId'] ?? '';
-                    return CreateEditEventScreen(eventId: eventId);
-                  },
-                ),
-              ],
+              // routes: [
+              //   GoRoute(
+              //     path: Routes.adminEdit,
+              //     name: Routes.editEventName,
+              //     builder: (context, state) {
+              //       final eventId = state.pathParameters['eventId'] ?? '';
+              //       return CreateEditEventScreen(eventId: eventId);
+              //     },
+              //   ),
+              // ],
             ),
           ]),
         ],

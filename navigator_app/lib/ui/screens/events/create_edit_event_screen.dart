@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
 class CreateEditEventScreen extends ConsumerStatefulWidget {
   final String? eventId;
   final LatLng? location;
@@ -32,7 +33,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   final _addressController = TextEditingController();
   final _priceController = TextEditingController();
   final _ticketURLController = TextEditingController();
-  
+
   DateTime _startDate = DateTime.now().add(const Duration(days: 1));
   TimeOfDay _startTime = TimeOfDay.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 1, hours: 2));
@@ -42,15 +43,33 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   List<String> _selectedTags = [];
   List<String> _imageURLs = [];
   String _mainImageURL = '';
-  
-  bool _isLoading = false;
-  bool _isEditing = false;
+
   final List<String> saudiCities = [
-    'Riyadh', 'Jeddah', 'Mecca', 'Medina', 'Dammam',
-    'Khobar', 'Taif', 'Tabuk', 'Abha', 'Najran',
-    'Jubail', 'Yanbu', 'Hail', 'Buraidah', 'Khamis Mushait',
-    'Al Bahah', 'Arar', 'Sakaka', 'Jizan', 'Dhahran',
-    'Al Khafji', 'Al Qatif', 'Al Hofuf', 'Al Kharj', 'Unaizah'
+    'Riyadh',
+    'Jeddah',
+    'Mecca',
+    'Medina',
+    'Dammam',
+    'Khobar',
+    'Taif',
+    'Tabuk',
+    'Abha',
+    'Najran',
+    'Jubail',
+    'Yanbu',
+    'Hail',
+    'Buraidah',
+    'Khamis Mushait',
+    'Al Bahah',
+    'Arar',
+    'Sakaka',
+    'Jizan',
+    'Dhahran',
+    'Al Khafji',
+    'Al Qatif',
+    'Al Hofuf',
+    'Al Kharj',
+    'Unaizah'
   ];
 
   String? selectedCity;
@@ -85,7 +104,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
 
   // Default map type
   MapType _currentMapType = MapType.normal;
-  
+
   // Added for custom location selection
   LatLng? _selectedLocation;
   final _locationTextController = TextEditingController();
@@ -128,9 +147,11 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     selectedCity = 'Riyadh'; // Set default city
-    _selectedLocation = cityCoordinates['Riyadh']; // Initialize selected location
+
+    _selectedLocation = widget.location??
+        cityCoordinates['Riyadh']; // Initialize selected location
     _updateLocationText(); // Initialize location text
 
     _isEditing = widget.eventId != null;
@@ -155,10 +176,10 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
-      final event = await ref.read(eventRepositoryProvider).getEvent(widget.eventId!);
-      
+      final event =
+          await ref.read(eventRepositoryProvider).getEvent(widget.eventId!);
 
       if (event != null) {
         _titleController.text = event.title;
@@ -176,13 +197,13 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         _selectedTags = List<String>.from(event.tags);
         _imageURLs = List<String>.from(event.imageURLs);
         _mainImageURL = event.imageURL;
-        
+
         // Set location if available
         if (event.location != null) {
-          _selectedLocation = LatLng(event.location.latitude, event.location.longitude);
+          _selectedLocation =
+              LatLng(event.location.latitude, event.location.longitude);
           _updateLocationText();
         }
-
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -220,7 +241,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           if (user == null || user.uid == 'guest') {
             return const Center(child: Text('Please sign in to create events'));
           }
-          
+
           if (_isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -278,9 +299,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         Text(
           'Event Images',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 8),
         const Text('Add images to showcase your event (main image first)'),
@@ -295,10 +315,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
                 return _buildAddImageButton();
               }
 
-              
               final imageUrl = _imageURLs[index];
               final isMainImage = index == 0;
-              
 
               return Stack(
                 children: [
@@ -322,14 +340,13 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
                           width: 160,
                           height: 120,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => 
+                          errorBuilder: (context, error, stackTrace) =>
                               Container(
-                                width: 160,
-                                height: 120,
-                                color: Colors.grey[300],
-                                child: const Icon(Icons.image, size: 48),
-                              ),
-
+                            width: 160,
+                            height: 120,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.image, size: 48),
+                          ),
                         ),
                       ),
                     ),
@@ -412,9 +429,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         Text(
           'Basic Information',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 16),
         TextFormField(
@@ -457,9 +473,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         Text(
           'Date & Time',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 16),
         Row(
@@ -532,8 +547,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         Text(
           'Location',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 12),
         _buildCityDropdown(),
@@ -569,7 +584,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           isExpanded: true,
           underline: Container(),
           dropdownColor: const Color(0xFFF1F4F8), // Match background color
-          style: const TextStyle( // Add this style
+          style: const TextStyle(
+            // Add this style
             color: Colors.black, // Set text color to black
             fontSize: 14,
           ),
@@ -614,7 +630,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
             Marker(
               markerId: const MarkerId('selected_location'),
               position: _selectedLocation ?? const LatLng(24.7136, 46.6753),
-              infoWindow: InfoWindow(title: selectedCity ?? 'Selected Location'),
+              infoWindow:
+                  InfoWindow(title: selectedCity ?? 'Selected Location'),
             )
           },
           onMapCreated: (controller) {
@@ -627,7 +644,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
             setState(() {
               _selectedLocation = position;
               _updateLocationText();
-              
+
               // Try to find the nearest city for reference
               _findNearestCity(position);
             });
@@ -636,12 +653,12 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       ),
     );
   }
-  
+
   // Find the nearest city to the tapped location
   void _findNearestCity(LatLng position) {
     double minDistance = double.infinity;
     String? nearestCity;
-    
+
     cityCoordinates.forEach((city, coordinates) {
       final distance = _calculateDistance(position, coordinates);
       if (distance < minDistance) {
@@ -649,7 +666,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         nearestCity = city;
       }
     });
-    
+
     // Update selected city if a nearest one is found
     if (nearestCity != null) {
       setState(() {
@@ -657,31 +674,34 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       });
     }
   }
-  
+
   // Simple distance calculation between two points
   double _calculateDistance(LatLng point1, LatLng point2) {
     final latDiff = point1.latitude - point2.latitude;
     final lngDiff = point1.longitude - point2.longitude;
-    return (latDiff * latDiff) + (lngDiff * lngDiff); // Simplified distance formula
+    return (latDiff * latDiff) +
+        (lngDiff * lngDiff); // Simplified distance formula
   }
-  
+
   // Update the location text field
   void _updateLocationText() {
     if (_selectedLocation != null) {
-      _locationTextController.text = 'Lat: ${_selectedLocation!.latitude.toStringAsFixed(6)}, '
+      _locationTextController.text =
+          'Lat: ${_selectedLocation!.latitude.toStringAsFixed(6)}, '
           'Lng: ${_selectedLocation!.longitude.toStringAsFixed(6)}';
     } else {
       _locationTextController.text = '';
     }
   }
-  
+
   void _updateMapCamera() {
     if (selectedCity != null && mapController != null) {
-      final target = cityCoordinates[selectedCity] ?? const LatLng(24.7136, 46.6753);
+      final target =
+          cityCoordinates[selectedCity] ?? const LatLng(24.7136, 46.6753);
       mapController.animateCamera(
         CameraUpdate.newLatLng(target),
       );
-      
+
       // Update selected location
       setState(() {
         _selectedLocation = target;
@@ -697,9 +717,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         Text(
           'Category',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
@@ -739,9 +758,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         Text(
           'Tags',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 8),
         const Text('Select tags that describe your event'),
@@ -780,9 +798,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         Text(
           'Ticket Information',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 16),
         TextFormField(
@@ -825,17 +842,17 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       setState(() {
         _isLoading = true;
       });
-      
+
 //       try {
 //         final File imageFile = File(image.path);
 //         final String fileName = 'events/${DateTime.now().millisecondsSinceEpoch}_${image.name}';
-        
+
 //         final Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
 //         final UploadTask uploadTask = storageRef.putFile(imageFile);
-        
+
 //         final TaskSnapshot taskSnapshot = await uploadTask;
 //         final String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-        
+
 //         setState(() {
 //           _imageURLs.add(downloadUrl);
 //           if (_imageURLs.length == 1) {
@@ -901,18 +918,17 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       context: context,
       initialTime: _startTime,
     );
-    
+
     if (picked != null && picked != _startTime) {
       setState(() {
         _startTime = picked;
-        
+
         // If start and end dates are the same, ensure end time is after start time
-        if (_startDate.year == _endDate.year && 
-            _startDate.month == _endDate.month && 
+        if (_startDate.year == _endDate.year &&
+            _startDate.month == _endDate.month &&
             _startDate.day == _endDate.day) {
           final startTimeMinutes = _startTime.hour * 60 + _startTime.minute;
           final endTimeMinutes = _endTime.hour * 60 + _endTime.minute;
-          
 
           if (endTimeMinutes <= startTimeMinutes) {
             _endTime = TimeOfDay(
@@ -957,7 +973,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
 //     if (!_formKey.currentState!.validate()) {
 //       return;
 //     }
-    
+
 //     if (_imageURLs.isEmpty) {
 
     final eventRepository = ref.watch(eventRepositoryProvider);
@@ -972,18 +988,17 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       );
       return;
     }
-    
+
     if (_selectedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select a location on the map')),
       );
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
     });
-    
 
     try {
       final startDateTime = DateTime(
@@ -1006,8 +1021,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         id: _isEditing ? widget.eventId! : '',
         title: _titleController.text,
         description: _descriptionController.text,
-        location: GeoPoint(_selectedLocation!.latitude, _selectedLocation!.longitude),
-
+        location:
+            GeoPoint(_selectedLocation!.latitude, _selectedLocation!.longitude),
         address: _addressController.text,
         startDate: startDateTime,
         endDate: endDateTime,
@@ -1017,7 +1032,6 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         ticketURL: _ticketURLController.text,
         imageURL: _mainImageURL,
         imageURLs: _imageURLs,
-
         creatorID: userId,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -1035,12 +1049,10 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       print(mainImageUrl);
 
       if (_isEditing) {
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Event updated successfully')),
         );
       } else {
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Event created successfully')),
         );
@@ -1067,8 +1079,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Event'),
-        content: const Text('Are you sure you want to delete this event? This action cannot be undone.'),
-
+        content: const Text(
+            'Are you sure you want to delete this event? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
