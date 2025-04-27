@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/firebase_options.dart';
 import 'package:navigator_app/core/theme/theme.dart';
 import 'package:navigator_app/router/go_router_provider.dart';
+import 'package:navigator_app/ui/screens/events/create_edit_event_screen.dart';
 
 
 void main() async {
@@ -22,6 +23,7 @@ void main() async {
       child: MyApp(),
     ),
   );
+
 }
 
 class MyApp extends ConsumerWidget  {

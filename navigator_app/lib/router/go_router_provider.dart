@@ -60,6 +60,7 @@ GoRouter goRouter(Ref ref) {
           //Events Route
           StatefulShellBranch(routes: [
             GoRoute(
+
               path: Routes.cities,
               builder: (context, state) => CityGridScreen(),
             ),
