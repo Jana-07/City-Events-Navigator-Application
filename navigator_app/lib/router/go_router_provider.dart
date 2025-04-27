@@ -11,6 +11,7 @@ import 'package:navigator_app/providers/first_launch_provider.dart';
 import 'package:navigator_app/ui/screens/screens.dart';
 
 part 'go_router_provider.g.dart';
+
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 @riverpod
@@ -53,9 +54,7 @@ GoRouter goRouter(Ref ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.events,
-              builder: (context, state) => EventDetailsScreen(
-                event: dummyEvents[1],
-              ),
+              builder: (context, state) => CreateEditEventScreen(),
             ),
           ]),
           StatefulShellBranch(routes: [

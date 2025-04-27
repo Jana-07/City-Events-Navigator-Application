@@ -189,7 +189,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final currentUserAsync = ref.watch(currentUserProvider);
+    final currentUserAsync = ref.watch(authStateChangesProvider);
     
     return Scaffold(
       appBar: AppBar(
