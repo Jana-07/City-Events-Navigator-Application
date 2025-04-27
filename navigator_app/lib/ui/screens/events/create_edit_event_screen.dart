@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+import 'package:navigator_app/ui/controllers/user_controller.dart';
+
 class CreateEditEventScreen extends ConsumerStatefulWidget {
   final String? eventId;
   final LatLng? location;
@@ -273,7 +275,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      onPressed: () => _saveEvent(user.uid),
+                      onPressed: () => _saveEvent(user.uid, user.userName, user.profilePhotoURL),
                       child: Text(
                         _isEditing ? 'Update Event' : 'Create Event',
                         style: const TextStyle(fontSize: 16),
@@ -969,7 +971,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
     }
   }
 
-  void _saveEvent(String userId) async {
+  void _saveEvent(String userId, String userNmae, String userProfile) async {
 //     if (!_formKey.currentState!.validate()) {
 //       return;
 //     }
@@ -1016,7 +1018,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         _endTime.hour,
         _endTime.minute,
       );
-
+    
       final event = Event(
         id: _isEditing ? widget.eventId! : '',
         title: _titleController.text,
@@ -1033,6 +1035,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         imageURL: _mainImageURL,
         imageURLs: _imageURLs,
         creatorID: userId,
+        organizerName: userNmae,
+        organizerProfilePictureUrl: userProfile,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         averageRating: 0,

@@ -9,6 +9,8 @@ class Event {
   final GeoPoint location;
   final String address;
   final String creatorID;
+  final String organizerName;
+  final String organizerProfilePictureUrl;
   final String category;
   final double averageRating;
   final int reviewsCount;
@@ -30,6 +32,8 @@ class Event {
     required this.location,
     required this.address,
     required this.creatorID,
+    this.organizerName = '',
+    this.organizerProfilePictureUrl = '',
     required this.category,
     this.averageRating = 0.0,
     this.reviewsCount = 0,

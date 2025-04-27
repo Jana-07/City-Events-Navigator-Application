@@ -15,6 +15,39 @@ class _FilterScreenState extends State<FilterScreen> {
   String _selectedLocation = 'New York, USA';
   RangeValues _priceRange = const RangeValues(20, 120);
 
+  // Map the UI selections to filter values used by the EventsController
+  String _getCategoryFilter() {
+    // You can customize this mapping based on your needs
+    switch (_selectedCategory) {
+      case 'Sports':
+        return 'sports';
+      case 'Festivals':
+        return 'festivals';
+      case 'Art':
+        return 'art';
+      case 'Conference':
+        return 'conference';
+      case 'Food':
+        return 'food';
+      default:
+        return 'all';
+    }
+  }
+
+  String _getDateFilter() {
+    // Map UI date selection to filter values
+    switch (_selectedDate) {
+      case 'Today':
+        return 'today';
+      case 'Tomorrow':
+        return 'tomorrow';
+      case 'This week':
+        return 'this_week';
+      default:
+        return 'all';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +60,7 @@ class _FilterScreenState extends State<FilterScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
           onPressed: () {
-            context.pop();
+            context.pop(); // Pop without result
           },
         ),
       ),
@@ -330,9 +363,7 @@ class _FilterScreenState extends State<FilterScreen> {
                 activeTrackColor: Colors.green,
                 inactiveTrackColor: Colors.grey[300],
                 thumbColor: Colors.white,
-                //thumbShape: _CustomThumbShape(),
                 overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-                //rangeThumbShape: _CustomRangeThumbShape(),
                 rangeTrackShape: const RoundedRectRangeSliderTrackShape(),
               ),
               child: RangeSlider(
@@ -388,8 +419,21 @@ class _FilterScreenState extends State<FilterScreen> {
         Expanded(
           child: ElevatedButton(
             onPressed: () {
-              // Apply filters and navigate back
-              Navigator.pop(context);
+              // Create filter result map to return to the previous screen
+              final filterResult = {
+                'filter': _getCategoryFilter(), // Map category to filter value
+                'sortBy': 'date', // Default sort
+                'category': _selectedCategory,
+                'date': _getDateFilter(),
+                'location': _selectedLocation,
+                'priceRange': {
+                  'start': _priceRange.start,
+                  'end': _priceRange.end,
+                },
+              };
+              
+              // Return filter result to the previous screen
+              context.pop(filterResult);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
