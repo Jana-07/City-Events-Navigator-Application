@@ -232,14 +232,14 @@ class StaggeredAnimationList extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
 
   const StaggeredAnimationList({
-    Key? key,
+    super.key,
     required this.children,
     this.staggerDuration = const Duration(milliseconds: 50),
     this.animationDuration = const Duration(milliseconds: 400),
     this.direction = Axis.vertical,
     this.physics,
     this.padding,
-  }) : super(key: key);
+  });
 
   @override
   State<StaggeredAnimationList> createState() => _StaggeredAnimationListState();
@@ -296,12 +296,12 @@ class AnimatedAppearance extends StatefulWidget {
   final Curve curve;
 
   const AnimatedAppearance({
-    Key? key,
+    super.key,
     required this.child,
     this.duration = const Duration(milliseconds: 300),
     this.transitionType = TransitionType.fadeAndScale,
     this.curve = Curves.easeInOut,
-  }) : super(key: key);
+  });
 
   @override
   State<AnimatedAppearance> createState() => _AnimatedAppearanceState();

@@ -13,7 +13,7 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  List<Map<String, dynamic>> _events = [];
+  final List<Map<String, dynamic>> _events = [];
   GoogleMapController? _mapController;
   Set<Marker> _markers = {};
   String _selectedCategory = '';
@@ -348,7 +348,7 @@ class _MapScreenState extends State<MapScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '$formattedDate',
+                                formattedDate,
                                 style: TextStyle(
                                     color: Colors.indigo, fontSize: 12),
                               ),

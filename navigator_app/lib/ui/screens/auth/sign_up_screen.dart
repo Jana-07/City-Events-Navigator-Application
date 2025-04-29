@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigator_app/router/routes.dart';
@@ -7,7 +6,7 @@ import 'package:navigator_app/core/constant/size.dart';
 import 'package:navigator_app/ui/widgets/auth/sign_up_form.dart';
 
 class SignUpScreen extends StatelessWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+  const SignUpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

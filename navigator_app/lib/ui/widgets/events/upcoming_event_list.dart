@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:navigator_app/data/models/event.dart';
 import 'package:navigator_app/ui/controllers/event_controller.dart';
 import 'package:navigator_app/ui/widgets/events/upcoming_events_item.dart';
 

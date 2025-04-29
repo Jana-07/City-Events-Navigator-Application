@@ -12,13 +12,13 @@ class CloudinaryImageWidget extends StatelessWidget {
   final BorderRadius? borderRadius;
   
   const CloudinaryImageWidget({
-    Key? key,
+    super.key,
     required this.imageUrl,
     this.width = 300,
     this.height = 200,
     this.fit = BoxFit.cover,
     this.borderRadius,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {

@@ -21,7 +21,7 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
   Set<Marker> _markers = {};
   String _selectedCategory = '';
   Event? _selectedEvent;
-  Map<String, BitmapDescriptor> _categoryIcons = {};
+  final Map<String, BitmapDescriptor> _categoryIcons = {};
   bool _isLoading = true;
 
   @override

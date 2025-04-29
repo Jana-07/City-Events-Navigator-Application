@@ -105,13 +105,13 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   };
 
   // Default map type
-  MapType _currentMapType = MapType.normal;
+  final MapType _currentMapType = MapType.normal;
 
   // Added for custom location selection
   LatLng? _selectedLocation;
   final _locationTextController = TextEditingController();
   late File _imageFile;
-  List<File>? _imagesFiles = null;
+  late final List<File>? _imagesFiles;
   bool _isLoading = false;
   bool _isEditing = false;
 
@@ -201,12 +201,10 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         _mainImageURL = event.imageURL;
 
         // Set location if available
-        if (event.location != null) {
-          _selectedLocation =
-              LatLng(event.location.latitude, event.location.longitude);
-          _updateLocationText();
-        }
-      }
+        _selectedLocation =
+            LatLng(event.location.latitude, event.location.longitude);
+        _updateLocationText();
+            }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading event: $e')),
@@ -697,7 +695,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   }
 
   void _updateMapCamera() {
-    if (selectedCity != null && mapController != null) {
+    if (selectedCity != null) {
       final target =
           cityCoordinates[selectedCity] ?? const LatLng(24.7136, 46.6753);
       mapController.animateCamera(
@@ -1026,6 +1024,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         location:
             GeoPoint(_selectedLocation!.latitude, _selectedLocation!.longitude),
         address: _addressController.text,
+        city: _addressController.text,
         startDate: startDateTime,
         endDate: endDateTime,
         category: _selectedCategory,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigator_app/core/utils/error_hander.dart';
-import 'package:navigator_app/core/utils/loading_state.dart';
 import 'package:navigator_app/core/utils/role_based_access.dart';
 import 'package:navigator_app/data/models/app_user.dart';
 import 'package:navigator_app/data/models/event.dart';
@@ -37,9 +36,9 @@ class AsyncErrorHandler extends ConsumerWidget {
   final Widget Function(BuildContext, WidgetRef) builder;
   
   const AsyncErrorHandler({
-    Key? key,
+    super.key,
     required this.builder,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context, WidgetRef ref) {

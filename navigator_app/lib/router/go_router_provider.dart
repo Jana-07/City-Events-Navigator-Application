@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:navigator_app/ui/screens/cities_screen.dart';
 import 'package:navigator_app/ui/screens/events/event_list_screen_two.dart';
-import 'package:navigator_app/ui/screens/map/map_screen.dart';
 import 'package:navigator_app/ui/screens/map/map_screen2.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

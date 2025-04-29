@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:navigator_app/data/repositories/event_repository.dart';
+import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
+import 'package:navigator_app/ui/controllers/event_controller.dart';
 
-import 'package:navigator_app/data/models/event.dart';
 import 'package:navigator_app/ui/widgets/common/favorite_button.dart';
 
-class EventItem extends StatelessWidget {
+class EventItem extends ConsumerWidget {
   const EventItem({
     super.key,
     //required this.event,
@@ -25,7 +28,7 @@ class EventItem extends StatelessWidget {
   final String imageURL;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     return SizedBox(
       height: 140,

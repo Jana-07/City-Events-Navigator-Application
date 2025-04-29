@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/core/constant/size.dart';
 import 'package:navigator_app/core/constant/text.dart';
 import 'package:navigator_app/data/category_data.dart';
-import 'package:navigator_app/data/models/categoy.dart';
 import 'package:navigator_app/ui/controllers/auth_controller.dart';
 import 'package:navigator_app/ui/widgets/common/app_text_form_field.dart';
 import 'package:navigator_app/ui/widgets/common/login_button.dart';

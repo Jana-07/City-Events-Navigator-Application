@@ -48,6 +48,14 @@ class _EventsListState extends ConsumerState<EventsList> {
     super.dispose();
   }
 
+  void _deleteEvent(String eventId) {
+    ref
+        .read(eventsControllerProvider(
+                filter: widget.filter, sortBy: widget.sortBy)
+            .notifier)
+        .deleteEvent(eventId);
+  }
+
   @override
   Widget build(BuildContext context) {
     final eventsAsync = widget.filter == 'favorite'
@@ -79,18 +87,74 @@ class _EventsListState extends ConsumerState<EventsList> {
           itemCount: events.length,
           itemBuilder: (ctx, index) {
             final event = events[index];
-            return EventItem(
-              eventId: event.id,
-              title: event.title,
-              address: event.address,
-              date: event.date,
-              imageURL: event.imageURL,
-              onToggle: () {
-                context.pushNamed(
-                  Routes.eventDetailsName,
-                  pathParameters: {'eventId': event.id},
+             return Dismissible(
+              key: Key(event.id),
+              
+              direction: DismissDirection.endToStart,
+              
+              onDismissed: (direction) {
+                _deleteEvent(event.id);
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${event.title} removed'),
+                    action: SnackBarAction(
+                      label: 'Undo',
+                      onPressed: () {
+                        // Implement undo functionality if needed
+                        // This would require adding the event back
+                      },
+                    ),
+                  ),
                 );
               },
+              
+              background: Container(
+                color: Colors.red,
+                alignment: Alignment.centerRight,
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Icon(
+                  Icons.delete,
+                  color: Colors.white,
+                ),
+              ),
+              
+              confirmDismiss: (direction) async {
+                return await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Confirm'),
+                      content: Text('Are you sure you want to delete ${event.title}?'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text('Delete'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              
+              // The actual item widget
+              child: EventItem(
+                eventId: event.id,
+                title: event.title,
+                address: event.address,
+                date: event.date,
+                imageURL: event.imageURL,
+                onToggle: () {
+                  context.pushNamed(
+                    Routes.eventDetailsName,
+                    pathParameters: {'eventId': event.id},
+                  );
+                },
+              ),
             );
           },
           separatorBuilder: (ctx, index) => const SizedBox(height: 6),

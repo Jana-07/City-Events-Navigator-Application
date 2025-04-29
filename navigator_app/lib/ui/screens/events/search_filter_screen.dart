@@ -10,7 +10,7 @@ final selectedDateRangeProvider = StateProvider<DateTimeRange?>((ref) => null);
 final priceRangeProvider = StateProvider<RangeValues>((ref) => const RangeValues(0, 1000));
 
 class SearchFilterScreen extends ConsumerStatefulWidget {
-  const SearchFilterScreen({Key? key}) : super(key: key);
+  const SearchFilterScreen({super.key});
 
   @override
   ConsumerState<SearchFilterScreen> createState() => _SearchFilterScreenState();

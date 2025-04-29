@@ -8,6 +8,7 @@ class Event {
   final DateTime endDate;
   final GeoPoint location;
   final String address;
+  final String city;
   final String creatorID;
   final String organizerName;
   final String organizerProfilePictureUrl;
@@ -31,6 +32,7 @@ class Event {
     required this.endDate,
     required this.location,
     required this.address,
+    required this.city,
     required this.creatorID,
     this.organizerName = '',
     this.organizerProfilePictureUrl = '',
@@ -59,6 +61,7 @@ class Event {
       endDate: (data['endDate'] as Timestamp?)?.toDate() ?? DateTime.now().add(const Duration(hours: 2)),
       location: data['location'] as GeoPoint? ?? const GeoPoint(0, 0),
       address: data['address'] ?? '',
+      city: data['city'] ?? '',
       creatorID: data['creatorID'] ?? '',
       category: data['category'] ?? '',
       averageRating: (data['averageRating'] as num?)?.toDouble() ?? 0.0,
@@ -83,6 +86,7 @@ class Event {
       'endDate': Timestamp.fromDate(endDate),
       'location': location,
       'address': address,
+      'city': city,
       'creatorID': creatorID,
       'category': category,
       'averageRating': averageRating,
@@ -105,6 +109,7 @@ class Event {
     DateTime? endDate,
     GeoPoint? location,
     String? address,
+    String? city,
     String? creatorID,
     String? category,
     double? averageRating,
@@ -124,6 +129,7 @@ class Event {
       endDate: endDate ?? this.endDate,
       location: location ?? this.location,
       address: address ?? this.address,
+      city: city?? this.city,
       creatorID: creatorID ?? this.creatorID,
       category: category ?? this.category,
       averageRating: averageRating ?? this.averageRating,

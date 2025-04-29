@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:navigator_app/ui/screens/events/event_list_screen.dart';
 
 class SectionHeader extends StatelessWidget {
   const SectionHeader({super.key, required this.title, required this.onTab});

@@ -13,7 +13,7 @@ final List<Category> categories = [
     color: Color.fromARGB(255, 184, 66, 66),
   ),
   Category(
-    name: 'Sports',
+    name: 'Sport',
     icon: Icons.sports_basketball_outlined,
     color: Color.fromARGB(255, 38, 141, 244),
   ),
@@ -32,14 +32,21 @@ final List<Category> categories = [
     icon: Icons.cast_for_education_outlined,
     color: Color.fromARGB(255, 122, 205, 205),
   ),
+  
   Category(
-    name: 'Other',
-    icon: Icons.add_to_photos_outlined,
-    color: Color.fromARGB(255, 76, 120, 83),
+    name: 'Cultural',
+    icon: Icons.landscape_rounded,
+    color: Color.fromARGB(255, 51, 66, 134),
   ),
   Category(
     name: 'Business',
     icon: Icons.business_sharp,
     color: Color.fromARGB(255, 51, 66, 134),
   ),
+  Category(
+    name: 'Other',
+    icon: Icons.add_to_photos_outlined,
+    color: Color.fromARGB(255, 76, 120, 83),
+  ),
+
 ];

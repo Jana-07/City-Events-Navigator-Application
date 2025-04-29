@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:navigator_app/data/models/event.dart';
 import 'package:navigator_app/data/models/favorite.dart';
 import 'package:navigator_app/data/repositories/user_repository.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';

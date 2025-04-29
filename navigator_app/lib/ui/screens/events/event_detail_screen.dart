@@ -2,19 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:navigator_app/data/category_data.dart';
-import 'package:navigator_app/data/models/categoy.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
-import 'package:navigator_app/ui/controllers/event_controller.dart';
 import 'package:navigator_app/ui/widgets/common/favorite_button.dart';
 
 class EventDetailsScreen extends ConsumerWidget {
   final String eventId;
 
   const EventDetailsScreen({
-    Key? key,
+    super.key,
     required this.eventId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
