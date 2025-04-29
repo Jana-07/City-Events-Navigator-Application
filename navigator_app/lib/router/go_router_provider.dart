@@ -59,7 +59,6 @@ GoRouter goRouter(Ref ref) {
           //Events Route
           StatefulShellBranch(routes: [
             GoRoute(
-
               path: Routes.cities,
               builder: (context, state) => CityGridScreen(),
             ),
@@ -99,13 +98,23 @@ GoRouter goRouter(Ref ref) {
         ],
       ),
       GoRoute(
-        path: Routes.adminCreate,
-        name: Routes.createEventName,
-        builder: (context, state) {
-          final LatLng location = state.extra as LatLng;
-          return CreateEditEventScreen(location: location);
-        }
-      ),
+          path: Routes.createEvent,
+          name: Routes.createEventName,
+          builder: (context, state) {
+            final LatLng? location =
+                state.extra is LatLng ? state.extra as LatLng : null;
+            final String? eventId = state.pathParameters['eventId'];
+
+            return CreateEditEventScreen(location: location, eventId: eventId);
+          }),
+      GoRoute(
+          path: Routes.editEvent,
+          name: Routes.editEventName,
+          builder: (context, state) {
+            final LatLng? location =
+                state.extra is LatLng ? state.extra as LatLng : null;
+            return CreateEditEventScreen(location: location);
+          }),
       GoRoute(
         path: Routes.splash,
         builder: (context, state) => const SplashScreen(),

@@ -31,7 +31,7 @@ class _UpcomingEventsListState extends ConsumerState<UpcomingEventsList> {
         ref
             .read(eventsControllerProvider(filter: 'all', sortBy: 'date')
                 .notifier)
-            .fetchMore(filter: widget.filter, sortBy: widget.sortBy);
+            .fetchMore();
       }
     });
   }

@@ -32,10 +32,10 @@ class LimitedFavoriteEventsList extends ConsumerWidget {
 
             return EventItem(
               eventId: event.id,
-              title: event.eventTitle,
-              address: event.eventAddress,
-              date: event.eventStartDate,
-              imageURL: event.eventImageURL,
+              title: event.title,
+              address: event.address,
+              date: event.startDate,
+              imageURL: event.imageURL,
               onToggle: () {
                 context.pushNamed(
                   Routes.eventDetailsName,

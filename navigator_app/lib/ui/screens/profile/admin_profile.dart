@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:navigator_app/data/models/app_user.dart';
+import 'package:navigator_app/router/routes.dart';
+import 'package:navigator_app/ui/widgets/events/events_list.dart';
 
 class AdminProfile extends StatefulWidget {
   final AppUser user;
-  
+
   const AdminProfile({super.key, required this.user});
 
   @override
@@ -21,19 +24,22 @@ class _AdminProfileState extends State<AdminProfile>
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        title: TextButton.icon(
           onPressed: () {
+            //Navigate to edit profile screen
           },
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              // Show more options
-            },
+          label: Text(
+            'Edit Profile',
+            style: TextStyle(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ],
+          icon: Icon(
+            Icons.edit,
+            color: colorScheme.primary,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -58,55 +64,9 @@ class _AdminProfileState extends State<AdminProfile>
               width: MediaQuery.of(context).size.width * 0.5,
               child: OutlinedButton(
                 onPressed: () {
-                  // Navigate to edit profile
-                },
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                    color: colorScheme.primary,
-                    width: 2,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.edit_calendar_outlined,
-                        color: colorScheme.primary),
-                    const SizedBox(width: 30),
-                    Text(
-                      'Edit Profile',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildTabButton("ABOUT"),
-                _buildTabButton("EVENT"),
-              ],
-            ),
-            _buildTabContent(),
-          ],
-        ),
-      ),
-      floatingActionButton: _currentTab == "EVENT"
-          ? SizedBox(
-              width: MediaQuery.of(context).size.width * 0.5,
-              child: OutlinedButton(
-                onPressed: () {
-                  // Navigate to add event screen
+                  context.pushNamed(
+                    Routes.createEventName,
+                  );
                 },
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(
@@ -135,9 +95,19 @@ class _AdminProfileState extends State<AdminProfile>
                   ],
                 ),
               ),
-            )
-          : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildTabButton("About"),
+                _buildTabButton("Hosted Events"),
+              ],
+            ),
+            _buildTabContent(),
+          ],
+        ),
+      ),
     );
   }
 
@@ -163,7 +133,7 @@ class _AdminProfileState extends State<AdminProfile>
   }
 
   Widget _buildTabContent() {
-    if (_currentTab == "ABOUT") {
+    if (_currentTab == "About") {
       return Column(
         children: [
           Align(
@@ -186,86 +156,33 @@ class _AdminProfileState extends State<AdminProfile>
           ),
         ],
       );
-    } else if (_currentTab == "EVENT") {
-      return SingleChildScrollView(
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.5,
-                child: Divider(
-                  color: Theme.of(context).colorScheme.primary,
-                  indent: 2,
-                  endIndent: 4,
-                ),
+    } else if (_currentTab == "Hosted Events") {
+      final mediaQuery = MediaQuery.of(context);
+      final availableHeight = mediaQuery.size.height -
+          mediaQuery.padding.top -
+          kToolbarHeight -
+          kBottomNavigationBarHeight;
+      return Column(
+        children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: Divider(
+                color: Theme.of(context).colorScheme.primary,
+                indent: 2,
+                endIndent: 4,
               ),
             ),
-            _buildEventCard(
-              "A virtual evening of smooth jazz",
-              '1ST MAY-SAT-2:00 PM',
-              'Al-Ula',
-              'assets/w.JPG', // Replace with your image path
-            ),
-            _buildEventCard(
-              "Jo malone london's mother's day",
-              "1ST MAY-SAT-2:00 PM",
-              'Jeddah',
-              'assets/ww.JPG', // Replace with your image path
-            ),
-            _buildEventCard(
-              "Women's leadership conference",
-              "1ST MAY-SAT-2:00 PM",
-              'Al-Ula',
-              'assets/w.JPG', // Replace with your image path
-            ),
-          ],
-        ),
+          ),
+          SizedBox(
+            height: availableHeight,
+            child: EventsList(filter: 'organizer'),
+          ),
+        ],
       );
     } else {
       return const Text("Invalid tab");
     }
-  }
-
-  Widget _buildEventCard(
-    String title,
-    String time,
-    String location,
-    String image,
-  ) {
-    return Card(
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: ListTile(
-        leading: Image.asset(
-          image,
-          width: 50, // Adjust size as needed
-          height: 200,
-          fit: BoxFit.fill,
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              time,
-              style: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(location),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
   }
 }

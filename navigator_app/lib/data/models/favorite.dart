@@ -1,25 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:navigator_app/data/models/event.dart';
 
 class FavoriteEvent {
   final String id;
   final DateTime addedAt;
-  final String eventAddress;
-  final String eventImageURL;
+  final String address;
+  final String imageURL;
   final DocumentReference eventRef;
-  final DateTime eventStartDate;
-  final String eventTitle;
+  final DateTime startDate;
+  final String title;
   final bool notify;
   final int reminderTime; // Time in minutes before event to send reminder
 
   FavoriteEvent({
     required this.id,
     required this.addedAt,
-    required this.eventAddress,
-    required this.eventImageURL,
+    required this.address,
+    required this.imageURL,
     required this.eventRef,
-    required this.eventStartDate,
-    required this.eventTitle,
+    required this.startDate,
+    required this.title,
     this.notify = false,
     this.reminderTime = 60, // Default 1 hour reminder
   });
@@ -31,11 +30,11 @@ class FavoriteEvent {
     return FavoriteEvent(
       id: doc.id,
       addedAt: (data['addedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      eventAddress: data['eventAddress'] ?? '',
-      eventImageURL: data['eventImageURL'] ?? '',
+      address: data['address'] ?? '',
+      imageURL: data['imageURL'] ?? '',
       eventRef: data['eventRef'] as DocumentReference? ?? FirebaseFirestore.instance.doc('events/placeholder'),
-      eventStartDate: (data['eventStartDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      eventTitle: data['eventTitle'] ?? '',
+      startDate: (data['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      title: data['title'] ?? '',
       notify: data['notify'] ?? false,
       reminderTime: data['reminderTime'] ?? 60,
     );
@@ -45,11 +44,11 @@ class FavoriteEvent {
   Map<String, dynamic> toMap() {
     return {
       'addedAt': Timestamp.fromDate(addedAt),
-      'eventAddress': eventAddress,
-      'eventImageURL': eventImageURL,
+      'address': address,
+      'imageURL': imageURL,
       'eventRef': eventRef,
-      'eventStartDate': Timestamp.fromDate(eventStartDate),
-      'eventTitle': eventTitle,
+      'startDate': Timestamp.fromDate(startDate),
+      'title': title,
       'notify': notify,
       'reminderTime': reminderTime,
     };
@@ -58,34 +57,24 @@ class FavoriteEvent {
   // Create a copy with updated fields
   FavoriteEvent copyWith({
     DateTime? addedAt,
-    String? eventAddress,
-    String? eventImageURL,
+    String? address,
+    String? imageURL,
     DocumentReference? eventRef,
-    DateTime? eventStartDate,
-    String? eventTitle,
+    DateTime? startDate,
+    String? title,
     bool? notify,
     int? reminderTime,
   }) {
     return FavoriteEvent(
       id: id,
       addedAt: addedAt ?? this.addedAt,
-      eventAddress: eventAddress ?? this.eventAddress,
-      eventImageURL: eventImageURL ?? this.eventImageURL,
+      address: address ?? this.address,
+      imageURL: imageURL ?? this.imageURL,
       eventRef: eventRef ?? this.eventRef,
-      eventStartDate: eventStartDate ?? this.eventStartDate,
-      eventTitle: eventTitle ?? this.eventTitle,
+      startDate: startDate ?? this.startDate,
+      title: title ?? this.title,
       notify: notify ?? this.notify,
       reminderTime: reminderTime ?? this.reminderTime,
     );
   }
-}
-
-extension FavoriteEventToUnified on FavoriteEvent {
-  UnifiedEvent toUnified() => UnifiedEvent(
-        id: id,
-        title: eventTitle,
-        address: eventAddress,
-        date: eventStartDate,
-        imageURL: eventImageURL,
-      );
 }

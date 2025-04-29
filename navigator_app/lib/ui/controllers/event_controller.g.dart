@@ -6,7 +6,7 @@ part of 'event_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$eventsControllerHash() => r'4543477600f67d1d964af8b63eaf3c8b51af85b7';
+String _$eventsControllerHash() => r'0646e7baa391984b6ac271d4c23c9465de731071';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,32 +30,32 @@ class _SystemHash {
 }
 
 abstract class _$EventsController
-    extends BuildlessAutoDisposeNotifier<AsyncValue<List<Event>>> {
+    extends BuildlessAutoDisposeAsyncNotifier<List<Event>> {
   late final String filter;
   late final String sortBy;
 
-  AsyncValue<List<Event>> build({
+  FutureOr<List<Event>> build({
     String filter = 'all',
     String sortBy = 'date',
   });
 }
 
-/// A provider for events with filtering and sorting capabilities
+/// A provider for events with filtering, sorting, and pagination capabilities
 ///
 /// Copied from [EventsController].
 @ProviderFor(EventsController)
 const eventsControllerProvider = EventsControllerFamily();
 
-/// A provider for events with filtering and sorting capabilities
+/// A provider for events with filtering, sorting, and pagination capabilities
 ///
 /// Copied from [EventsController].
 class EventsControllerFamily extends Family<AsyncValue<List<Event>>> {
-  /// A provider for events with filtering and sorting capabilities
+  /// A provider for events with filtering, sorting, and pagination capabilities
   ///
   /// Copied from [EventsController].
   const EventsControllerFamily();
 
-  /// A provider for events with filtering and sorting capabilities
+  /// A provider for events with filtering, sorting, and pagination capabilities
   ///
   /// Copied from [EventsController].
   EventsControllerProvider call({
@@ -93,12 +93,12 @@ class EventsControllerFamily extends Family<AsyncValue<List<Event>>> {
   String? get name => r'eventsControllerProvider';
 }
 
-/// A provider for events with filtering and sorting capabilities
+/// A provider for events with filtering, sorting, and pagination capabilities
 ///
 /// Copied from [EventsController].
-class EventsControllerProvider extends AutoDisposeNotifierProviderImpl<
-    EventsController, AsyncValue<List<Event>>> {
-  /// A provider for events with filtering and sorting capabilities
+class EventsControllerProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    EventsController, List<Event>> {
+  /// A provider for events with filtering, sorting, and pagination capabilities
   ///
   /// Copied from [EventsController].
   EventsControllerProvider({
@@ -136,7 +136,7 @@ class EventsControllerProvider extends AutoDisposeNotifierProviderImpl<
   final String sortBy;
 
   @override
-  AsyncValue<List<Event>> runNotifierBuild(
+  FutureOr<List<Event>> runNotifierBuild(
     covariant EventsController notifier,
   ) {
     return notifier.build(
@@ -165,7 +165,7 @@ class EventsControllerProvider extends AutoDisposeNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeNotifierProviderElement<EventsController, AsyncValue<List<Event>>>
+  AutoDisposeAsyncNotifierProviderElement<EventsController, List<Event>>
       createElement() {
     return _EventsControllerProviderElement(this);
   }
@@ -189,8 +189,7 @@ class EventsControllerProvider extends AutoDisposeNotifierProviderImpl<
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin EventsControllerRef
-    on AutoDisposeNotifierProviderRef<AsyncValue<List<Event>>> {
+mixin EventsControllerRef on AutoDisposeAsyncNotifierProviderRef<List<Event>> {
   /// The parameter `filter` of this provider.
   String get filter;
 
@@ -199,8 +198,8 @@ mixin EventsControllerRef
 }
 
 class _EventsControllerProviderElement
-    extends AutoDisposeNotifierProviderElement<EventsController,
-        AsyncValue<List<Event>>> with EventsControllerRef {
+    extends AutoDisposeAsyncNotifierProviderElement<EventsController,
+        List<Event>> with EventsControllerRef {
   _EventsControllerProviderElement(super.provider);
 
   @override

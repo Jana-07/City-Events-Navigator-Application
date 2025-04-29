@@ -160,13 +160,3 @@ class UnifiedEvent {
     required this.imageURL,
   });
 }
-
-extension EventToUnified on Event {
-  UnifiedEvent toUnified() => UnifiedEvent(
-        id: id,
-        title: title,
-        address: address,
-        date: startDate,
-        imageURL: imageURL,
-      );
-}

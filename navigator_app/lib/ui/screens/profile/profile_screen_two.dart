@@ -409,9 +409,9 @@ class ProfileScreenTwo extends ConsumerWidget {
                       children: [
                         AspectRatio(
                           aspectRatio: 16 / 9,
-                          child: favorite.eventImageURL.isNotEmpty
+                          child: favorite.imageURL.isNotEmpty
                               ? Image.network(
-                                  favorite.eventImageURL,
+                                  favorite.imageURL,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
                                       Container(
@@ -430,14 +430,14 @@ class ProfileScreenTwo extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                favorite.eventTitle,
+                                favorite.title,
                                 style: Theme.of(context).textTheme.titleMedium,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                favorite.eventAddress,
+                                favorite.address,
                                 style: Theme.of(context).textTheme.bodySmall,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -448,7 +448,7 @@ class ProfileScreenTwo extends ConsumerWidget {
                                   const Icon(Icons.calendar_today, size: 16),
                                   const SizedBox(width: 4),
                                   Text(
-                                    _formatDate(favorite.eventStartDate),
+                                    _formatDate(favorite.startDate),
                                     style:
                                         Theme.of(context).textTheme.bodySmall,
                                   ),

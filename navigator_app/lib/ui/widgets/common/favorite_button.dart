@@ -91,11 +91,11 @@ class FavoriteButton extends ConsumerWidget {
             event: FavoriteEvent(
                 id: eventId,
                 addedAt: DateTime.now(),
-                eventAddress: address,
-                eventImageURL: imageURL,
+                address: address,
+                imageURL: imageURL,
                 eventRef: eventRef,
-                eventStartDate: date,
-                eventTitle: title),
+                startDate: date,
+                title: title),
             context: context,
           );
 

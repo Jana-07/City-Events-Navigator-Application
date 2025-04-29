@@ -2,21 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigator_app/data/models/event.dart';
-import 'package:navigator_app/data/models/favorite.dart';
+import 'package:navigator_app/data/models/favorite.dart'; // Assuming FavoriteEvent has toUnified()
 import 'package:navigator_app/router/routes.dart';
 import 'package:navigator_app/ui/controllers/event_controller.dart';
-import 'package:navigator_app/ui/controllers/favorite_controller.dart';
+import 'package:navigator_app/ui/controllers/favorite_controller.dart'; // Assuming userFavoritesStreamProvider exists
 import 'package:navigator_app/ui/widgets/events/event_item.dart';
 
 class EventsList extends ConsumerStatefulWidget {
   const EventsList({
     super.key,
-    //required this.events,
     this.filter = 'all',
-    this.sortBy = 'date',
+    this.sortBy = 'date', // Corresponds to 'startDate' in Event model
   });
 
-  //final List<Event> events;
   final String filter;
   final String sortBy;
 
@@ -30,20 +28,24 @@ class _EventsListState extends ConsumerState<EventsList> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200) {
-        ref
-            .read(eventsControllerProvider(
-                    filter: widget.filter, sortBy: widget.sortBy)
-                .notifier)
-            .fetchMore(filter: widget.filter, sortBy: widget.sortBy);
-      }
-    });
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    // Check if scrolled near the bottom
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      // Call fetchMore without arguments
+      final controllerNotifier = ref.read(
+          eventsControllerProvider(filter: widget.filter, sortBy: widget.sortBy)
+              .notifier);
+      controllerNotifier.fetchMore();
+    }
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     super.dispose();
   }
@@ -58,95 +60,91 @@ class _EventsListState extends ConsumerState<EventsList> {
 
   @override
   Widget build(BuildContext context) {
+    final eventsProvider = eventsControllerProvider(
+      filter: widget.filter,
+      sortBy: widget.sortBy,
+    );
     final eventsAsync = widget.filter == 'favorite'
         ? ref.watch(userFavoritesStreamProvider(null))
-        : ref.watch(eventsControllerProvider(
-            filter: widget.filter, sortBy: widget.sortBy));
-
-    // final eventsAsync = ref.watch(
-    //     eventsControllerProvider(filter: widget.filter, sortBy: widget.sortBy));
+        : ref.watch(eventsProvider);
 
     return eventsAsync.when(
       data: (rawEvents) {
         if (rawEvents.isEmpty) {
-          return Center(
+          return const Center(
             child: Text('No events available'),
           );
         }
-        final events = widget.filter == 'favorite'
-            ? (rawEvents as List<FavoriteEvent>)
-                .map((favEvent) => favEvent.toUnified())
-                .toList()
-            : (rawEvents as List<Event>)
-                .map((event) => event.toUnified())
-                .toList();
+
+        // Adapt data based on whether it's favorites or regular events
+        final List<dynamic> events;
+        if (widget.filter == 'favorite') {
+          if (rawEvents is List<FavoriteEvent>) {
+            events = rawEvents;
+          } else {
+            return const Center(
+                child: Text('Error: Unexpected favorite data type'));
+          }
+        } else {
+          if (rawEvents is List<Event>) {
+            events = rawEvents;
+          } else {
+            return const Center(
+                child: Text('Error: Unexpected event data type'));
+          }
+        }
 
         return ListView.separated(
           controller: _scrollController,
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
           itemCount: events.length,
           itemBuilder: (ctx, index) {
             final event = events[index];
-             return Dismissible(
+            return Dismissible(
               key: Key(event.id),
-              
               direction: DismissDirection.endToStart,
-              
               onDismissed: (direction) {
                 _deleteEvent(event.id);
-                
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('${event.title} removed'),
-                    action: SnackBarAction(
-                      label: 'Undo',
-                      onPressed: () {
-                        // Implement undo functionality if needed
-                        // This would require adding the event back
-                      },
-                    ),
+                    content: Text(
+                        '${event.title} removed'), // Assuming common 'title'
                   ),
                 );
               },
-              
               background: Container(
                 color: Colors.red,
                 alignment: Alignment.centerRight,
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Icon(
-                  Icons.delete,
-                  color: Colors.white,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: const Icon(Icons.delete, color: Colors.white),
               ),
-              
               confirmDismiss: (direction) async {
                 return await showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text('Confirm'),
-                      content: Text('Are you sure you want to delete ${event.title}?'),
+                      title: const Text('Confirm'),
+                      content: Text(
+                          'Are you sure you want to delete ${event.title}?'),
                       actions: <Widget>[
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(false),
-                          child: Text('Cancel'),
+                          child: const Text('Cancel'),
                         ),
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(true),
-                          child: Text('Delete'),
+                          child: const Text('Delete'),
                         ),
                       ],
                     );
                   },
                 );
               },
-              
-              // The actual item widget
               child: EventItem(
                 eventId: event.id,
                 title: event.title,
                 address: event.address,
-                date: event.date,
+                date: event.startDate,
                 imageURL: event.imageURL,
                 onToggle: () {
                   context.pushNamed(
@@ -164,7 +162,8 @@ class _EventsListState extends ConsumerState<EventsList> {
         child: CircularProgressIndicator(),
       ),
       error: (e, st) => Center(
-        child: Text("Error loading events: $e"),
+        // Displaying the stack trace might be helpful during development
+        child: Text("Error loading events: $e\n$st"),
       ),
     );
   }

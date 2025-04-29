@@ -12,8 +12,8 @@ class Routes {
   static const String adminProfile = 'admin';
   static const String guestProfile = 'guest';
   static const String userProfile = 'user';
-  static const String adminCreate = '/create';
-  static const String adminEdit = 'edit/:eventId';
+  static const String createEvent = '/create';
+  static const String editEvent = 'edit/:eventId';
   static const String eventsList = '/events';
   static const String loading = '/loading';
   static const String map = '/map';
