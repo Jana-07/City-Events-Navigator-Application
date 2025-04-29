@@ -3,6 +3,7 @@ class CloudinaryConfig {
 
   static const String cloudName = 'dcq4awvap';
   static const String uploadPreset = 'event_images';
+  static const String userUploadPreset = 'user_profile_image';
   static const String profileFolder = '';
   static const String eventFolder = 'events';
   static const String apiKey = '';
@@ -12,4 +13,5 @@ class CloudinaryConfig {
   
   // Folder structure for events
   static String eventImagePath(String eventId)  => 'events/$eventId';
+  static String profileImagePath(String userId)  => 'usersProfileImage/$userId';
 }

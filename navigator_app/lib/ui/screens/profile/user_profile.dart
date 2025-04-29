@@ -23,7 +23,7 @@ class UserProfile extends StatelessWidget {
           appBar: AppBar(
             title: TextButton.icon(
               onPressed: () {
-                //Navigate to edit profile screen
+                context.pushNamed(Routes.editProfileName);
               },
               label: Text(
                 'Edit Profile',

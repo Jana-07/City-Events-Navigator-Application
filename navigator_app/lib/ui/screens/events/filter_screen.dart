@@ -12,7 +12,7 @@ class FilterScreen extends StatefulWidget {
 class _FilterScreenState extends State<FilterScreen> {
   String _selectedCategory = 'Sports';
   String _selectedDate = 'Tomorrow';
-  String _selectedLocation = 'New York, USA';
+  String _selectedLocation = 'Qassim';
   RangeValues _priceRange = const RangeValues(20, 120);
 
   // Map the UI selections to filter values used by the EventsController
@@ -54,7 +54,7 @@ class _FilterScreenState extends State<FilterScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: const Text(
-          'Event Booking App- EventHub',
+          'Filters',
           style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(
@@ -85,13 +85,13 @@ class _FilterScreenState extends State<FilterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Filter',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  // const Text(
+                  //   'Filter',
+                  //   style: TextStyle(
+                  //     fontSize: 24,
+                  //     fontWeight: FontWeight.bold,
+                  //   ),
+                  // ),
                   const SizedBox(height: 24),
                   _buildCategorySelector(),
                   const SizedBox(height: 24),
@@ -118,18 +118,18 @@ class _FilterScreenState extends State<FilterScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildCategoryButton('Sports', Icons.sports_basketball, Colors.green),
-            _buildCategoryButton('Festivals', Icons.music_note, Colors.grey),
-            _buildCategoryButton('Art', Icons.palette, Colors.green),
-            _buildCategoryButton('Conference', Icons.people, Colors.grey),
-            _buildCategoryButton('Food', Icons.restaurant, Colors.grey),
+            _buildCategoryButton('Sports', Icons.sports_basketball),
+            _buildCategoryButton('Festivals', Icons.music_note),
+            _buildCategoryButton('Art', Icons.palette),
+            _buildCategoryButton('Conference', Icons.people),
+            _buildCategoryButton('Food', Icons.restaurant),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildCategoryButton(String category, IconData icon, Color color) {
+  Widget _buildCategoryButton(String category, IconData icon) {
     final isSelected = _selectedCategory == category;
     
     return GestureDetector(
@@ -144,7 +144,7 @@ class _FilterScreenState extends State<FilterScreen> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: isSelected ? color : Colors.grey[200],
+              color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey[200],
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -209,10 +209,10 @@ class _FilterScreenState extends State<FilterScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.green : Colors.white,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Colors.green : Colors.grey[300]!,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey[300]!,
           ),
         ),
         child: Center(
@@ -436,7 +436,7 @@ class _FilterScreenState extends State<FilterScreen> {
               context.pop(filterResult);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(

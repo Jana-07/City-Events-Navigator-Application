@@ -280,9 +280,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 groupValue: currentLanguage,
                 onChanged: (value) {
                   if (value != null) {
-                    ref
-                        .read(userControllerProvider.notifier)
-                        .updatePreferredLanguage(value);
+                    // ref
+                    //     .read(userControllerProvider.notifier)
+                    //     .updatePreferredLanguage(value);
 
                     Navigator.of(context).pop();
                   }

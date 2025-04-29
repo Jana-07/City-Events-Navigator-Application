@@ -1,11 +1,14 @@
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:navigator_app/core/constant/cloudinary_config.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:navigator_app/data/models/app_user.dart';
 import 'package:navigator_app/data/repositories/user_repository.dart';
 import 'package:navigator_app/core/utils/global_error_handler.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
+import 'package:navigator_app/data/services/cloudinary_service.dart'; // Import CloudinaryService
 
 part 'user_controller.g.dart';
 
@@ -13,6 +16,7 @@ part 'user_controller.g.dart';
 @riverpod
 class UserController extends _$UserController {
   late final UserRepository _userRepository;
+  final CloudinaryService _cloudinaryService = CloudinaryService();
 
   @override
   Future<AppUser> build() async {
@@ -33,10 +37,11 @@ class UserController extends _$UserController {
     }
   }
 
-  /// Update user profile information
+  /// Update user profile information (including phone number)
   Future<void> updateProfile({
     String? userName,
     String? email,
+    String? phoneNumber, // Added phoneNumber
     String? preferredLanguage,
   }) async {
     // Get current state
@@ -52,10 +57,11 @@ class UserController extends _$UserController {
       final updatedUser = currentUser.copyWith(
         userName: userName,
         email: email,
+        phoneNumber: phoneNumber, // Added phoneNumber
         preferredLanguage: preferredLanguage,
       );
 
-      // Save to repository
+      // Save to repository (saveUser should handle all fields in AppUser)
       await _userRepository.saveUser(updatedUser);
 
       // Refresh state
@@ -64,6 +70,39 @@ class UserController extends _$UserController {
       state = AsyncValue.error(e, st);
     }
   }
+
+  /// Update user profile photo
+  Future<void> updateProfilePhoto(File imageFile) async {
+    final currentUser = state.value;
+    if (currentUser == null || currentUser.isGuest) {
+      return;
+    }
+
+    state = const AsyncValue.loading();
+
+    try {
+      final folder = CloudinaryConfig.profileImagePath(currentUser.uid);
+      // Upload image and get URL
+      final result = await _cloudinaryService.uploadImage(imageFile, folder);
+      final imageUrl = result['secure_url'];
+
+      if (imageUrl != null) {
+        // Update photo URL in repository
+        await _userRepository.updateUserProfilePhoto(currentUser.uid, imageUrl);
+
+        // Update local state
+        final updatedUser = currentUser.copyWith(profilePhotoURL: imageUrl);
+        state = AsyncValue.data(updatedUser);
+      } else {
+        // Handle upload failure
+        throw Exception('Failed to upload profile photo');
+      }
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      // Optionally rethrow or handle specific errors
+    }
+  }
+
 
   /// Update user preferences
   Future<void> updatePreferences(List<String> preferences) async {
@@ -116,28 +155,9 @@ class UserController extends _$UserController {
     }
   }
 
-  Future<void> updatePreferredLanguage(String language) async {
-    final currentUser = state.value;
-    if (currentUser == null || currentUser.isGuest) {
-      return;
-    }
-
-    state = const AsyncValue.loading();
-
-    try {
-      // Update role in repository
-      await _userRepository.updateUserPreferredLanguage(currentUser.uid, language);
-
-      // Update local state
-      final updatedUser = currentUser.copyWith(
-        preferredLanguage: language,
-      );
-
-      state = AsyncValue.data(updatedUser);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  // Note: updatePreferredLanguage is now handled within updateProfile
+  // If separate update is still desired, it can remain, but updateProfile also covers it.
+  // Future<void> updatePreferredLanguage(String language) async { ... }
 }
 
 /// A widget that displays user data with error handling
@@ -158,14 +178,6 @@ class UserControllerWidget extends ConsumerWidget {
       data: builder,
       loadingWidget: const Center(
         child: CircularProgressIndicator(),
-        // Column(
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   children: [
-        //     CircularProgressIndicator(),
-        //     SizedBox(height: 16),
-        //     Text('Loading user profile...'),
-        //   ],
-        // ),
       ),
       errorWidget: (error, stackTrace) {
         return Center(
@@ -190,3 +202,4 @@ class UserControllerWidget extends ConsumerWidget {
     );
   }
 }
+

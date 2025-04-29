@@ -265,7 +265,7 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
           // Map
           GoogleMap(
             initialCameraPosition: const CameraPosition(
-              target: LatLng(26.3292, 43.9818), // Initial center position
+              target: LatLng(26.3609, 43.975), // Initial center position
               zoom: 14,
             ),
             markers: _markers,

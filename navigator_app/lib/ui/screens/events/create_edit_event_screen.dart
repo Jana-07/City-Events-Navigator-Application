@@ -228,6 +228,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         title: Text(_isEditing ? 'Edit Event' : 'Create Event'),
         backgroundColor: theme.primaryColor,
         foregroundColor: Colors.white,
+        iconTheme: IconThemeData().copyWith(color: Colors.white),
         actions: [
           if (_isEditing)
             IconButton(
@@ -270,13 +271,15 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
+
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                       ),
                       onPressed: () => _saveEvent(user.uid, user.userName, user.profilePhotoURL),
                       child: Text(
                         _isEditing ? 'Update Event' : 'Create Event',
-                        style: const TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 16, color: Colors.white),
                       ),
                     ),
                   ),
@@ -730,7 +733,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           items: _categories.map((category) {
             return DropdownMenuItem<String>(
               value: category,
-              child: Text(category),
+              child: Text(category, style: Theme.of(context).textTheme.bodyMedium,),
             );
           }).toList(),
           onChanged: (value) {

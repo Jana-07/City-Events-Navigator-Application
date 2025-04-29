@@ -18,9 +18,11 @@ class Routes {
   static const String loading = '/loading';
   static const String map = '/map';
   static const String cities = '/cities';
+  static const String editProfile = '/editProfile';
 
 
   // Named route identifiers
+  static const String editProfileName= 'editProfile';
   static const String eventDetailsName = 'eventDetails';
   static const String createEventName = 'createEvent';
   static const String editEventName = 'editEvent';

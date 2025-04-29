@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:navigator_app/ui/screens/cities_screen.dart';
 import 'package:navigator_app/ui/screens/events/event_list_screen_two.dart';
 import 'package:navigator_app/ui/screens/map/map_screen2.dart';
+import 'package:navigator_app/ui/screens/profile/edit_profile_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:navigator_app/router/routes.dart';
@@ -60,7 +61,7 @@ GoRouter goRouter(Ref ref) {
           StatefulShellBranch(routes: [
             GoRoute(
               path: Routes.cities,
-              builder: (context, state) => CityGridScreen(),
+              builder: (context, state) => CitiesScreen(),
             ),
           ]),
           //Explore Events Route
@@ -78,6 +79,7 @@ GoRouter goRouter(Ref ref) {
               builder: (context, state) => const MapScreenTwo(),
             ),
           ]),
+
           //Profile Route
           StatefulShellBranch(routes: [
             GoRoute(
@@ -85,12 +87,9 @@ GoRouter goRouter(Ref ref) {
               builder: (context, state) => const ProfileScreen(),
               // routes: [
               //   GoRoute(
-              //     path: Routes.adminEdit,
-              //     name: Routes.editEventName,
-              //     builder: (context, state) {
-              //       final eventId = state.pathParameters['eventId'] ?? '';
-              //       return CreateEditEventScreen(eventId: eventId);
-              //     },
+              //     path: Routes.editProfile,
+              //     name: Routes.editProfileName,
+              //     builder: (context, state) => const EditProfileScreen(),
               //   ),
               // ],
             ),
@@ -98,15 +97,21 @@ GoRouter goRouter(Ref ref) {
         ],
       ),
       GoRoute(
-          path: Routes.createEvent,
-          name: Routes.createEventName,
-          builder: (context, state) {
-            final LatLng? location =
-                state.extra is LatLng ? state.extra as LatLng : null;
-            final String? eventId = state.pathParameters['eventId'];
+        path: Routes.editProfile,
+        name: Routes.editProfileName,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: Routes.createEvent,
+        name: Routes.createEventName,
+        builder: (context, state) {
+          final LatLng? location =
+              state.extra is LatLng ? state.extra as LatLng : null;
+          final String? eventId = state.pathParameters['eventId'];
 
-            return CreateEditEventScreen(location: location, eventId: eventId);
-          }),
+          return CreateEditEventScreen(location: location, eventId: eventId);
+        },
+      ),
       GoRoute(
           path: Routes.editEvent,
           name: Routes.editEventName,

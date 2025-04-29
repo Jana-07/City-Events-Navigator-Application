@@ -137,16 +137,16 @@ class EventDetailsScreen extends ConsumerWidget {
                       const SizedBox(height: 24),
 
                       // --- Organizer Section ---
-                      const Text('Organizer',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      _buildOrganizerItem(
-                        role: 'Organizer',
-                        name: event.organizerName,
-                        imageUrl: event.organizerProfilePictureUrl,
-                      ),
-                      const SizedBox(height: 24),
+                      // const Text('Organizer',
+                      //     style: TextStyle(
+                      //         fontSize: 18, fontWeight: FontWeight.bold)),
+                      // const SizedBox(height: 8),
+                      // _buildOrganizerItem(
+                      //   role: 'Organizer',
+                      //   name: event.organizerName,
+                      //   imageUrl: event.organizerProfilePictureUrl,
+                      // ),
+                      // const SizedBox(height: 24),
 
                       // --- About Event Section ---
                       const Text('About Event',
@@ -154,26 +154,26 @@ class EventDetailsScreen extends ConsumerWidget {
                               fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       // Rating Bar
-                      Row(
-                        children: [
-                          RatingBarIndicator(
-                            rating: event.averageRating,
-                            itemCount: 5,
-                            itemSize: 20,
-                            direction: Axis.horizontal,
-                            itemBuilder: (context, _) => const Icon(
-                                Icons.star_rate_rounded,
-                                color: Colors.amber),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${event.averageRating.toStringAsFixed(1)} (${event.reviewsCount} reviews)', // Added review count
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
+                      // Row(
+                      //   children: [
+                      //     RatingBarIndicator(
+                      //       rating: event.averageRating,
+                      //       itemCount: 5,
+                      //       itemSize: 20,
+                      //       direction: Axis.horizontal,
+                      //       itemBuilder: (context, _) => const Icon(
+                      //           Icons.star_rate_rounded,
+                      //           color: Colors.amber),
+                      //     ),
+                      //     const SizedBox(width: 8),
+                      //     Text(
+                      //       '${event.averageRating.toStringAsFixed(1)} (${event.reviewsCount} reviews)', // Added review count
+                      //       style: TextStyle(
+                      //           color: Colors.grey[600],
+                      //           fontWeight: FontWeight.bold),
+                      //     ),
+                      //   ],
+                      // ),
                       const SizedBox(height: 16),
                       // Description
                       Text(event.description,
