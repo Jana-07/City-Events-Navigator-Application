@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigator_app/data/models/app_user.dart';
@@ -15,7 +16,7 @@ class AdminProfile extends StatefulWidget {
 
 class _AdminProfileState extends State<AdminProfile>
     with SingleTickerProviderStateMixin {
-  String _currentTab = "ABOUT"; // Initial tab
+  String _currentTab = "About";
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,7 @@ class _AdminProfileState extends State<AdminProfile>
       appBar: AppBar(
         title: TextButton.icon(
           onPressed: () {
-            //Navigate to edit profile screen
+            context.pushNamed(Routes.editProfileName);
           },
           label: Text(
             'Edit Profile',
@@ -45,11 +46,30 @@ class _AdminProfileState extends State<AdminProfile>
         child: Column(
           children: [
             const SizedBox(height: 20),
+            // CircleAvatar(
+            //   radius: 50,
+            //   backgroundImage: widget.user.profilePhotoURL.isNotEmpty
+            //       ? NetworkImage(widget.user.profilePhotoURL) as ImageProvider
+            //       : const AssetImage('assets/person.jpg'),
+            // ),
             CircleAvatar(
               radius: 50,
-              backgroundImage: widget.user.profilePhotoURL.isNotEmpty
-                  ? NetworkImage(widget.user.profilePhotoURL) as ImageProvider
-                  : const AssetImage('assets/person.jpg'),
+              backgroundColor: Colors.grey[200],
+              child: ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: '',
+                  fit: BoxFit.cover,
+                  width: 100,
+                  height: 100,
+                  placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => const Icon(
+                    Icons.person,
+                    size: 60,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             Text(

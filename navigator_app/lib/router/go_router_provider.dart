@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:navigator_app/ui/screens/cities_screen.dart';
-import 'package:navigator_app/ui/screens/events/event_list_screen_two.dart';
 import 'package:navigator_app/ui/screens/map/map_screen2.dart';
 import 'package:navigator_app/ui/screens/profile/edit_profile_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -85,13 +84,17 @@ GoRouter goRouter(Ref ref) {
             GoRoute(
               path: Routes.profile,
               builder: (context, state) => const ProfileScreen(),
-              // routes: [
-              //   GoRoute(
-              //     path: Routes.editProfile,
-              //     name: Routes.editProfileName,
-              //     builder: (context, state) => const EditProfileScreen(),
-              //   ),
-              // ],
+              routes: [
+                GoRoute(
+                    path: Routes.editEvent,
+                    name: Routes.editEventName,
+                    builder: (context, state) {
+                      final String eventId =
+                          state.pathParameters['eventId'] ?? '';
+
+                      return CreateEditEventScreen(eventId: eventId);
+                    }),
+              ],
             ),
           ]),
         ],
@@ -107,19 +110,10 @@ GoRouter goRouter(Ref ref) {
         builder: (context, state) {
           final LatLng? location =
               state.extra is LatLng ? state.extra as LatLng : null;
-          final String? eventId = state.pathParameters['eventId'];
 
-          return CreateEditEventScreen(location: location, eventId: eventId);
+          return CreateEditEventScreen(location: location);
         },
       ),
-      GoRoute(
-          path: Routes.editEvent,
-          name: Routes.editEventName,
-          builder: (context, state) {
-            final LatLng? location =
-                state.extra is LatLng ? state.extra as LatLng : null;
-            return CreateEditEventScreen(location: location);
-          }),
       GoRoute(
         path: Routes.splash,
         builder: (context, state) => const SplashScreen(),

@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-import 'package:navigator_app/ui/controllers/user_controller.dart';
+import 'package:navigator_app/data/category_data.dart';
 
 class CreateEditEventScreen extends ConsumerStatefulWidget {
   final String? eventId;
@@ -41,10 +41,10 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   DateTime _endDate = DateTime.now().add(const Duration(days: 1, hours: 2));
   TimeOfDay _endTime = TimeOfDay.now();
 
-  String _selectedCategory = 'Music';
+  String _selectedCategory = 'Food';
   List<String> _selectedTags = [];
-  List<String> _imageURLs = [];
-  String _mainImageURL = '';
+  List<dynamic> _images = []; // Holds String URLs or File objects
+  // String _mainImageURL = ''; // Determined by the first element in _images
 
   final List<String> saudiCities = [
     'Riyadh',
@@ -110,23 +110,26 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   // Added for custom location selection
   LatLng? _selectedLocation;
   final _locationTextController = TextEditingController();
-  late File _imageFile;
+  late File? _imageFile;
   late final List<File>? _imagesFiles;
   bool _isLoading = false;
   bool _isEditing = false;
+  bool _isPickingImage = false;
 
-  final List<String> _categories = [
-    'Music',
-    'Sports',
-    'Food',
-    'Art',
-    'Technology',
-    'Business',
-    'Health',
-    'Education',
-    'Entertainment',
-    'Travel',
-  ];
+  // final List<String> _categories = [
+  //   'Music',
+  //   'Sports',
+  //   'Food',
+  //   'Art',
+  //   'Technology',
+  //   'Business',
+  //   'Health',
+  //   'Education',
+  //   'Entertainment',
+  //   'Travel',
+  // ];
+  final List<String> _categories =
+      categories.map((category) => category.name).toList();
 
   final List<String> _availableTags = [
     'Family Friendly',
@@ -152,7 +155,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
 
     selectedCity = 'Riyadh'; // Set default city
 
-    _selectedLocation = widget.location??
+    _selectedLocation = widget.location ??
         cityCoordinates['Riyadh']; // Initialize selected location
     _updateLocationText(); // Initialize location text
 
@@ -197,14 +200,31 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
 
         _selectedCategory = event.category;
         _selectedTags = List<String>.from(event.tags);
-        _imageURLs = List<String>.from(event.imageURLs);
-        _mainImageURL = event.imageURL;
+
+        // --- Load images for editing ---
+        List<dynamic> loadedImages = [];
+        // Add the main image URL first if it exists and is not empty
+        if (event.imageURL != null && event.imageURL!.isNotEmpty) {
+          loadedImages.add(event.imageURL!);
+        }
+        // Add other image URLs, ensuring no duplicates with the main image
+        if (event.imageURLs != null) {
+          for (String url in event.imageURLs!) {
+            // Add only if it's not the main image URL (already added) and not empty
+            if (url.isNotEmpty && url != event.imageURL) {
+              loadedImages.add(url);
+            }
+          }
+        }
+        _images = loadedImages; // Update the state list
+        print('Loaded images for editing: $_images'); // Debug print
+        // --- End Load images ---
 
         // Set location if available
         _selectedLocation =
             LatLng(event.location.latitude, event.location.longitude);
         _updateLocationText();
-            }
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading event: $e')),
@@ -271,15 +291,17 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.primaryContainer,
                       ),
-                      onPressed: () => _saveEvent(user.uid, user.userName, user.profilePhotoURL),
+                      onPressed: () => _saveEvent(
+                          user.uid, user.userName, user.profilePhotoURL),
                       child: Text(
                         _isEditing ? 'Update Event' : 'Create Event',
-                        style: const TextStyle(fontSize: 16, color: Colors.white),
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.white),
                       ),
                     ),
                   ),
@@ -312,14 +334,54 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           height: 120,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: _imageURLs.length + 1,
+            // Use _images list which contains Files or String URLs
+            itemCount: _images.length + 1,
             itemBuilder: (context, index) {
-              if (index == _imageURLs.length) {
+              // Show add button at the end
+              if (index == _images.length) {
                 return _buildAddImageButton();
               }
 
-              final imageUrl = _imageURLs[index];
+              final imageItem = _images[index];
               final isMainImage = index == 0;
+
+              // Determine if it's a local file or a network URL
+              Widget imageWidget;
+              if (imageItem is File) {
+                imageWidget = Image.file(
+                  imageItem,
+                  width: 160,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 160,
+                    height: 120,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.broken_image, size: 48),
+                  ),
+                );
+              } else if (imageItem is String) {
+                imageWidget = Image.network(
+                  imageItem, // Assuming it's a URL string
+                  width: 160,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 160,
+                    height: 120,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.image, size: 48),
+                  ),
+                );
+              } else {
+                // Placeholder for unexpected type
+                imageWidget = Container(
+                  width: 160,
+                  height: 120,
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.error, size: 48),
+                );
+              }
 
               return Stack(
                 children: [
@@ -338,19 +400,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
                                 )
                               : null,
                         ),
-                        child: Image.network(
-                          imageUrl,
-                          width: 160,
-                          height: 120,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                            width: 160,
-                            height: 120,
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.image, size: 48),
-                          ),
-                        ),
+                        child: imageWidget, // Use the determined image widget
                       ),
                     ),
                   ),
@@ -358,7 +408,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
                     top: 4,
                     right: 12,
                     child: GestureDetector(
-                      onTap: () => _removeImage(index),
+                      onTap: () => _removeImage(
+                          index), // Uses the correct index for _images
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(
@@ -733,7 +784,10 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           items: _categories.map((category) {
             return DropdownMenuItem<String>(
               value: category,
-              child: Text(category, style: Theme.of(context).textTheme.bodyMedium,),
+              child: Text(
+                category,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             );
           }).toList(),
           onChanged: (value) {
@@ -838,50 +892,36 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
   }
 
   Future<void> _pickImage() async {
+    if (_isPickingImage) return;
+
+    setState(() {
+      _isPickingImage = true; // Set flag
+    });
+
     final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    try {
+      // Allow picking multiple images if needed in the future, for now just one
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-    if (image != null) {
-      setState(() {
-        _isLoading = true;
-      });
-
-//       try {
-//         final File imageFile = File(image.path);
-//         final String fileName = 'events/${DateTime.now().millisecondsSinceEpoch}_${image.name}';
-
-//         final Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
-//         final UploadTask uploadTask = storageRef.putFile(imageFile);
-
-//         final TaskSnapshot taskSnapshot = await uploadTask;
-//         final String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-
-//         setState(() {
-//           _imageURLs.add(downloadUrl);
-//           if (_imageURLs.length == 1) {
-//             _mainImageURL = downloadUrl;
-//           }
-//         });
-
-      try {
-        _imageFile = File(image.path);
-
-        final String fileName =
-            'events/${DateTime.now().millisecondsSinceEpoch}_${image.name}';
-
-        // setState(() {
-        //   _imageURLs.add(downloadUrl);
-        //   if (_imageURLs.length == 1) {
-        //     _mainImageURL = downloadUrl;
-        //   }
-        // });
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error uploading image: $e')),
-        );
-      } finally {
+      if (image != null) {
+        final File imageFile = File(image.path);
         setState(() {
-          _isLoading = false;
+          // Add the File object to the list for local preview
+          _images.add(imageFile);
+          // No upload happens here, only state update for preview
+        });
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error picking image: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPickingImage = false; // Reset flag
         });
       }
     }
@@ -889,12 +929,8 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
 
   void _removeImage(int index) {
     setState(() {
-      _imageURLs.removeAt(index);
-      if (_imageURLs.isNotEmpty && index == 0) {
-        _mainImageURL = _imageURLs[0];
-      } else if (_imageURLs.isEmpty) {
-        _mainImageURL = '';
-      }
+      // Remove the image (File or String URL) from the list
+      _images.removeAt(index);
     });
   }
 
@@ -985,10 +1021,16 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       return;
     }
 
-    if (!await _imageFile.exists()) {
+    final File? mainImageFile =
+        _images.firstWhere((img) => img is File, orElse: () => null) as File?;
+
+    if (!_isEditing && mainImageFile == null) {
+      // Require an image for new events
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add at least one image')),
+        const SnackBar(
+            content: Text('Please add at least one image for a new event')),
       );
+      setState(() => _isLoading = false); // Stop loading
       return;
     }
 
@@ -1004,6 +1046,21 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
     });
 
     try {
+      Event? originalEvent;
+      if (_isEditing && widget.eventId != null) {
+        originalEvent =
+            await ref.read(eventRepositoryProvider).getEvent(widget.eventId!);
+        if (originalEvent == null) {
+          throw Exception("Original event not found for editing!");
+        }
+      }
+      final File? mainImageFile =
+          _images.firstWhere((img) => img is File, orElse: () => null) as File?;
+      String? finalMainImageUrl = _isEditing ? originalEvent?.imageURL : null;
+      List<String> finalOtherImageUrls = _isEditing
+          ? (originalEvent?.imageURLs ?? [])
+          : []; // Start with original URLs if editing
+
       final startDateTime = DateTime(
         _startDate.year,
         _startDate.month,
@@ -1019,46 +1076,71 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         _endTime.hour,
         _endTime.minute,
       );
-    
-      final event = Event(
-        id: _isEditing ? widget.eventId! : '',
-        title: _titleController.text,
-        description: _descriptionController.text,
-        location:
-            GeoPoint(_selectedLocation!.latitude, _selectedLocation!.longitude),
-        address: _addressController.text,
-        city: _addressController.text,
-        startDate: startDateTime,
-        endDate: endDateTime,
-        category: _selectedCategory,
-        tags: _selectedTags,
-        price: double.tryParse(_priceController.text) ?? 0,
-        ticketURL: _ticketURLController.text,
-        imageURL: _mainImageURL,
-        imageURLs: _imageURLs,
-        creatorID: userId,
-        organizerName: userNmae,
-        organizerProfilePictureUrl: userProfile,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        averageRating: 0,
-        reviewsCount: 0,
-      );
+
+      Event event;
+      if (_isEditing && originalEvent != null) {
+        event = originalEvent.copyWith(
+          title: _titleController.text,
+          description: _descriptionController.text,
+          location: _selectedLocation == null
+              ? GeoPoint(
+                  _selectedLocation!.latitude, _selectedLocation!.longitude)
+              : null,
+          address: _addressController.text,
+          city: selectedCity ?? '',
+          startDate: startDateTime,
+          endDate: endDateTime,
+          category: _selectedCategory,
+          tags: _selectedTags,
+          price: double.tryParse(_priceController.text) ?? 0,
+          ticketURL: _ticketURLController.text,
+          imageURL: finalMainImageUrl,
+          imageURLs: finalOtherImageUrls,
+          updatedAt: DateTime.now(),
+          averageRating: 0,
+          reviewsCount: 0,
+        );
+      } else {
+        event = Event(
+          id: _isEditing ? widget.eventId! : '',
+          title: _titleController.text,
+          description: _descriptionController.text,
+          location: GeoPoint(
+              _selectedLocation!.latitude, _selectedLocation!.longitude),
+          address: _addressController.text,
+          city: selectedCity ?? '',
+          startDate: startDateTime,
+          endDate: endDateTime,
+          category: _selectedCategory,
+          tags: _selectedTags,
+          price: double.tryParse(_priceController.text) ?? 0,
+          ticketURL: _ticketURLController.text,
+          creatorID: userId,
+          organizerName: userNmae,
+          organizerProfilePictureUrl: userProfile,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+          averageRating: 0,
+          reviewsCount: 0,
+        );
+      }
 
       final eventId = await eventRepository.saveEvent(event);
 
       // Upload main image
-      final mainImageUrl = await eventRepository.uploadEventMainImage(
-        _imageFile,
-        eventId,
-      );
-      print(mainImageUrl);
+      if (mainImageFile != null) {
+        await eventRepository.uploadEventMainImage(
+          mainImageFile,
+          eventId,
+        );
+      }
 
       if (_isEditing) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Event updated successfully')),
         );
       } else {
+        ref.read(userRepositoryProvider).addHostedEvent(userId, eventId);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Event created successfully')),
         );
@@ -1067,10 +1149,15 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
       if (mounted) {
         context.pop();
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving event: $e')),
-      );
+    } catch (e, stackTrace) {
+      print('Error saving event: $e'); // Log the error
+      print('Stack trace: $stackTrace'); // Log the stack trace
+      if (mounted) {
+        // Check mounted before using context
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving event: ${e.toString()}')),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {

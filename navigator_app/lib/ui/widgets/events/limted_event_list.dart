@@ -19,8 +19,6 @@ class LimitedEventList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EventsControllerWidget(
-      filter: filter,
-      sortBy: sortBy,
       builder: (events) {
         if (events.isEmpty) {
           return Center(

@@ -6,7 +6,7 @@ part of 'user_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$userControllerHash() => r'8e10820b6d0c365ff4f6e545ff243f60c96a9579';
+String _$userControllerHash() => r'978f03d9ec758ec50def188cb53047f088622899';
 
 /// A provider for the current user with profile management capabilities
 ///

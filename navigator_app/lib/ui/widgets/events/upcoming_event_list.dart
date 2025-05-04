@@ -28,10 +28,7 @@ class _UpcomingEventsListState extends ConsumerState<UpcomingEventsList> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        ref
-            .read(eventsControllerProvider(filter: 'all', sortBy: 'date')
-                .notifier)
-            .fetchMore();
+        ref.read(eventsControllerProvider.notifier).fetchMore();
       }
     });
   }
@@ -44,8 +41,7 @@ class _UpcomingEventsListState extends ConsumerState<UpcomingEventsList> {
 
   @override
   Widget build(BuildContext context) {
-    final eventsAsync = ref.watch(
-        eventsControllerProvider(filter: widget.filter, sortBy: widget.sortBy));
+    final eventsAsync = ref.watch(eventsControllerProvider);
 
     return eventsAsync.when(
       data: (events) {

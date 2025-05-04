@@ -2,67 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:navigator_app/data/models/saudi_city.dart';
+import 'package:navigator_app/providers/filter_provider.dart';
+import 'package:navigator_app/router/routes.dart';
 
-// Define the SaudiCity model (similar to the original City model)
-class SaudiCity {
-  final String name;
-  final String imageUrl; // Placeholder for image URL
-  // Add other relevant fields if needed, e.g., description, coordinates
-
-  const SaudiCity({
-    required this.name,
-    required this.imageUrl,
-  });
-}
-
-// List of Saudi cities (from pasted_content.txt)
-// TODO: Replace placeholder image URLs with actual ones
-final List<SaudiCity> saudiCities = [
-  SaudiCity(
-      name: 'Riyadh',
-      imageUrl:
-          'https://res.cloudinary.com/dcq4awvap/image/upload/v1745941619/Riyadh_yiwciy.jpg'),
-  SaudiCity(
-      name: 'Qassim',
-      imageUrl:
-          'https://res.cloudinary.com/dcq4awvap/image/upload/v1745942323/Qassim_lrxebj.jpg'),
-  SaudiCity(
-      name: 'Jeddah',
-      imageUrl: 'https://res.cloudinary.com/dcq4awvap/image/upload/v1745942321/Jeddah_iwm21c.jpg'),
-  SaudiCity(
-      name: 'Mecca',
-      imageUrl: 'https://res.cloudinary.com/dcq4awvap/image/upload/v1745942321/Mecca_ddfjcu.jpg'),
-  SaudiCity(
-      name: 'Medina',
-      imageUrl: 'https://res.cloudinary.com/dcq4awvap/image/upload/v1745942323/Medina_g2gq4s.jpg'),
-  SaudiCity(
-      name: 'Dammam',
-      imageUrl: 'https://res.cloudinary.com/dcq4awvap/image/upload/v1745942322/Dammam_nym0ux.jpg'),
-  SaudiCity(
-      name: 'Khobar',
-      imageUrl: 'https://res.cloudinary.com/dcq4awvap/image/upload/v1745942321/Khobar_mf3puz.jpg'),
-  SaudiCity(
-      name: 'Taif',
-      imageUrl: 'https://res.cloudinary.com/dcq4awvap/image/upload/v1745942323/Taif_bmf3y4.jpg'),
-  SaudiCity(
-      name: 'Tabuk',
-      imageUrl: 'https://res.cloudinary.com/dcq4awvap/image/upload/v1745942320/Tabuk_alejav.jpg'),
-  SaudiCity(
-      name: 'Abha',
-      imageUrl: 'https://res.cloudinary.com/dcq4awvap/image/upload/v1745942323/Abha_kgjcgm.jpg'),
-  SaudiCity(
-      name: 'Yanbu',
-      imageUrl: 'https://res.cloudinary.com/dcq4awvap/image/upload/v1745942321/Yanbu_zxrkmr.jpg'),
-  SaudiCity(
-      name: 'Jizan',
-      imageUrl: 'https://res.cloudinary.com/dcq4awvap/image/upload/v1745942320/Jizan_nkwwte.jpg'),
-];
-
-class CitiesScreen extends ConsumerWidget {
+class CitiesScreen extends StatelessWidget {
   const CitiesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Explore Events By Cities'),
@@ -88,7 +36,7 @@ class CitiesScreen extends ConsumerWidget {
   }
 }
 
-class SaudiCityCard extends StatelessWidget {
+class SaudiCityCard extends ConsumerWidget {
   final SaudiCity city;
 
   const SaudiCityCard({
@@ -97,12 +45,11 @@ class SaudiCityCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () {
-        // Navigate to a filtered event list screen
-        // Assuming a route like '/events' that accepts a 'city' query parameter
-        context.push("/events?city=${Uri.encodeComponent(city.name)}");
+        ref.read(eventFiltersProvider.notifier).updateCity(city.name);
+        context.pushNamed(Routes.eventListName);
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),

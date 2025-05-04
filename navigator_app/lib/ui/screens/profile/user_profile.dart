@@ -47,14 +47,14 @@ class UserProfile extends StatelessWidget {
                   const SizedBox(height: 20),
                   Center(
                     child: CircleAvatar(
-                      radius: 40,
+                      radius: 50,
                       backgroundColor: Colors.grey[200],
                       child: ClipOval(
                         child: CachedNetworkImage(
                           imageUrl: user.profilePhotoURL,
                           fit: BoxFit.cover,
-                          width: 80,
-                          height: 80,
+                          width: 100,
+                          height: 100,
                           placeholder: (context, url) =>
                               const CircularProgressIndicator(),
                           errorWidget: (context, url, error) => const Icon(

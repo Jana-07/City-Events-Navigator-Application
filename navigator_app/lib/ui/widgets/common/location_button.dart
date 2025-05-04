@@ -1,14 +1,5 @@
 import 'package:flutter/material.dart';
-
-const List<String> cities = [
-  'Riyadh',
-  'Jeddah',
-  'Qassim',
-  'Mecca',
-  'Medina',
-  'Abha',
-  'Dammam'
-];
+import 'package:navigator_app/data/models/saudi_city.dart';
 
 class LocationButton extends StatefulWidget {
   const LocationButton({super.key});
@@ -29,6 +20,7 @@ class _LocationButtonState extends State<LocationButton> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final List<String> cities = saudiCities.map((city) => city.name).toList();
     return DropdownMenu(
       hintText: 'Select a City',
       //TODO

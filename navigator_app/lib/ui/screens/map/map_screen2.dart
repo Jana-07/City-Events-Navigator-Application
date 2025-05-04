@@ -38,13 +38,13 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
 
     // Define the categories and their corresponding icons
     final Map<String, IconData> categoryIconMap = {
-      'Sports': Icons.sports_basketball,
-      'Festivals': Icons.music_note,
+      'Sport': Icons.sports_basketball,
+      'Festival': Icons.music_note,
       'Food': Icons.restaurant,
       'Art': Icons.palette,
       'Conference': Icons.people,
       'Education': Icons.school,
-      'Others': Icons.more_horiz,
+      'Other': Icons.more_horiz,
     };
 
     // Create custom bitmap descriptors for each category
@@ -66,9 +66,9 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
       IconData iconData, Color color) async {
     final pictureRecorder = ui.PictureRecorder();
     final canvas = Canvas(pictureRecorder);
-    final size = const Size(48, 48);
-    final radius = 24.0;
-    final textPainter = TextPainter();
+    final size = const Size(80, 80);
+    final radius = 42.0;
+    final textPainter = TextPainter(textDirection: ui.TextDirection.ltr); // <-- Added textDirection here
 
     // Draw circle background
     final paint = Paint()
@@ -88,8 +88,9 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
     textPainter.text = TextSpan(
       text: String.fromCharCode(iconData.codePoint),
       style: TextStyle(
-        fontSize: 24,
+        fontSize: 42,
         fontFamily: iconData.fontFamily,
+        package: iconData.fontPackage, // <-- Also good practice to include package for icons
         color: Colors.white,
       ),
     );
@@ -140,7 +141,8 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
       if (event.location.latitude == 0 && event.location.longitude == 0) {
         continue;
       }
-
+      print(event.location.latitude);
+      print(event.location.longitude);
       final category = event.category;
       final BitmapDescriptor icon = _categoryIcons[category] ??
           BitmapDescriptor.defaultMarkerWithHue(_getCategoryHue(category));
@@ -198,7 +200,7 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
 
       // Get events from the controller
       final eventsAsync =
-          ref.read(eventsControllerProvider(filter: 'all', sortBy: 'date'));
+          ref.read(eventsControllerProvider);
 
       eventsAsync.whenData((events) {
         _markers.clear();
@@ -244,7 +246,7 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
   Widget build(BuildContext context) {
     // Watch events from the controller
     final eventsAsync =
-        ref.watch(eventsControllerProvider(filter: 'all', sortBy: 'date'));
+        ref.watch(eventsControllerProvider);
 
     // Update markers when events change
     eventsAsync.whenData((events) {
@@ -364,16 +366,16 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
                         icon: Icons.sports_basketball,
                         label: 'Sports',
                         color: Colors.red,
-                        isSelected: _selectedCategory == 'Sports',
-                        onTap: () => _filterMarkers('Sports'),
+                        isSelected: _selectedCategory == 'Sport',
+                        onTap: () => _filterMarkers('Sport'),
                       ),
                       const SizedBox(width: 10),
                       CategoryChip(
                         icon: Icons.music_note,
                         label: 'Festivals',
                         color: Colors.purple,
-                        isSelected: _selectedCategory == 'Festivals',
-                        onTap: () => _filterMarkers('Festivals'),
+                        isSelected: _selectedCategory == 'Festival',
+                        onTap: () => _filterMarkers('Festival'),
                       ),
                       const SizedBox(width: 10),
                       CategoryChip(
@@ -412,8 +414,8 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
                         icon: Icons.more_horiz,
                         label: 'Others',
                         color: Colors.red,
-                        isSelected: _selectedCategory == 'Others',
-                        onTap: () => _filterMarkers('Others'),
+                        isSelected: _selectedCategory == 'Other',
+                        onTap: () => _filterMarkers('Other'),
                       ),
                     ],
                   ),
@@ -685,7 +687,7 @@ class EventCard extends StatelessWidget {
                   // Navigate to event details
                   context.pushNamed(
                     Routes.eventDetailsName,
-                    pathParameters: {'id': event.id},
+                    pathParameters: {'eventId': event.id},
                   );
                 },
                 child: const Text('View Details'),

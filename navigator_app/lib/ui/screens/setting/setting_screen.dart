@@ -74,35 +74,35 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const Divider(),
 
             // Language settings - Show for all users
-            ListTile(
-              leading: const Icon(Icons.language),
-              title: const Text('Preferred Language'),
-              subtitle: Text(isGuest ? 'English' : user.preferredLanguage),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                // For guests, show language selector but don't save
-                if (isGuest) {
-                  _showGuestLanguageSelector(context);
-                } else {
-                  _showLanguageSelector(
-                      context, ref, user.uid, user.preferredLanguage);
-                }
-              },
-            ),
-            const Divider(),
+            // ListTile(
+            //   leading: const Icon(Icons.language),
+            //   title: const Text('Preferred Language'),
+            //   subtitle: Text(isGuest ? 'English' : user.preferredLanguage),
+            //   trailing: const Icon(Icons.chevron_right),
+            //   onTap: () {
+            //     // For guests, show language selector but don't save
+            //     if (isGuest) {
+            //       _showGuestLanguageSelector(context);
+            //     } else {
+            //       _showLanguageSelector(
+            //           context, ref, user.uid, user.preferredLanguage);
+            //     }
+            //   },
+            // ),
+            // const Divider(),
 
             // Organizer settings - Only show for organizers
-            if (isOrganizer)
-              ListTile(
-                leading: const Icon(Icons.event),
-                title: const Text('Event Management'),
-                subtitle: const Text('Manage your events'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Navigate to event management screen
-                },
-              ),
-            if (isOrganizer) const Divider(),
+            // if (isOrganizer)
+            //   ListTile(
+            //     leading: const Icon(Icons.event),
+            //     title: const Text('Event Management'),
+            //     subtitle: const Text('Manage your events'),
+            //     trailing: const Icon(Icons.chevron_right),
+            //     onTap: () {
+            //       // Navigate to event management screen
+            //     },
+            //   ),
+            // if (isOrganizer) const Divider(),
 
             // Preferences Section - Show for registered users only
             if (!isGuest) ...[
@@ -127,37 +127,37 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               _buildSectionHeader(context, 'Notifications'),
               SwitchListTile(
                 title: const Text('Event Reminders'),
-                subtitle: const Text('Get notified about upcoming events'),
+                subtitle: const Text('Get notified about your favorite events'),
                 value: true,
                 onChanged: (value) {
                   // Update notification settings
                 },
               ),
               const Divider(),
-              SwitchListTile(
-                title: const Text('New Events'),
-                subtitle:
-                    const Text('Get notified about new events in your area'),
-                value: false, // This should be stored in user preferences
-                onChanged: (value) {
-                  // Update notification settings
-                },
-              ),
-              const Divider(),
+              // SwitchListTile(
+              //   title: const Text('New Events'),
+              //   subtitle:
+              //       const Text('Get notified about new events in your area'),
+              //   value: false, // This should be stored in user preferences
+              //   onChanged: (value) {
+              //     // Update notification settings
+              //   },
+              // ),
+              // const Divider(),
             ],
 
             // App Settings Section - Show for all users
             _buildSectionHeader(context, 'App Settings'),
-            ListTile(
-              leading: const Icon(Icons.color_lens),
-              title: const Text('Theme'),
-              subtitle: const Text('Light'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                // Show theme selector
-              },
-            ),
-            const Divider(),
+            // ListTile(
+            //   leading: const Icon(Icons.color_lens),
+            //   title: const Text('Theme'),
+            //   subtitle: const Text('Light'),
+            //   trailing: const Icon(Icons.chevron_right),
+            //   onTap: () {
+            //     // Show theme selector
+            //   },
+            // ),
+            // const Divider(),
             ListTile(
               leading: const Icon(Icons.delete),
               title: const Text('Clear Cache'),
@@ -220,21 +220,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
 
             // Additional button for organizers to switch to user view
-            if (isOrganizer)
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: theme.primaryColor),
-                  ),
-                  onPressed: () {
-                    // Switch to user view temporarily
-                    _showSwitchViewDialog(context, ref, user.uid);
-                  },
-                  child: const Text('Switch to User View'),
-                ),
-              ),
+            // if (isOrganizer)
+            //   Padding(
+            //     padding:
+            //         const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            //     child: OutlinedButton(
+            //       style: OutlinedButton.styleFrom(
+            //         side: BorderSide(color: theme.primaryColor),
+            //       ),
+            //       onPressed: () {
+            //         // Switch to user view temporarily
+            //         _showSwitchViewDialog(context, ref, user.uid);
+            //       },
+            //       child: const Text('Switch to User View'),
+            //     ),
+            //   ),
 
             const SizedBox(height: 24),
           ],

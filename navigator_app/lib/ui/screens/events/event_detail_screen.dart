@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:navigator_app/data/category_data.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
 import 'package:navigator_app/ui/widgets/common/favorite_button.dart';
+import 'package:navigator_app/data/models/categoy.dart';
 
 class EventDetailsScreen extends ConsumerWidget {
   final String eventId;
@@ -16,13 +18,23 @@ class EventDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final eventFuture = ref.watch(getEventByIdProvider(eventId));
+    Category getCategoryByName(String name) {
+      return categories.firstWhere(
+        (c) => c.name.toLowerCase() == name.toLowerCase(),
+        orElse: () => Category(
+          name: '',
+          icon: Icons.help_outline,
+          color: Colors.grey,
+        ),
+      );
+    }
 
     return eventFuture.when(
       data: (event) {
         if (event == null) {
           return const Text('Event not found');
         }
-
+        final category = getCategoryByName(event.category);
         return Scaffold(
           body: CustomScrollView(
             slivers: [
@@ -228,8 +240,8 @@ class EventDetailsScreen extends ConsumerWidget {
                           const SizedBox(width: 30),
                           // Category
                           _buildInfoItemRounded(
-                            icon: Icons.abc,
-                            iconBackgroundColor: const Color.fromARGB(255, 171, 200, 224),
+                            icon: category.icon,
+                            iconBackgroundColor: category.color.withAlpha(150),
                             //iconBackgroundColor: category.color.withAlpha(200),
                             iconColor: Colors.white,
                             title: event.category,

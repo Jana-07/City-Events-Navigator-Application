@@ -13,7 +13,7 @@ class Routes {
   static const String guestProfile = 'guest';
   static const String userProfile = 'user';
   static const String createEvent = '/create';
-  static const String editEvent = 'edit/:eventId';
+  static const String editEvent = '/edit/:eventId';
   static const String eventsList = '/events';
   static const String loading = '/loading';
   static const String map = '/map';

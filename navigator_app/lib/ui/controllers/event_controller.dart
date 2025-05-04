@@ -2,159 +2,169 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/core/utils/global_error_handler.dart';
-import 'package:navigator_app/data/models/event.dart';
+import 'package:navigator_app/data/models/event.dart'; // Ensure Event has 'snapshot' field
 import 'package:navigator_app/data/repositories/event_repository.dart';
-import 'package:navigator_app/providers/firebase_rivrpod_provider.dart'; 
+import 'package:navigator_app/providers/filter_provider.dart';
+import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'event_controller.g.dart'; // Assuming generated part file
+part 'event_controller.g.dart';
 
-/// A provider for events with filtering, sorting, and pagination capabilities
+// Define a record to hold pagination state together
+typedef _PaginationState = ({DocumentSnapshot? lastDoc, bool hasMore, EventFilter? filter});
+
 @riverpod
 class EventsController extends _$EventsController {
   static const int _limit = 10;
 
-  // Internal state for pagination cursor and status
-  DocumentSnapshot? _lastDocument;
-  bool _hasMore = true;
+  // Combined pagination state
+  _PaginationState _paginationState = (lastDoc: null, hasMore: true, filter: null);
   bool _isLoadingMore = false;
 
-  late String _currentFilter;
-  late String _currentSortBy;
-
+  // Helper to get repository
   EventRepository get _repository => ref.read(eventRepositoryProvider);
 
-  String? get _currentUserId => ref.watch(authStateChangesProvider).value?.uid;
-
   @override
-  Future<List<Event>> build({String filter = 'all', String sortBy = 'date'}) async {
-    _currentFilter = filter;
-    _currentSortBy = sortBy;
+  Future<List<Event>> build() async {
+    final currentFilter = ref.watch(eventFiltersProvider);
+    debugPrint("EventsController Build START: New Filter=$currentFilter, Previous Filter=${_paginationState.filter}, CurrentState=$state");
 
-    // Reset pagination state when filter/sort changes (or on initial build)
-    _lastDocument = null;
-    _hasMore = true;
-    _isLoadingMore = false;
-
-     String? creatorIdFilter;
-    if (_currentFilter == 'organizer') {
-      creatorIdFilter = _currentUserId;
-      if (creatorIdFilter == null) {
-        _hasMore = false;
-        return [];
+    // Reset pagination state COMPLETELY only if the filter has actually changed
+    if (currentFilter != _paginationState.filter) {
+      debugPrint("EventsController Build: Filter changed. Resetting pagination. Stored Filter=${_paginationState.filter}");
+      _paginationState = (lastDoc: null, hasMore: true, filter: currentFilter);
+      _isLoadingMore = false; // Ensure loading more is reset
+    } else {
+      debugPrint("EventsController Build: Filter unchanged. Using existing pagination state.");
+      // If filter is the same, we might be rebuilding due to other reasons (e.g., invalidate)
+      // Keep the existing pagination state unless it's the very first build.
+      if (_paginationState.filter == null) { // Handle initial build case
+         _paginationState = (lastDoc: null, hasMore: true, filter: currentFilter);
       }
     }
 
-    final (initialEvents, initialLastDoc) = await _repository.fetchEvents(
-      limit: _limit,
-      sortBy: _currentSortBy,
-      creatorId: creatorIdFilter,
-    );
+    // Use the filter associated with the current pagination state for the initial fetch
+    final filterForFetch = _paginationState.filter ?? currentFilter; // Fallback just in case
 
-    _lastDocument = initialLastDoc;
-    _hasMore = initialEvents.length == _limit;
+    try {
+      final initialEvents = await _repository.searchEvents(
+        queryText: filterForFetch.searchQuery,
+        categories: filterForFetch.categories,
+        city: filterForFetch.city,
+        tags: null, // Add if needed
+        startDate: filterForFetch.startDate,
+        endDate: filterForFetch.endDate,
+        minPrice: filterForFetch.minPrice,
+        maxPrice: filterForFetch.maxPrice,
+        creatorId: filterForFetch.creatorId,
+        sortBy: filterForFetch.sortBy,
+        descending: filterForFetch.descending,
+        limit: _limit,
+        startAfterDocument: null, // Initial fetch always starts from beginning
+      );
 
-    // Apply filtering locally after fetching
-    final filteredEvents = _filterEventsLocally(initialEvents, _currentFilter);
-    _sortEvents(filteredEvents, _currentSortBy);
+      // Update pagination state based on this initial fetch
+      final newLastDoc = initialEvents.isNotEmpty && initialEvents.length == _limit
+          ? initialEvents.last.snapshot // Assumes Event has 'snapshot'
+          : null;
+      final newHasMore = initialEvents.length == _limit;
+      _paginationState = (lastDoc: newLastDoc, hasMore: newHasMore, filter: filterForFetch);
 
-    return filteredEvents;
+      debugPrint("EventsController Build END: Fetched=${initialEvents.length}, HasMore=${_paginationState.hasMore}, LastDoc=${_paginationState.lastDoc?.id}");
+      return initialEvents;
+    } catch (e, st) {
+      debugPrint("EventsController Build ERROR: $e\n$st");
+      // Reset pagination state on error during build
+      _paginationState = (lastDoc: null, hasMore: false, filter: null);
+      _isLoadingMore = false;
+      rethrow;
+    }
   }
 
   Future<void> fetchMore() async {
-    if (_isLoadingMore || !_hasMore || _lastDocument == null) return;
-
-    _isLoadingMore = true;
-
-    String? creatorIdFilter;
-    if (_currentFilter == 'organizer') {
-      creatorIdFilter = _currentUserId;
-      // If user logs out while paginating 'mine', stop fetching
-      if (creatorIdFilter == null) {
-        _isLoadingMore = false;
-        _hasMore = false; 
-        return;
-      }
+    // Prevent concurrent fetches or fetching when in error state
+    if (_isLoadingMore || state is AsyncLoading || state is AsyncError) {
+      debugPrint("FetchMore: Bailing out (isLoadingMore: $_isLoadingMore, state is loading or error)");
+      return;
     }
 
-    final currentEvents = state.valueOrNull ?? [];
+    // Get the pagination state that corresponds to the currently displayed list
+    final currentState = _paginationState;
+
+    // Read the *latest* filter setting from the provider
+    final latestFilter = ref.read(eventFiltersProvider);
+
+    // *** CRITICAL CHECK: Ensure the filter hasn't changed AND pagination is possible ***
+    if (latestFilter != currentState.filter) {
+      debugPrint("FetchMore: Filter changed during pagination! Bailing out. Latest Filter=$latestFilter, State Filter=${currentState.filter}");
+      // Let the 'build' method handle the reset and fetch for the new filter.
+      return;
+    }
+
+    if (!currentState.hasMore || currentState.lastDoc == null) {
+      debugPrint("FetchMore: Bailing out (hasMore: ${currentState.hasMore}, lastDoc: ${currentState.lastDoc?.id})");
+      return;
+    }
+
+    _isLoadingMore = true;
+    final previousState = state; // Keep previous data for UI
+    // Optionally show loading indicator appended to the list, or keep the main loading state
+    state = AsyncLoading<List<Event>>().copyWithPrevious(previousState);
+
+    final currentEvents = previousState.valueOrNull ?? [];
+
+    debugPrint("FetchMore: Loading more... Filter=${currentState.filter}, StartAfter=${currentState.lastDoc?.id}");
 
     try {
-      final (newEvents, newLastDoc) = await _repository.fetchMoreEvents(
+      // Use the filter associated with the current pagination state
+      final newEvents = await _repository.searchEvents(
+        queryText: currentState.filter!.searchQuery, // Use filter from state
+        categories: currentState.filter!.categories,
+        city: currentState.filter!.city,
+        tags: null,
+        startDate: currentState.filter!.startDate,
+        endDate: currentState.filter!.endDate,
+        minPrice: currentState.filter!.minPrice,
+        maxPrice: currentState.filter!.maxPrice,
+        creatorId: currentState.filter!.creatorId,
+        sortBy: currentState.filter!.sortBy,
+        descending: currentState.filter!.descending,
         limit: _limit,
-        startAfterDocument: _lastDocument!,
-        sortBy: _currentSortBy,
-        creatorId: creatorIdFilter,
+        startAfterDocument: currentState.lastDoc, // Use cursor from state
       );
 
-      _lastDocument = newLastDoc;
-      _hasMore = newEvents.length == _limit;
+      // Update pagination state based on the NEW fetch results
+      final newLastDoc = newEvents.isNotEmpty && newEvents.length == _limit
+          ? newEvents.last.snapshot
+          : null;
+      final newHasMore = newEvents.length == _limit;
+      // IMPORTANT: Update pagination state, keeping the SAME filter reference
+      _paginationState = (lastDoc: newLastDoc, hasMore: newHasMore, filter: currentState.filter);
 
-      // Combine old and new events
-      final combinedEvents = List<Event>.from(currentEvents)..addAll(newEvents);
+      debugPrint("FetchMore: Fetched ${newEvents.length} new events. HasMore: ${_paginationState.hasMore}, LastDoc=${_paginationState.lastDoc?.id}");
 
-      // Apply filtering and sorting to the combined list
-      final filteredEvents = _filterEventsLocally(combinedEvents, _currentFilter);
-      _sortEvents(filteredEvents, _currentSortBy);
-
-      // Update the state with the new combined, filtered, and sorted list
-      state = AsyncData(filteredEvents);
+      // Update state with combined list
+      state = AsyncData([...currentEvents, ...newEvents]);
 
     } catch (e, st) {
       debugPrint('Error fetching more events: $e\n$st');
+      // Revert to previous data on error, but keep error state
+      state = AsyncError<List<Event>>(e, st).copyWithPrevious(previousState);
+      // Update pagination state to prevent further attempts on error
+      _paginationState = (lastDoc: currentState.lastDoc, hasMore: false, filter: currentState.filter);
     } finally {
       _isLoadingMore = false;
     }
   }
 
-  // Filter events based on criteria (returns a new list)
-  List<Event> _filterEventsLocally(List<Event> events, String filter) {
-    // Create a mutable copy to avoid modifying the original list directly
-    List<Event> mutableEvents = List.from(events);
-    switch (filter) {
-      case 'upcoming':
-        return mutableEvents
-            .where((event) => event.startDate.isAfter(DateTime.now()))
-            .toList();
-      case 'past':
-        return mutableEvents
-            .where((event) => event.startDate.isBefore(DateTime.now()))
-            .toList();
-      case 'popular':
-        return mutableEvents.where((event) => (event.averageRating ?? 0) >= 4.0).toList();
-      case 'all':
-      case 'organizer':
-      default:
-        return mutableEvents;
-    }
-  }
-
-  // Sort events based on criteria
-  void _sortEvents(List<Event> events, String sortBy) {
-    switch (sortBy) {
-      case 'date':
-        events.sort((a, b) => a.startDate.compareTo(b.startDate));
-        break;
-      case 'rating':
-        events.sort((a, b) => (b.averageRating ?? 0).compareTo(a.averageRating ?? 0));
-        break;
-      case 'name':
-        events.sort((a, b) => a.title.compareTo(b.title));
-        break;
-      default:
-        events.sort((a, b) => a.startDate.compareTo(b.startDate)); // Default sort
-    }
-  }
-
+  // --- CRUD methods --- (Invalidate self to trigger rebuild)
   Future<void> addEvent(Event event) async {
-    // Show loading state while saving
     state = const AsyncLoading<List<Event>>().copyWithPrevious(state);
     try {
       await _repository.saveEvent(event);
-      ref.invalidateSelf(); // Trigger a full rebuild and refetch
+      ref.invalidateSelf();
     } catch (error, stackTrace) {
       debugPrint('Error adding event: $error');
-      // Set error state, preserving previous data if available
       state = AsyncError<List<Event>>(error, stackTrace).copyWithPrevious(state);
     }
   }
@@ -164,22 +174,14 @@ class EventsController extends _$EventsController {
     if (state.hasValue) {
       final currentEvents = List<Event>.from(state.value!);
       currentEvents.removeWhere((event) => event.id == eventId);
-      // Apply filter/sort to the optimistically updated list
-      final filtered = _filterEventsLocally(currentEvents, _currentFilter);
-      _sortEvents(filtered, _currentSortBy);
-      state = AsyncData(filtered);
+      state = AsyncData(currentEvents);
     }
-
     try {
       await _repository.deleteEvent(eventId);
-      // If delete succeeds, invalidate to confirm state or handle pagination edge cases.
-      // For simplicity, invalidation ensures consistency.
-      ref.invalidateSelf(); 
+      ref.invalidateSelf();
     } catch (error, stackTrace) {
        debugPrint('Error deleting event: $error');
-       // Revert to previous state if delete failed
        state = previousState;
-       // Optionally show an error message to the user
     }
   }
 
@@ -194,29 +196,29 @@ class EventsController extends _$EventsController {
     }
   }
 
-  bool get hasMoreEvents => _hasMore;
+  // --- Status getters ---
+  bool get hasMoreEvents => _paginationState.hasMore;
+  bool get isLoadingMore => _isLoadingMore;
 }
 
+// --- EventsControllerWidget (unchanged) ---
 class EventsControllerWidget extends ConsumerWidget {
-  final String filter;
-  final String sortBy;
   final Widget Function(List<Event>) builder;
 
   const EventsControllerWidget({
     super.key,
-    this.filter = 'all',
-    this.sortBy = 'date',
     required this.builder,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final eventsAsync =
-        ref.watch(eventsControllerProvider(filter: filter, sortBy: sortBy));
+    final eventsAsync = ref.watch(eventsControllerProvider);
 
     return AsyncErrorHandler.withAsyncValue<List<Event>>(
       value: eventsAsync,
-      data: builder,
+      data: (events) {
+        return builder(events);
+      },
       loadingWidget: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -250,3 +252,4 @@ class EventsControllerWidget extends ConsumerWidget {
     );
   }
 }
+

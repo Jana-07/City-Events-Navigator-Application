@@ -1,14 +1,10 @@
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:navigator_app/data/repositories/event_repository.dart';
-import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
 import 'package:navigator_app/router/routes.dart';
-import 'package:navigator_app/data/event_data.dart';
 
 import 'package:navigator_app/ui/widgets/events/categories.dart';
 import 'package:navigator_app/ui/widgets/events/filters_button.dart';
@@ -47,28 +43,33 @@ class ExploreScreen extends ConsumerWidget {
               ),
               Column(
                 children: [
+                  // Padding(
+                  //   padding: EdgeInsets.only(
+                  //       left: 24,
+                  //       right: 24,
+                  //       top: MediaQuery.of(context).padding.top),
+                  //   child: Row(
+                  //     children: [
+                  //       Spacer(),
+                  //       Spacer(),
+                  //       LocationButton(),
+                  //       Spacer(),
+                  //       IconButton(
+                  //         onPressed: () {},
+                  //         icon: Icon(Icons.notifications_none),
+                  //         color: colorScheme.onPrimary,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  // SizedBox(height: screenHeight * 0.03),
                   Padding(
                     padding: EdgeInsets.only(
-                        left: 24,
-                        right: 24,
-                        top: MediaQuery.of(context).padding.top),
-                    child: Row(
-                      children: [
-                        Spacer(),
-                        Spacer(),
-                        LocationButton(),
-                        Spacer(),
-                        IconButton(
-                          onPressed: () {},
-                          icon: Icon(Icons.notifications_none),
-                          color: colorScheme.onPrimary,
-                        ),
-                      ],
+                      left: 36,
+                      right: 36,
+                      //top: MediaQuery.of(context).padding.top,
+                      top: screenHeight * 0.12,
                     ),
-                  ),
-                  SizedBox(height: screenHeight * 0.03),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
                       children: [
                         Icon(
@@ -84,7 +85,7 @@ class ExploreScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.05),
+                  SizedBox(height: screenHeight * 0.075),
                   Categories(),
                 ],
               ),
@@ -120,7 +121,7 @@ class ExploreScreen extends ConsumerWidget {
 
           //       try {
           //         for (final event in eventsList) {
-                   
+
           //           final eventId = await eventRepository.saveEvent(event);
           //           File imageFile =
           //               await loadAssetWithPossibleExtensions(event.title);

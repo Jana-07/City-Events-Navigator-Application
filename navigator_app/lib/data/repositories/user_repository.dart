@@ -48,7 +48,7 @@ class UserRepository {
       user.toMap(),
     );
   }
-
+  
   // Update user role
   Future<void> updateUserRole(String userId, String role) async {
     if (userId == 'guest') {

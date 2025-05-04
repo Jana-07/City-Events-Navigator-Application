@@ -10,18 +10,24 @@ part 'auth_controller.g.dart';
 
 @riverpod
 class AuthController extends _$AuthController {
-  late final FirebaseAuthRepository _authRepository;
-  late final UserRepository _userRepository;
+  FirebaseAuthRepository? _authRepository;
+  UserRepository? _userRepository;
 
   @override
   AuthLoadingState build() {
+    // Initialize or re-assign on build
     _authRepository = ref.watch(authRepositoryProvider);
     _userRepository = ref.watch(userRepositoryProvider);
 
+    // Return initial state
     return const AuthLoadingState(LoadingStateEnum.initial, null);
   }
 
   Future<void> signInWithEmailAndPassword(String email, String password) async {
+    if (_authRepository == null) {
+       state = AuthLoadingState(LoadingStateEnum.error, AuthException('Auth repository not initialized'));
+       return;
+    }
     if (email.isEmpty || password.isEmpty) {
       state = AuthLoadingState(LoadingStateEnum.error,
           AuthException('Email and password cannot be empty'));
@@ -32,7 +38,7 @@ class AuthController extends _$AuthController {
       state = AuthLoadingState(LoadingStateEnum.error, InvalidEmailException());
       return;
     }
-    return _executeAuthAction(() => _authRepository.signInWithEmailAndPassword(
+    return _executeAuthAction(() => _authRepository!.signInWithEmailAndPassword(
           email: email,
           password: password,
         ));
@@ -45,6 +51,11 @@ class AuthController extends _$AuthController {
     required String phoneNumber,
     required List<String> preferences,
   }) async {
+    // Add null checks
+    if (_authRepository == null || _userRepository == null) {
+       state = AuthLoadingState(LoadingStateEnum.error, AuthException('Repositories not initialized'));
+       return;
+    }
     if (email.isEmpty || password.isEmpty) {
       state = AuthLoadingState(LoadingStateEnum.error,
           AuthException('Email and password cannot be empty'));
@@ -56,20 +67,31 @@ class AuthController extends _$AuthController {
       return;
     }
     final user = await _executeAuthAction<AppUser>(
-        () => _authRepository.createUserWithEmailAndPassword(
+        () => _authRepository!.createUserWithEmailAndPassword(
               email: email,
               password: password,
             ));
 
-    await _userRepository.saveUser(user.copyWith(
-      userName: userName,
-      phoneNumber: phoneNumber,
-      preferences: preferences,
-    ));
+    // Use null-aware operator just in case, though user should be non-null on success
+    if (user != null) {
+       await _userRepository!.saveUser(user.copyWith(
+         userName: userName,
+         phoneNumber: phoneNumber,
+         preferences: preferences,
+       ));
+    } else {
+       // Handle unexpected null user case if necessary
+       state = AuthLoadingState(LoadingStateEnum.error, AuthException('User creation failed unexpectedly'));
+    }
   }
 
   Future<void> signOut() async {
-    return _executeAuthAction(() => _authRepository.signOut());
+    // Add null check
+    if (_authRepository == null) {
+       state = AuthLoadingState(LoadingStateEnum.error, AuthException('Auth repository not initialized'));
+       return;
+    }
+    return _executeAuthAction(() => _authRepository!.signOut());
   }
 
   Future<T> _executeAuthAction<T>(Future<T> Function() authAction) async {
@@ -85,7 +107,8 @@ class AuthController extends _$AuthController {
   }
 
   bool _isValidEmail(String email) {
-    final emailRegExp = RegExp(r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+');
+    final emailRegExp = RegExp(r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+$'); // Added $ for end anchor
     return emailRegExp.hasMatch(email);
   }
 }
+

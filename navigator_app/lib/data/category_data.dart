@@ -3,7 +3,7 @@ import 'package:navigator_app/data/models/categoy.dart';
 
 final List<Category> categories = [
   Category(
-    name: 'Festivals',
+    name: 'Festival',
     icon: Icons.festival,
     color: Color.fromARGB(255, 255, 165, 0),
   ),
@@ -23,7 +23,7 @@ final List<Category> categories = [
     color: Color.fromARGB(255, 95, 44, 95),
   ),
   Category(
-    name: 'Conferences',
+    name: 'Conference',
     icon: Icons.confirmation_number_outlined,
     color: Color.fromARGB(255, 85, 85, 85),
   ),
@@ -32,7 +32,6 @@ final List<Category> categories = [
     icon: Icons.cast_for_education_outlined,
     color: Color.fromARGB(255, 122, 205, 205),
   ),
-  
   Category(
     name: 'Cultural',
     icon: Icons.landscape_rounded,
@@ -44,9 +43,18 @@ final List<Category> categories = [
     color: Color.fromARGB(255, 51, 66, 134),
   ),
   Category(
+    name: 'Exhibition',
+    icon: Icons.account_balance_rounded,
+    color: Colors.lightGreenAccent,
+  ),
+  Category(
+    name: 'Tech',
+    icon: Icons.devices,
+    color: Colors.blue,
+  ),
+  Category(
     name: 'Other',
     icon: Icons.add_to_photos_outlined,
     color: Color.fromARGB(255, 76, 120, 83),
   ),
-
 ];

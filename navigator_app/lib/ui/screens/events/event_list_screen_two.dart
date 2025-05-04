@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:navigator_app/providers/filter_provider.dart';
 import 'package:navigator_app/router/routes.dart';
 import 'package:navigator_app/ui/widgets/events/events_list.dart';
 import 'package:navigator_app/ui/widgets/events/filteres_button.dart';
@@ -93,6 +94,7 @@ class _EventListScreenState extends ConsumerState<EventListScreenTwo> {
             color: theme.colorScheme.onPrimary,
           ),
           onPressed: () {
+            ref.read(eventFiltersProvider.notifier).resetFilters();
             context.pop();
           }
         ),

@@ -120,6 +120,7 @@ class Event {
     List<String>? tags,
     String? ticketURL,
     DateTime? updatedAt,
+
   }) {
     return Event(
       id: id,
