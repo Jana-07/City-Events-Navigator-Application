@@ -22,6 +22,7 @@ class FiltersButton extends ConsumerWidget {
         ),
       ),
       onPressed: () {
+        context.pushNamed(Routes.eventListName);
         context.push(Routes.filters);
       },
       child: Row(

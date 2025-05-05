@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:navigator_app/data/category_data.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
+import 'package:navigator_app/router/routes.dart';
 import 'package:navigator_app/ui/widgets/common/favorite_button.dart';
 import 'package:navigator_app/data/models/categoy.dart';
 
@@ -291,7 +293,7 @@ class EventDetailsScreen extends ConsumerWidget {
                       // ],
 
                       // --- Go To Map Button ---
-                      _buildGoToMapButton(context),
+                      _buildGoToMapButton(context, eventId),
                       const SizedBox(height: 24),
                     ],
                   ),
@@ -442,12 +444,15 @@ Widget _buildOrganizerItem({
   );
 }
 
-Widget _buildGoToMapButton(BuildContext context) {
+Widget _buildGoToMapButton(BuildContext context, eventId) {
   return SizedBox(
     width: double.infinity,
     child: ElevatedButton(
       onPressed: () {
-        //AppNavigator.navigateToMapScreen(context);
+        context.goNamed(
+          Routes.mapName,
+          extra: eventId,
+        );
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(200),

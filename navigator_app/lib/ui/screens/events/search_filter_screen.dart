@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:navigator_app/data/models/event.dart';
+import 'package:navigator_app/providers/filter_provider.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
@@ -461,7 +462,7 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
       }
       
       // Perform search using the event repository
-      final results = await ref.read(eventRepositoryProvider).searchEvents();
+      final results = await ref.read(eventRepositoryProvider).searchEvents(EventFilter());
       
       if (mounted) {
         setState(() {

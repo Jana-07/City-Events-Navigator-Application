@@ -33,45 +33,45 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         body: ListView(
           children: [
             // Account Section - Show for all users but with different options
-            _buildSectionHeader(context, 'Account'),
+            // _buildSectionHeader(context, 'Account'),
 
-            // Profile Information - Show for all users
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile Information'),
-              subtitle: Text(isGuest ? 'Guest' : user.userName),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                // For guests, redirect to sign in
-                if (isGuest) {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Sign In Required'),
-                      content: const Text(
-                          'You need to sign in or register to access your profile.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Cancel'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            //Navigator.of(context).pop(); // close dialog
-                            context.go(Routes.splash); // navigate to sign in
-                          },
-                          child: const Text('Sign In'),
-                        ),
-                      ],
-                    ),
-                  );
-                  //context.go(Routes.splash);
-                } else {
-                  // Navigate to profile edit screen for registered users
-                }
-              },
-            ),
-            const Divider(),
+            // // Profile Information - Show for all users
+            // ListTile(
+            //   leading: const Icon(Icons.person),
+            //   title: const Text('Profile Information'),
+            //   subtitle: Text(isGuest ? 'Guest' : user.userName),
+            //   trailing: const Icon(Icons.chevron_right),
+            //   onTap: () {
+            //     // For guests, redirect to sign in
+            //     if (isGuest) {
+            //       showDialog(
+            //         context: context,
+            //         builder: (ctx) => AlertDialog(
+            //           title: const Text('Sign In Required'),
+            //           content: const Text(
+            //               'You need to sign in or register to access your profile.'),
+            //           actions: [
+            //             TextButton(
+            //               onPressed: () => Navigator.of(context).pop(),
+            //               child: const Text('Cancel'),
+            //             ),
+            //             ElevatedButton(
+            //               onPressed: () {
+            //                 //Navigator.of(context).pop(); // close dialog
+            //                 context.go(Routes.splash); // navigate to sign in
+            //               },
+            //               child: const Text('Sign In'),
+            //             ),
+            //           ],
+            //         ),
+            //       );
+            //       //context.go(Routes.splash);
+            //     } else {
+            //       // Navigate to profile edit screen for registered users
+            //     }
+            //   },
+            // ),
+            // const Divider(),
 
             // Language settings - Show for all users
             // ListTile(
@@ -123,28 +123,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ],
 
             // Notifications Section - Show for registered users only
-            if (!isGuest) ...[
-              _buildSectionHeader(context, 'Notifications'),
-              SwitchListTile(
-                title: const Text('Event Reminders'),
-                subtitle: const Text('Get notified about your favorite events'),
-                value: true,
-                onChanged: (value) {
-                  // Update notification settings
-                },
-              ),
-              const Divider(),
-              // SwitchListTile(
-              //   title: const Text('New Events'),
-              //   subtitle:
-              //       const Text('Get notified about new events in your area'),
-              //   value: false, // This should be stored in user preferences
-              //   onChanged: (value) {
-              //     // Update notification settings
-              //   },
-              // ),
-              // const Divider(),
-            ],
+            // if (!isGuest) ...[
+            //   _buildSectionHeader(context, 'Notifications'),
+            //   SwitchListTile(
+            //     title: const Text('Event Reminders'),
+            //     subtitle: const Text('Get notified about your favorite events'),
+            //     value: true,
+            //     onChanged: (value) {
+            //       // Update notification settings
+            //     },
+            //   ),
+            //   const Divider(),
+            //   // SwitchListTile(
+            //   //   title: const Text('New Events'),
+            //   //   subtitle:
+            //   //       const Text('Get notified about new events in your area'),
+            //   //   value: false, // This should be stored in user preferences
+            //   //   onChanged: (value) {
+            //   //     // Update notification settings
+            //   //   },
+            //   // ),
+            //   // const Divider(),
+            // ],
 
             // App Settings Section - Show for all users
             _buildSectionHeader(context, 'App Settings'),

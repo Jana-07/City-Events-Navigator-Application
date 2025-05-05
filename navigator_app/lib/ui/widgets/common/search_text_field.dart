@@ -24,7 +24,7 @@ class SearchTextField extends ConsumerWidget {
       ),
       cursorColor: theme.colorScheme.onPrimary.withAlpha(130),
       onSubmitted: (value) {
-        ref.read(eventFiltersProvider.notifier).setSearchQuery(value.trim());
+        ref.read(eventFiltersProvider('all').notifier).setSearchQuery(value.trim());
         context.pushNamed(Routes.eventListName);
       },
     );

@@ -48,7 +48,7 @@ class SaudiCityCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () {
-        ref.read(eventFiltersProvider.notifier).updateCity(city.name);
+        ref.read(eventFiltersProvider('all').notifier).updateCity(city.name);
         context.pushNamed(Routes.eventListName);
       },
       child: ClipRRect(

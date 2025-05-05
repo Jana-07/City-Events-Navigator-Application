@@ -73,10 +73,14 @@ GoRouter goRouter(Ref ref) {
           //Event Map Route (soon)
           StatefulShellBranch(routes: [
             GoRoute(
-              path: Routes.map,
-              name: Routes.mapName,
-              builder: (context, state) => const MapScreenTwo(),
-            ),
+                path: Routes.map,
+                name: Routes.mapName,
+                builder: (context, state) {
+                  final String? eventId =
+                      state.extra is String ? state.extra as String : null;
+
+                  return MapScreenTwo(eventId: eventId);
+                }),
           ]),
 
           //Profile Route

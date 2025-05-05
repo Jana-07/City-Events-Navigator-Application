@@ -76,21 +76,27 @@ class UserRepository {
     );
   }
 
-  // Update user preferred language
-  Future<void> updateUserPreferredLanguage(
-    String userId,
-    String language,
-  ) async {
+   Future<List<String>> getUserPreferences(String userId) async {
     if (userId == 'guest') {
-      return;
+      return []; // Return empty list for guest users
     }
 
-    await _firestoreService.updateDocument(
-      'users/$userId',
-      {'preferredLanguage': language},
-    );
-  }
+    final doc = await _firestoreService.getDocument('users/$userId');
+    if (!doc.exists || doc.data() == null) {
+      return []; // Return empty list if user or data doesn't exist
+    }
 
+    // Extract preferences, default to empty list if field is missing or not a list
+    final data = doc.data()!;
+    final preferencesData = data['preferences'];
+    if (preferencesData is List) {
+      // Ensure all elements are strings
+      return List<String>.from(preferencesData.map((item) => item.toString()));
+    } else {
+      return []; // Return empty list if 'preferences' field is not a list
+    }
+  }
+  
   // Update user profile photo URL
   Future<void> updateUserProfilePhoto(
     String userId,

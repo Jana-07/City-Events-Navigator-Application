@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:navigator_app/core/constant/cloudinary_config.dart';
-import 'package:navigator_app/data/models/review.dart';
 import 'package:navigator_app/data/services/cloudinary_service.dart';
 import 'package:navigator_app/data/services/firestore_service.dart';
-import '../models/event.dart'; // Ensure Event has 'snapshot' field
+import 'package:navigator_app/providers/filter_provider.dart';
+import '../models/event.dart';
 
 class EventRepository {
   EventRepository(this._firestoreService, this._cloudinaryService);
@@ -48,128 +49,104 @@ class EventRepository {
   }
 
   // Simplified searchEvents focusing on reducing query complexity for pagination
-  Future<List<Event>> searchEvents({
-    String? queryText, // Not implemented in query building yet
-    List<String>? categories,
-    List<String>? tags, // Not implemented
-    double? minPrice,
-    double? maxPrice,
-    DateTime? startDate,
-    DateTime? endDate,
-    String? city,
-    String? creatorId,
-    bool? isFeatured,
-    String? sortBy,
-    bool descending = false,
-    int? limit,
-    DocumentSnapshot? startAfterDocument,
-  }) async {
+   Future<List<Event>> searchEvents(
+    EventFilter filter, // Pass the whole filter object
+    {DocumentSnapshot? startAfterDocument}
+  ) async {
     try {
       Query<Map<String, dynamic>> query = _firestoreService.collection('events');
+      bool isSearchActive = filter.searchQuery != null && filter.searchQuery!.trim().isNotEmpty;
 
-      // --- Determine Filter Complexity --- 
-      bool hasMultipleCategories = categories != null && categories.isNotEmpty && categories.length > 1;
-      bool hasSingleCategory = categories != null && categories.isNotEmpty && categories.length == 1 && categories.first != 'All';
-      bool hasDateRange = startDate != null || endDate != null;
-      bool hasPriceRange = minPrice != null || maxPrice != null;
-      bool hasCity = city != null && city.isNotEmpty;
-      bool hasCreator = creatorId != null && creatorId.isNotEmpty;
-      bool hasFeatured = isFeatured != null && isFeatured;
+      if (isSearchActive) {
+        // --- Prefix Search Logic --- 
+        if (kDebugMode) print('Performing prefix search for: "${filter.searchQuery}"');
+        final String searchText = filter.searchQuery!.trim().toLowerCase();
+        
+        if (searchText.isNotEmpty) {
+           // Calculate end text for prefix range query
+           final String endText = searchText.substring(0, searchText.length - 1) +
+               String.fromCharCode(searchText.codeUnitAt(searchText.length - 1) + 1);
 
-      // --- Apply Basic Equality Filters (Generally Safe) --- 
-      if (hasCreator) {
-        query = query.where('creatorID', isEqualTo: creatorId);
-      }
-      if (hasCity) {
-        query = query.where('city', isEqualTo: city);
-      }
-      if (hasFeatured) {
-        query = query.where('isFeatured', isEqualTo: true);
-      }
-      if (hasSingleCategory) {
-        query = query.where('category', isEqualTo: categories!.first);
-      }
-
-      // --- Handle Complex Filters (Potential Conflicts) --- 
-
-      // Strategy: Prioritize making pagination work. If multiple categories are selected,
-      // avoid combining them with range filters (date/price) in the *same* Firestore query.
-      // Also, Firestore has limitations on combining 'whereIn' with certain 'orderBy' clauses.
-
-      bool applyClientSideCategoryFilter = false;
-      List<String>? categoriesForClientFilter;
-
-      if (hasMultipleCategories) {
-        // If multiple categories AND range filters are present, we MUST filter categories client-side
-        // OR simplify the query by removing the range filters from the Firestore query.
-        // Let's try removing range filters from Firestore query when multi-category is active.
-        if (hasDateRange || hasPriceRange) {
-           print('WARNING: Multi-category filter active with range filters. Applying category filter client-side AND removing range filters from Firestore query for stability.');
-           applyClientSideCategoryFilter = true;
-           categoriesForClientFilter = categories;
-           // DO NOT apply date/price range filters to the Firestore query in this case
-           hasDateRange = false; // Prevent range filters below
-           hasPriceRange = false; // Prevent range filters below
-        } else if (categories.length <= 30) {
-           // If only multi-category (no range filters), 'whereIn' might be okay, but requires specific indexes with the sort field.
-           // Let's try applying it, but be aware this can still cause issues with certain sorts.
-           query = query.where('category', whereIn: categories);
+           // Apply range query on 'title_lowercase'
+           query = query
+               .where('titleLowercase', isGreaterThanOrEqualTo: searchText)
+               .where('titleLowercase', isLessThan: endText);
+               
+           // Order by the search field (required by Firestore for range queries with limits/other sorts)
+           query = _applySorting(query, 'titleLowercase', filter.descending); 
         } else {
-           // Too many categories for 'whereIn', filter client-side
-           print('WARNING: Too many categories selected (>30). Applying category filter client-side.');
-           applyClientSideCategoryFilter = true;
-           categoriesForClientFilter = categories;
+           // Search query was only whitespace, return empty list or handle as needed
+           return [];
         }
+        // --- End Prefix Search Logic ---
+
+      } else {
+        // --- Standard Filter Logic (No Search Query) --- 
+        if (kDebugMode) print('Performing standard filter search.');
+        
+        // Apply standard filters (category, price, date, city, etc.)
+        // This logic needs to be adapted from your previous version, 
+        // ensuring it doesn't conflict with Firestore limitations when combined.
+        // For simplicity here, let's just apply category and city if present.
+
+        if (filter.categories != null && filter.categories!.isNotEmpty) {
+           if (filter.categories!.length == 1 && filter.categories!.first != 'All') {
+              query = query.where('category', isEqualTo: filter.categories!.first);
+           } else if (filter.categories!.length > 1 && filter.categories!.length <= 30) {
+              // Be mindful of combining whereIn with range filters or complex sorts
+              query = query.where('category', whereIn: filter.categories);
+           }
+        }
+
+        if (filter.city != null && filter.city!.isNotEmpty) {
+           query = query.where('city', isEqualTo: filter.city);
+        }
+
+        // Add price range filters (example)
+        String? firstRangeField;
+        if (filter.minPrice != null || filter.maxPrice != null) {
+           firstRangeField = 'price';
+           if (filter.minPrice != null) {
+              query = query.where('price', isGreaterThanOrEqualTo: filter.minPrice);
+           }
+           if (filter.maxPrice != null) {
+              query = query.where('price', isLessThanOrEqualTo: filter.maxPrice);
+           }
+        }
+        
+        // Add date range filters (example - requires compatible sorting)
+        // Ensure not conflicting with price range
+        if ((filter.startDate != null || filter.endDate != null) && firstRangeField == null) {
+           firstRangeField = 'startDate'; // Assuming you filter/sort by startDate
+           if (filter.startDate != null) {
+              query = query.where('startDate', isGreaterThanOrEqualTo: Timestamp.fromDate(filter.startDate!));
+           }
+           if (filter.endDate != null) {
+              query = query.where('startDate', isLessThanOrEqualTo: Timestamp.fromDate(filter.endDate!)); 
+           }
+        } else if ((filter.startDate != null || filter.endDate != null) && firstRangeField != null) {
+           if (kDebugMode) print('Warning: Cannot apply range filters on both price and date. Ignoring date filter.');
+        }
+
+        // Apply sorting based on filter settings
+        String effectiveSortBy = filter.sortBy;
+        // Adjust sort if conflicting with range filter
+        if (firstRangeField != null && effectiveSortBy != firstRangeField) {
+           if (kDebugMode) print('WARNING: Sorting by "$effectiveSortBy" conflicts with range filter on "$firstRangeField". Forcing sort by "$firstRangeField".');
+           effectiveSortBy = firstRangeField;
+        }
+        query = _applySorting(query, effectiveSortBy, filter.descending);
+        // --- End Standard Filter Logic ---
       }
 
-      // --- Apply Range Filters (Only if not disabled above) ---
-      String? firstRangeField;
-      if (hasDateRange) {
-        firstRangeField = 'startDate';
-        if (startDate != null) {
-          query = query.where('startDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate));
-        }
-        if (endDate != null) {
-          // Firestore limitation: Inequality filters must be on the same field if combined with other filters/sorts.
-          // If startDate is also applied, this is okay. If only endDate, it might restrict sorting options.
-          query = query.where('startDate', isLessThanOrEqualTo: Timestamp.fromDate(endDate));
-        }
-      }
-      
-      // Firestore limitation: Cannot have range filters on different fields.
-      // If date range is applied, we cannot apply price range in the same query.
-      if (hasPriceRange && !hasDateRange) { 
-        firstRangeField = 'price';
-        if (minPrice != null) {
-          query = query.where('price', isGreaterThanOrEqualTo: minPrice);
-        }
-        if (maxPrice != null) {
-          query = query.where('price', isLessThanOrEqualTo: maxPrice);
-        }
-      } else if (hasPriceRange && hasDateRange) {
-          print('WARNING: Cannot apply both date and price range filters in Firestore. Ignoring price range.');
-          // Price range is ignored if date range is active.
-      }
-
-      // --- Apply Sorting --- 
-      String effectiveSortBy = sortBy ?? 'startDate'; // Default sort
-      
-      // Firestore limitation: If you have a range filter (<, <=, >, >=), your first sort order must be on the same field.
-      if (firstRangeField != null && effectiveSortBy != firstRangeField) {
-          print('WARNING: Sorting by "$effectiveSortBy" conflicts with range filter on "$firstRangeField". Forcing sort by "$firstRangeField".');
-          effectiveSortBy = firstRangeField; 
-      }
-      query = _applySorting(query, effectiveSortBy, descending);
-
-      // --- Apply Pagination --- 
+      // --- Apply Pagination (Common to both search and filter) --- 
       if (startAfterDocument != null) {
         query = query.startAfterDocument(startAfterDocument);
       }
 
-      // --- Apply Limit --- 
-      if (limit != null && limit > 0) {
-        query = query.limit(limit);
-      }
+      // --- Apply Limit (Common to both search and filter) --- 
+      int effectiveLimit = 10; // Example default limit
+      query = query.limit(effectiveLimit);
 
       // --- Execute Query --- 
       final querySnapshot = await query.get();
@@ -177,72 +154,59 @@ class EventRepository {
           .map((doc) => Event.fromDocument(doc))
           .toList();
 
-      // --- Apply Client-Side Filtering (if needed) --- 
-      if (applyClientSideCategoryFilter && categoriesForClientFilter != null) {
-        print('Applying client-side category filter for ${categoriesForClientFilter.length} categories.');
-        events = events.where((event) {
-          // Assuming event.category is a String?
-          return categoriesForClientFilter!.contains(event.category);
-        }).toList();
-      }
-      
-      // NOTE: Client-side filtering breaks Firestore pagination guarantees.
-      // If client-side filtering removes items, the next 'startAfterDocument' might be incorrect,
-      // and 'hasMore' logic in the controller becomes unreliable.
-      // This simplified approach prioritizes avoiding the Firestore error, but true pagination
-      // with complex filters often requires different strategies (e.g., backend aggregation, simpler UI filters).
-
-      print('searchEvents: Firestore query executed. Returning ${events.length} events.');
+      if (kDebugMode) print('searchEvents: Firestore query executed. Returning ${events.length} events.');
       return events;
 
     } catch (e, st) {
-      print('Error searching events: $e\n$st');
-      // Rethrow or handle as appropriate for the controller
+      if (kDebugMode) print('Error searching events: $e\n$st');
+      // Check for Firestore index errors here!
+      if (kDebugMode && e.toString().contains('requires an index')) {
+         print('Firestore Index Required! Check console for link. Likely needed for title_lowercase field or combination with sorting/filters.');
+      }
       rethrow; 
     }
   }
-
 
   // --- Other methods (fetchEvents, fetchMoreEvents, getEvent, streams, save, delete, reviews etc.) remain largely the same ---
   // --- Ensure they call the updated searchEvents or handle their specific logic correctly --- 
 
   // Example: fetchEvents might be simplified or removed if searchEvents covers initial load
-  Future<(List<Event>, DocumentSnapshot?)> fetchEvents_Legacy({
-    required int limit,
-    String? sortBy,
-    String? creatorId,
-  }) async {
-     // This might now just call searchEvents with appropriate defaults
-     final events = await searchEvents(
-       limit: limit,
-       sortBy: sortBy,
-       creatorId: creatorId,
-       // other filters null
-     );
-     final lastDocument = events.isNotEmpty && events.length == limit ? events.last.snapshot : null;
-     return (events, lastDocument);
-  }
+  // Future<(List<Event>, DocumentSnapshot?)> fetchEventsLegacy({
+  //   required int limit,
+  //   String? sortBy,
+  //   String? creatorId,
+  // }) async {
+  //    // This might now just call searchEvents with appropriate defaults
+  //    final events = await searchEvents(
+  //      //limit: limit,
+  //      //sortBy: sortBy,
+  //      //creatorId: creatorId,
+  //      // other filters null
+  //    );
+  //    final lastDocument = events.isNotEmpty && events.length == limit ? events.last.snapshot : null;
+  //    return (events, lastDocument);
+  // }
 
-  // Example: fetchMoreEvents might be simplified or removed if controller calls searchEvents directly
-  Future<(List<Event>, DocumentSnapshot?)> fetchMoreEvents_Legacy({
-    required int limit,
-    required DocumentSnapshot startAfterDocument,
-    String? sortBy, // Need to pass the full filter context here!
-    String? creatorId,
-    // ... other filters ...
-  }) async {
-    // This needs the *exact same* filter parameters as the previous query
-    // It's generally better for the controller to call searchEvents directly
-    final events = await searchEvents(
-      limit: limit,
-      startAfterDocument: startAfterDocument,
-      sortBy: sortBy,
-      creatorId: creatorId,
-      // ... MUST pass all other filters used in the previous query ...
-    );
-     final lastDocument = events.isNotEmpty && events.length == limit ? events.last.snapshot : null;
-     return (events, lastDocument);
-  }
+  // // Example: fetchMoreEvents might be simplified or removed if controller calls searchEvents directly
+  // Future<(List<Event>, DocumentSnapshot?)> fetchMoreEventsLegacy({
+  //   required int limit,
+  //   required DocumentSnapshot startAfterDocument,
+  //   String? sortBy, // Need to pass the full filter context here!
+  //   String? creatorId,
+  //   // ... other filters ...
+  // }) async {
+  //   // This needs the *exact same* filter parameters as the previous query
+  //   // It's generally better for the controller to call searchEvents directly
+  //   final events = await searchEvents(
+  //     //limit: limit,
+  //     //startAfterDocument: startAfterDocument,
+  //     //sortBy: sortBy,
+  //     //creatorId: creatorId,
+  //     // ... MUST pass all other filters used in the previous query ...
+  //   );
+  //    final lastDocument = events.isNotEmpty && events.length == limit ? events.last.snapshot : null;
+  //    return (events, lastDocument);
+  // }
 
   // Get event by ID
   Future<Event?> getEvent(String eventId) async {
@@ -263,7 +227,6 @@ class EventRepository {
     });
   }
 
-  // Stream all events (for organizers)
   Stream<List<Event>> streamAllEvents() {
     return _firestoreService.streamCollection('events').map((snapshot) {
       return snapshot.docs.map((doc) => Event.fromDocument(doc)).toList();
@@ -370,16 +333,7 @@ class EventRepository {
     await _firestoreService.deleteDocument('events/$eventId');
   }
 
-  // REVIEWS SUBCOLLECTION METHODS
-
-  Future<List<Review>> getEventReviews(String eventId) async {
-    final snapshot = await _firestoreService.getCollection(
-      'events/$eventId/reviews',
-      queryBuilder: (query) => query.orderBy('createdAt', descending: true),
-    );
-    return snapshot.docs.map((doc) => Review.fromDocument(doc)).toList();
-  }
-
+  
   Future<String> uploadEventMainImage(File imageFile, String eventId) async {
     final folder = CloudinaryConfig.eventImagePath(eventId);
     final result = await _cloudinaryService.uploadImage(imageFile, folder);
@@ -389,87 +343,6 @@ class EventRepository {
         .doc(eventId)
         .update({'imageURL': imageUrl});
     return imageUrl;
-  }
-
-  Stream<List<Review>> streamEventReviews(String eventId) {
-    return _firestoreService
-        .streamCollection(
-      'events/$eventId/reviews',
-      queryBuilder: (query) => query.orderBy('createdAt', descending: true),
-    )
-        .map((snapshot) {
-      return snapshot.docs.map((doc) => Review.fromDocument(doc)).toList();
-    });
-  }
-
-  Future<void> addReview(String eventId, Review review) async {
-    await _firestoreService.addDocument(
-      'events/$eventId/reviews',
-      review.toMap(),
-    );
-    // Update average rating (consider doing this via cloud function for robustness)
-    final reviews = await getEventReviews(eventId);
-    final reviewsCount = reviews.length;
-    final averageRating = reviews.isEmpty
-        ? 0.0
-        : reviews.map((r) => r.stars).reduce((a, b) => a + b) / reviewsCount;
-    await _firestoreService.updateDocument(
-      'events/$eventId',
-      {
-        'averageRating': averageRating,
-        'reviewsCount': reviewsCount,
-      },
-    );
-  }
-
-  Future<void> updateReview(
-      String eventId, String reviewId, Review updatedReview) async {
-    await _firestoreService.updateDocument(
-      'events/$eventId/reviews/$reviewId',
-      updatedReview.toMap(),
-    );
-    // Update average rating
-    final reviews = await getEventReviews(eventId);
-    final reviewsCount = reviews.length;
-    final averageRating = reviews.isEmpty
-        ? 0.0
-        : reviews.map((r) => r.stars).reduce((a, b) => a + b) / reviewsCount;
-    await _firestoreService.updateDocument(
-      'events/$eventId',
-      {
-        'averageRating': averageRating,
-        'reviewsCount': reviewsCount,
-      },
-    );
-  }
-
-  Future<void> deleteReview(String eventId, String reviewId) async {
-    await _firestoreService.deleteDocument('events/$eventId/reviews/$reviewId');
-    // Update average rating
-    final reviews = await getEventReviews(eventId);
-    final reviewsCount = reviews.length;
-    final averageRating = reviews.isEmpty
-        ? 0.0
-        : reviews.map((r) => r.stars).reduce((a, b) => a + b) / reviewsCount;
-    await _firestoreService.updateDocument(
-      'events/$eventId',
-      {
-        'averageRating': averageRating,
-        'reviewsCount': reviewsCount,
-      },
-    );
-  }
-
-  Future<Review?> getUserReview(String eventId, String userId) async {
-    final snapshot = await _firestoreService.getCollection(
-      'events/$eventId/reviews',
-      queryBuilder: (query) => query.where('userID', isEqualTo: userId),
-      limit: 1,
-    );
-    if (snapshot.docs.isEmpty) {
-      return null;
-    }
-    return Review.fromDocument(snapshot.docs.first);
   }
 }
 

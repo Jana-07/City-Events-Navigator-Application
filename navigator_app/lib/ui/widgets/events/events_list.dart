@@ -37,7 +37,7 @@ class _EventsListState extends ConsumerState<EventsList> {
       _scrollController.position.maxScrollExtent - 200) {
     
     // Read the controller notifier
-    final controllerNotifier = ref.read(eventsControllerProvider.notifier);
+    final controllerNotifier = ref.read(eventsControllerProvider('all').notifier);
     
     // *** ADD THIS CHECK ***
     // Only call fetchMore if it has more events AND is not already loading
@@ -55,12 +55,12 @@ class _EventsListState extends ConsumerState<EventsList> {
   }
 
   void _deleteEvent(String eventId) {
-    ref.read(eventsControllerProvider.notifier).deleteEvent(eventId);
+    ref.read(eventsControllerProvider('all').notifier).deleteEvent(eventId);
   }
 
   @override
   Widget build(BuildContext context) {
-    final eventsProvider = eventsControllerProvider;
+    final eventsProvider = eventsControllerProvider('all');
     final eventsAsync = widget.filter == 'favorite'
         ? ref.watch(userFavoritesStreamProvider(null))
         : ref.watch(eventsProvider);

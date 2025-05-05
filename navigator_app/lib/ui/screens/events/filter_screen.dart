@@ -223,18 +223,18 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
 
             switch (_selectedDate) {
               case 'Today':
-                  _startDate = todayStart;
-                  _endDate = todayEnd;
+                _startDate = todayStart;
+                _endDate = todayEnd;
               case 'Tomorrow':
-                  DateTime tomorrow = now.add(const Duration(days: 1));
-                  _startDate = _startOfDay(tomorrow);
-                  _endDate = _endOfDay(tomorrow);
-              case 'This Week':
-                  int currentWeekday = now.weekday; // Monday = 1, Sunday = 7
-                  _startDate = _startOfDay(
-                      now.subtract(Duration(days: currentWeekday - 1)));
-                  _endDate =
-                      _endOfDay(_startDate!.add(const Duration(days: 6)));
+                DateTime tomorrow = now.add(const Duration(days: 1));
+                _startDate = _startOfDay(tomorrow);
+                _endDate = _endOfDay(tomorrow);
+              case 'This week':
+                int currentWeekday = now.weekday; // Monday = 1, Sunday = 7
+                int daysFromSunday = currentWeekday % 7; // Sunday = 0
+                _startDate =
+                    _startOfDay(now.subtract(Duration(days: daysFromSunday)));
+                _endDate = _endOfDay(_startDate!.add(const Duration(days: 6)));
             }
           } else {
             _selectedDate = null;
@@ -596,7 +596,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                 startDate: _startDate,
                 endDate: _endDate,
               );
-              ref.read(eventFiltersProvider.notifier).applyFilters(newFilter);
+              ref.read(eventFiltersProvider('all').notifier).applyFilters(newFilter);
               context.pop();
             },
             style: ElevatedButton.styleFrom(

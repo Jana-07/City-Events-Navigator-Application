@@ -19,7 +19,7 @@ class CategoryItem extends ConsumerWidget {
       color: category.color,
       child: InkWell(
         onTap: () {
-          ref.read(eventFiltersProvider.notifier).toggleCategory(category.name);
+          ref.read(eventFiltersProvider('all').notifier).toggleCategory(category.name);
           context.pushNamed(Routes.eventListName);
         },
         borderRadius: BorderRadius.circular(25),

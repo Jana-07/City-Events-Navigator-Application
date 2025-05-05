@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
 class FiltersButtonTwo extends StatelessWidget {
-  final VoidCallback? onPressed;
+  final Function() onPressed;
 
   const FiltersButtonTwo({
     super.key,
-    this.onPressed,
+    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
-      onPressed: onPressed ?? () {},
+      onPressed: onPressed,
       icon: const Icon(Icons.filter_list, color: Colors.white),
       label: const Text('Filters'),
       style: ElevatedButton.styleFrom(

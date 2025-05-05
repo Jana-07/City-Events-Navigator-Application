@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:navigator_app/data/repositories/event_repository.dart'; // Assuming this exists
+import 'package:navigator_app/providers/firebase_rivrpod_provider.dart'; // Assuming this contains getEventByIdProvider
 import 'package:navigator_app/router/routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/data/models/event.dart';
@@ -10,7 +12,11 @@ import 'dart:async';
 import 'package:navigator_app/ui/controllers/event_controller.dart';
 
 class MapScreenTwo extends ConsumerStatefulWidget {
-  const MapScreenTwo({super.key});
+  const MapScreenTwo({
+    super.key,
+    this.eventId = '',
+  });
+  final String? eventId;
 
   @override
   ConsumerState<MapScreenTwo> createState() => _MapScreenState();
@@ -22,12 +28,24 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
   String _selectedCategory = '';
   Event? _selectedEvent;
   final Map<String, BitmapDescriptor> _categoryIcons = {};
-  bool _isLoading = true;
+  bool _isLoading = true; // Used for loading icons
+  bool _isFetchingEvent = false; // Used specifically for fetching event by ID
 
   @override
   void initState() {
     super.initState();
-    _loadCategoryIcons();
+    _loadCategoryIcons().then((_) {
+      // After icons are loaded (or attempted), check for eventId
+      if (widget.eventId != null && widget.eventId!.isNotEmpty) {
+        // Use addPostFrameCallback to ensure the first frame is built
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            // Check if the widget is still mounted
+            _fetchAndSelectEventById(widget.eventId!);
+          }
+        });
+      }
+    });
   }
 
   // Load custom icons for each category
@@ -36,7 +54,6 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
       _isLoading = true;
     });
 
-    // Define the categories and their corresponding icons
     final Map<String, IconData> categoryIconMap = {
       'Sport': Icons.sports_basketball,
       'Festival': Icons.music_note,
@@ -47,18 +64,69 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
       'Other': Icons.more_horiz,
     };
 
-    // Create custom bitmap descriptors for each category
-    for (var entry in categoryIconMap.entries) {
-      final BitmapDescriptor icon = await _createCustomMarkerBitmap(
-        entry.value,
-        _getCategoryColor(entry.key),
-      );
-      _categoryIcons[entry.key] = icon;
+    try {
+      for (var entry in categoryIconMap.entries) {
+        final BitmapDescriptor icon = await _createCustomMarkerBitmap(
+          entry.value,
+          _getCategoryColor(entry.key),
+        );
+        _categoryIcons[entry.key] = icon;
+      }
+    } catch (e) {
+      print("Error loading category icons: $e");
+      // Handle icon loading error if necessary
     }
 
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Fetch and select event by ID
+  Future<void> _fetchAndSelectEventById(String eventId) async {
+    if (!mounted) return; // Don't proceed if widget is disposed
     setState(() {
-      _isLoading = false;
+      _isFetchingEvent = true; // Indicate loading specific event
     });
+
+    try {
+      final event = await ref.read(getEventByIdProvider(eventId).future);
+
+      if (mounted) {
+        // Check again if mounted after await
+        setState(() {
+          _selectedEvent = event;
+          _isFetchingEvent = false;
+
+          // Center the map on the selected event if location is valid
+          if (event != null) {
+            if (_mapController != null &&
+                event.location.latitude != 0 &&
+                event.location.longitude != 0) {
+              _mapController!.animateCamera(
+                CameraUpdate.newLatLngZoom(
+                  LatLng(event.location.latitude, event.location.longitude),
+                  15, // Zoom level can be adjusted
+                ),
+              );
+            }
+          }
+        });
+      }
+    } catch (e) {
+      print("Error fetching event by ID '$eventId': $e");
+      if (mounted) {
+        setState(() {
+          _isFetchingEvent = false;
+        });
+        // Optionally show an error message to the user (e.g., using a SnackBar)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load event details.')),
+        );
+      }
+    }
   }
 
   // Create custom marker bitmap from icon
@@ -67,8 +135,8 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
     final pictureRecorder = ui.PictureRecorder();
     final canvas = Canvas(pictureRecorder);
     final size = const Size(80, 80);
-    final radius = 42.0;
-    final textPainter = TextPainter(textDirection: ui.TextDirection.ltr); // <-- Added textDirection here
+    final radius = 35.0; // Slightly smaller radius
+    final textPainter = TextPainter(textDirection: ui.TextDirection.ltr);
 
     // Draw circle background
     final paint = Paint()
@@ -82,15 +150,15 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     canvas.drawCircle(
-        Offset(size.width / 2, size.height / 2), radius - 1, borderPaint);
+        Offset(size.width / 2, size.height / 2), radius, borderPaint);
 
     // Draw icon
     textPainter.text = TextSpan(
       text: String.fromCharCode(iconData.codePoint),
       style: TextStyle(
-        fontSize: 42,
+        fontSize: 35, // Adjust icon size
         fontFamily: iconData.fontFamily,
-        package: iconData.fontPackage, // <-- Also good practice to include package for icons
+        package: iconData.fontPackage,
         color: Colors.white,
       ),
     );
@@ -103,20 +171,24 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
       ),
     );
 
-    // Convert to image
     final picture = pictureRecorder.endRecording();
     final img = await picture.toImage(size.width.toInt(), size.height.toInt());
     final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
-    final buffer = byteData!.buffer.asUint8List();
+
+    if (byteData == null) {
+      throw Exception("Failed to create bitmap descriptor");
+    }
+    final buffer = byteData.buffer.asUint8List();
 
     return BitmapDescriptor.fromBytes(buffer);
   }
 
   Color _getCategoryColor(String category) {
+    // Ensure consistent category key usage (e.g., 'Sport' vs 'Sports')
     switch (category) {
-      case 'Sports':
+      case 'Sport':
         return Colors.red;
-      case 'Festivals':
+      case 'Festival':
         return Colors.purple;
       case 'Food':
         return Colors.green;
@@ -126,23 +198,25 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
         return Colors.blue;
       case 'Education':
         return Colors.teal;
-      case 'Others':
+      case 'Other':
         return Colors.grey;
       default:
-        return Colors.red;
+        return Colors.red; // Default color
     }
   }
 
   void _initMarkers(List<Event> events) {
+    if (!mounted || _categoryIcons.isEmpty)
+      return; // Don't run if disposed or icons not ready
+
     Set<Marker> newMarkers = {};
+    Event? eventToPotentiallySelect;
 
     for (var event in events) {
-      // Skip events without valid location data
       if (event.location.latitude == 0 && event.location.longitude == 0) {
         continue;
       }
-      print(event.location.latitude);
-      print(event.location.longitude);
+
       final category = event.category;
       final BitmapDescriptor icon = _categoryIcons[category] ??
           BitmapDescriptor.defaultMarkerWithHue(_getCategoryHue(category));
@@ -153,31 +227,56 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
           position: LatLng(event.location.latitude, event.location.longitude),
           icon: icon,
           onTap: () {
-            setState(() {
-              _selectedEvent = event;
-            });
-
-            // Center the map on the selected event
-            _mapController?.animateCamera(
-              CameraUpdate.newLatLng(
-                LatLng(event.location.latitude, event.location.longitude),
-              ),
-            );
+            if (mounted) {
+              setState(() {
+                _selectedEvent = event;
+              });
+              _mapController?.animateCamera(
+                CameraUpdate.newLatLng(
+                  LatLng(event.location.latitude, event.location.longitude),
+                ),
+              );
+            }
           },
         ),
       );
+
+      // Check if this event matches the initial eventId and we haven't selected it yet
+      if (widget.eventId == event.id &&
+          _selectedEvent == null &&
+          !_isFetchingEvent) {
+        eventToPotentiallySelect = event;
+      }
     }
 
-    setState(() {
-      _markers = newMarkers;
-    });
+    if (mounted) {
+      setState(() {
+        _markers = newMarkers;
+        // If an event matching eventId was found in the list and not yet selected,
+        // select it now. This handles cases where the event is already in the 'all' list.
+        if (eventToPotentiallySelect != null) {
+          _selectedEvent = eventToPotentiallySelect;
+          // Optionally center map if needed and not already done by fetch logic
+          if (_mapController != null) {
+            _mapController!.animateCamera(
+              CameraUpdate.newLatLngZoom(
+                LatLng(eventToPotentiallySelect.location.latitude,
+                    eventToPotentiallySelect.location.longitude),
+                15,
+              ),
+            );
+          }
+        }
+      });
+    }
   }
 
+  // Get default hue (fallback if custom icon fails)
   double _getCategoryHue(String category) {
     switch (category) {
-      case 'Sports':
+      case 'Sport':
         return BitmapDescriptor.hueRed;
-      case 'Festivals':
+      case 'Festival':
         return BitmapDescriptor.hueViolet;
       case 'Food':
         return BitmapDescriptor.hueGreen;
@@ -186,26 +285,28 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
       case 'Conference':
         return BitmapDescriptor.hueAzure;
       case 'Education':
-        return BitmapDescriptor.hueGreen;
-      case 'Others':
-        return BitmapDescriptor.hueRed;
+        return BitmapDescriptor.hueCyan; // Changed from green for distinction
+      case 'Other':
+        return BitmapDescriptor.hueMagenta;
       default:
         return BitmapDescriptor.hueRose;
     }
   }
 
   void _filterMarkers(String category) {
+    if (!mounted) return;
+
     setState(() {
       _selectedCategory = (_selectedCategory == category) ? '' : category;
+      _selectedEvent = null; // Clear selection when changing filter
 
-      // Get events from the controller
-      final eventsAsync =
-          ref.read(eventsControllerProvider);
+      final eventsAsync = ref.read(eventsControllerProvider('all'));
 
       eventsAsync.whenData((events) {
-        _markers.clear();
+        if (!mounted || _categoryIcons.isEmpty) return;
+
+        Set<Marker> filteredMarkers = {};
         for (var event in events) {
-          // Skip events without valid location data
           if (event.location.latitude == 0 && event.location.longitude == 0) {
             continue;
           }
@@ -216,105 +317,144 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
                 BitmapDescriptor.defaultMarkerWithHue(
                     _getCategoryHue(event.category));
 
-            _markers.add(
+            filteredMarkers.add(
               Marker(
                 markerId: MarkerId(event.id),
                 position:
                     LatLng(event.location.latitude, event.location.longitude),
                 icon: icon,
                 onTap: () {
-                  setState(() {
-                    _selectedEvent = event;
-                  });
-
-                  // Center the map on the selected event
-                  _mapController?.animateCamera(
-                    CameraUpdate.newLatLng(
-                      LatLng(event.location.latitude, event.location.longitude),
-                    ),
-                  );
+                  if (mounted) {
+                    setState(() {
+                      _selectedEvent = event;
+                    });
+                    _mapController?.animateCamera(
+                      CameraUpdate.newLatLng(
+                        LatLng(
+                            event.location.latitude, event.location.longitude),
+                      ),
+                    );
+                  }
                 },
               ),
             );
           }
         }
+        // Update markers directly within whenData callback if possible,
+        // or schedule update after build
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _markers = filteredMarkers;
+            });
+          }
+        });
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Watch events from the controller
-    final eventsAsync =
-        ref.watch(eventsControllerProvider);
+    // Watch the list of all events to populate markers initially
+    final eventsAsync = ref.watch(eventsControllerProvider('all'));
 
-    // Update markers when events change
-    eventsAsync.whenData((events) {
-      if (!_isLoading && _categoryIcons.isNotEmpty) {
-        _initMarkers(events);
-      }
+    // Update markers when the full event list changes (and icons are ready)
+    ref.listen<AsyncValue<List<Event>>>(eventsControllerProvider('all'),
+        (_, next) {
+      next.whenData((events) {
+        if (!_isLoading && _categoryIcons.isNotEmpty) {
+          _initMarkers(events);
+        }
+      });
     });
+
+    // Removed the problematic block that was here:
+    // if (widget.eventId != null && widget.eventId!.isNotEmpty) { ... }
 
     return Scaffold(
       body: Stack(
         children: [
-          // Show loading indicator while custom icons are being loaded
-          if (_isLoading)
+          // Show loading indicator while icons are loading OR specific event is fetching
+          if (_isLoading || _isFetchingEvent)
             const Center(
               child: CircularProgressIndicator(),
             ),
 
-          // Map
-          GoogleMap(
-            initialCameraPosition: const CameraPosition(
-              target: LatLng(26.3609, 43.975), // Initial center position
-              zoom: 14,
-            ),
-            markers: _markers,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            mapType: MapType.normal,
-            onMapCreated: (controller) {
-              setState(() {
-                _mapController = controller;
-              });
-            },
-            onTap: (LatLng tappedPoint) {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Add New Event'),
-                    content: Text(
-                        'Do you want to add a new event in this location?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
+          // Map - Show only when icons are loaded and not fetching specific event
+          if (!_isLoading && !_isFetchingEvent)
+            GoogleMap(
+              initialCameraPosition: const CameraPosition(
+                target: LatLng(
+                    26.3609, 43.975), // TODO: Adjust initial center if needed
+                zoom: 14,
+              ),
+              markers: _markers,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              mapType: MapType.normal,
+              onMapCreated: (controller) {
+                if (mounted) {
+                  setState(() {
+                    _mapController = controller;
+                  });
+                  // If an event was selected during init, ensure map centers on it
+                  if (_selectedEvent != null &&
+                      _selectedEvent!.location.latitude != 0) {
+                    controller.animateCamera(
+                      CameraUpdate.newLatLngZoom(
+                        LatLng(_selectedEvent!.location.latitude,
+                            _selectedEvent!.location.longitude),
+                        15,
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          context.pushNamed(
-                            Routes.createEventName,
-                            extra: tappedPoint,
-                          );
-                        },
-                        child: const Text('Create Event'),
-                      ),
-                    ],
+                    );
+                  }
+                }
+              },
+              onTap: (LatLng tappedPoint) {
+                if (_selectedEvent != null) {
+                  // If an event card is shown, tapping map closes it
+                  setState(() {
+                    _selectedEvent = null;
+                  });
+                } else {
+                  // Otherwise, allow creating a new event
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Add New Event'),
+                        content: Text(
+                            'Do you want to add a new event in this location?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              context.pushNamed(
+                                Routes.createEventName,
+                                extra: tappedPoint,
+                              );
+                            },
+                            child: const Text('Create Event'),
+                          ),
+                        ],
+                      );
+                    },
                   );
-                },
-              );
-            },
-          ),
+                }
+              },
+            ),
 
-          // Search bar
+          // UI Elements (Search, Chips) - Positioned above the map
           SafeArea(
-            minimum: EdgeInsets.all(10),
+            minimum: const EdgeInsets.all(10),
             child: Column(
               children: [
+                // Search Bar Container
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -329,91 +469,93 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
                   ),
                   child: Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () => Navigator.pop(context),
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
                       ),
-                      Expanded(
+                      const Expanded(
                         child: TextField(
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             hintText: 'Search...',
                             border: InputBorder.none,
                             fillColor: Colors.white,
                             contentPadding:
                                 EdgeInsets.symmetric(horizontal: 10),
                           ),
-                          onSubmitted: (value) {
-                            // Handle search
-                          },
+                          // onSubmitted: (value) { // TODO: Implement search },
                         ),
                       ),
                       IconButton(
                         icon:
                             const Icon(Icons.my_location, color: Colors.green),
                         onPressed: () {
-                          // Center map on user location
+                          // TODO: Implement centering map on user location
                         },
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
+                // Category Chips Row
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
+                      // Example Chip (Repeat for all categories)
                       CategoryChip(
                         icon: Icons.sports_basketball,
-                        label: 'Sports',
-                        color: Colors.red,
+                        label: 'Sport',
+                        color: _getCategoryColor('Sport'),
                         isSelected: _selectedCategory == 'Sport',
                         onTap: () => _filterMarkers('Sport'),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       CategoryChip(
                         icon: Icons.music_note,
-                        label: 'Festivals',
-                        color: Colors.purple,
+                        label: 'Festival',
+                        color: _getCategoryColor('Festival'),
                         isSelected: _selectedCategory == 'Festival',
                         onTap: () => _filterMarkers('Festival'),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       CategoryChip(
                         icon: Icons.restaurant,
                         label: 'Food',
-                        color: Colors.green,
+                        color: _getCategoryColor('Food'),
                         isSelected: _selectedCategory == 'Food',
                         onTap: () => _filterMarkers('Food'),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       CategoryChip(
                         icon: Icons.palette,
-                        label: 'Art',
-                        color: Colors.orange,
+                        label:
+                            'Art', // Label matches key used in map/color func
+                        color: _getCategoryColor('Art'),
                         isSelected: _selectedCategory == 'Art',
                         onTap: () => _filterMarkers('Art'),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       CategoryChip(
                         icon: Icons.people,
                         label: 'Conference',
-                        color: Colors.blue,
+                        color: _getCategoryColor('Conference'),
                         isSelected: _selectedCategory == 'Conference',
                         onTap: () => _filterMarkers('Conference'),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       CategoryChip(
                         icon: Icons.school,
                         label: 'Education',
-                        color: Colors.green,
+                        color: _getCategoryColor('Education'),
                         isSelected: _selectedCategory == 'Education',
                         onTap: () => _filterMarkers('Education'),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       CategoryChip(
                         icon: Icons.more_horiz,
-                        label: 'Others',
-                        color: Colors.red,
+                        label:
+                            'Other', // Label matches key used in map/color func
+                        color: _getCategoryColor('Other'),
                         isSelected: _selectedCategory == 'Other',
                         onTap: () => _filterMarkers('Other'),
                       ),
@@ -424,7 +566,7 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
             ),
           ),
 
-          // Event card at bottom - only show when an event is selected
+          // Event card at bottom - show when an event is selected
           if (_selectedEvent != null)
             Positioned(
               bottom: 20,
@@ -440,8 +582,11 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
               ),
             ),
 
-          // Event list when category is selected
-          if (_selectedCategory.isNotEmpty)
+          // Event list when category is selected (Optional - keep or remove based on UX)
+          // This might conflict with the single selected event card, review UX.
+          if (_selectedCategory.isNotEmpty &&
+              _selectedEvent ==
+                  null) // Only show if no specific event is selected
             eventsAsync.when(
               data: (events) {
                 final filteredEvents = events
@@ -479,7 +624,7 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
                           },
                           child: Container(
                             width: 310,
-                            height: 100,
+                            height: 120,
                             margin: const EdgeInsets.symmetric(horizontal: 8),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
@@ -508,6 +653,7 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 4),
                                 Row(
@@ -541,6 +687,7 @@ class _MapScreenState extends ConsumerState<MapScreenTwo> {
   }
 }
 
+// Helper Widget for Category Chips
 class CategoryChip extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -549,13 +696,13 @@ class CategoryChip extends StatelessWidget {
   final VoidCallback onTap;
 
   const CategoryChip({
-    super.key,
+    Key? key,
     required this.icon,
     required this.label,
     required this.color,
     required this.isSelected,
     required this.onTap,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -566,15 +713,22 @@ class CategoryChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? color : Colors.white,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: Border.all(
+            color: isSelected ? Colors.transparent : color,
+            width: 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: color.withOpacity(0.3),
+                    blurRadius: 5,
+                    offset: const Offset(0, 2),
+                  )
+                ]
+              : [],
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
@@ -585,9 +739,8 @@ class CategoryChip extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black87,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
+                color: isSelected ? Colors.white : color,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -597,6 +750,7 @@ class CategoryChip extends StatelessWidget {
   }
 }
 
+// Helper Widget for Event Card (Assuming structure)
 class EventCard extends StatelessWidget {
   final Event event;
   final VoidCallback onClose;

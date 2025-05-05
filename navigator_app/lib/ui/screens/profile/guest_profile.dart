@@ -85,32 +85,32 @@ class GuestProfile extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
-              const Text(
-                'You can still browse events as a guest',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-              const SizedBox(height: 20),
-              OutlinedButton(
-                onPressed: () {
-                  // Navigate to events page
-                  context.push('/event');
-                },
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: colorScheme.primary),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                ),
-                child: Text(
-                  'Browse Events',
-                  style: TextStyle(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+              // const SizedBox(height: 30),
+              // const Text(
+              //   'You can still browse events as a guest',
+              //   style: TextStyle(
+              //     fontSize: 16,
+              //     fontStyle: FontStyle.italic,
+              //   ),
+              // ),
+              // const SizedBox(height: 20),
+              // OutlinedButton(
+              //   onPressed: () {
+              //     // Navigate to events page
+              //     context.push('/event');
+              //   },
+              //   style: OutlinedButton.styleFrom(
+              //     side: BorderSide(color: colorScheme.primary),
+              //     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              //   ),
+              //   child: Text(
+              //     'Browse Events',
+              //     style: TextStyle(
+              //       color: colorScheme.primary,
+              //       fontWeight: FontWeight.bold,
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),

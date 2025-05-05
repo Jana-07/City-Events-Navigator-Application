@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Event {
   final String id;
   final String title;
+  final String titleLowercase;
   final String description;
   final DateTime startDate;
   final DateTime endDate;
@@ -47,18 +48,19 @@ class Event {
     required this.createdAt,
     this.updatedAt,
     this.snapshot,
-  });
+  }) : titleLowercase = title.toLowerCase();
 
   // Create from Firestore document
   factory Event.fromDocument(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
-    
+
     return Event(
       id: doc.id,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       startDate: (data['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      endDate: (data['endDate'] as Timestamp?)?.toDate() ?? DateTime.now().add(const Duration(hours: 2)),
+      endDate: (data['endDate'] as Timestamp?)?.toDate() ??
+          DateTime.now().add(const Duration(hours: 2)),
       location: data['location'] as GeoPoint? ?? const GeoPoint(0, 0),
       address: data['address'] ?? '',
       city: data['city'] ?? '',
@@ -81,6 +83,7 @@ class Event {
   Map<String, dynamic> toMap() {
     return {
       'title': title,
+      'titleLowercase': titleLowercase,
       'description': description,
       'startDate': Timestamp.fromDate(startDate),
       'endDate': Timestamp.fromDate(endDate),
@@ -120,7 +123,6 @@ class Event {
     List<String>? tags,
     String? ticketURL,
     DateTime? updatedAt,
-
   }) {
     return Event(
       id: id,
@@ -130,7 +132,7 @@ class Event {
       endDate: endDate ?? this.endDate,
       location: location ?? this.location,
       address: address ?? this.address,
-      city: city?? this.city,
+      city: city ?? this.city,
       creatorID: creatorID ?? this.creatorID,
       category: category ?? this.category,
       averageRating: averageRating ?? this.averageRating,

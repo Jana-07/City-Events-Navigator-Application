@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:navigator_app/providers/filter_provider.dart';
 
 import 'package:navigator_app/ui/controllers/event_controller.dart';
 import 'package:navigator_app/ui/widgets/events/upcoming_events_item.dart';
@@ -7,14 +8,7 @@ import 'package:navigator_app/ui/widgets/events/upcoming_events_item.dart';
 class UpcomingEventsList extends ConsumerStatefulWidget {
   const UpcomingEventsList({
     super.key,
-    //required this.events,
-    this.filter = 'all',
-    this.sortBy = 'date',
   });
-
-  //final List<Event> events;
-  final String filter;
-  final String sortBy;
 
   @override
   ConsumerState<UpcomingEventsList> createState() => _UpcomingEventsListState();
@@ -25,10 +19,19 @@ class _UpcomingEventsListState extends ConsumerState<UpcomingEventsList> {
   @override
   void initState() {
     super.initState();
+
+    final now = DateTime.now();
+    final endDate = DateTime(now.year, now.month + 1, now.day);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(EventFiltersProvider('upcoming').notifier)
+          .updateDateRange(now, endDate);
+    });
+
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        ref.read(eventsControllerProvider.notifier).fetchMore();
+        ref.read(eventsControllerProvider('upcoming').notifier).fetchMore();
       }
     });
   }
@@ -41,7 +44,7 @@ class _UpcomingEventsListState extends ConsumerState<UpcomingEventsList> {
 
   @override
   Widget build(BuildContext context) {
-    final eventsAsync = ref.watch(eventsControllerProvider);
+    final eventsAsync = ref.watch(eventsControllerProvider('upcoming'));
 
     return eventsAsync.when(
       data: (events) {

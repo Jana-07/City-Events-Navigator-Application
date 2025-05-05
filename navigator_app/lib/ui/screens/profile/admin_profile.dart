@@ -46,18 +46,12 @@ class _AdminProfileState extends State<AdminProfile>
         child: Column(
           children: [
             const SizedBox(height: 20),
-            // CircleAvatar(
-            //   radius: 50,
-            //   backgroundImage: widget.user.profilePhotoURL.isNotEmpty
-            //       ? NetworkImage(widget.user.profilePhotoURL) as ImageProvider
-            //       : const AssetImage('assets/person.jpg'),
-            // ),
             CircleAvatar(
               radius: 50,
               backgroundColor: Colors.grey[200],
               child: ClipOval(
                 child: CachedNetworkImage(
-                  imageUrl: '',
+                  imageUrl: widget.user.profilePhotoURL,
                   fit: BoxFit.cover,
                   width: 100,
                   height: 100,
