@@ -51,7 +51,8 @@ class _AdminProfileState extends State<AdminProfile>
               backgroundColor: Colors.grey[200],
               child: ClipOval(
                 child: CachedNetworkImage(
-                  imageUrl: widget.user.profilePhotoURL,
+                  //imageUrl: widget.user.profilePhotoURL,
+                  imageUrl: '',
                   fit: BoxFit.cover,
                   width: 100,
                   height: 100,
@@ -67,7 +68,8 @@ class _AdminProfileState extends State<AdminProfile>
             ),
             const SizedBox(height: 10),
             Text(
-              widget.user.userName,
+              //widget.user.userName,
+              'Organizer',
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

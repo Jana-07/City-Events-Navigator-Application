@@ -13,7 +13,7 @@ class CitiesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Explore Events By Cities'),
+        title: const Text('Explore Events By City'),
         centerTitle: true,
       ),
       body: Padding(
