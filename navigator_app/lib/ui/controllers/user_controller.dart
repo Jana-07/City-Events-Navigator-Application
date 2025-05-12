@@ -15,26 +15,21 @@ part 'user_controller.g.dart';
 /// A provider for the current user with profile management capabilities
 @riverpod
 class UserController extends _$UserController {
-  // Remove 'late final' - allow reassignment on rebuild if needed
   UserRepository? _userRepository;
   final CloudinaryService _cloudinaryService = CloudinaryService();
 
   @override
   Future<AppUser> build() async {
     final authState = ref.watch(authStateChangesProvider);
-    // Initialize or re-assign on build
     _userRepository = ref.watch(userRepositoryProvider);
 
-    // Add null check for safety before accessing authState.value
     final currentUserAuth = authState.value;
     if (currentUserAuth == null) {
       return AppUser.guest();
     }
 
     try {
-      // Add null check for safety before accessing _userRepository
       if (_userRepository == null) {
-        // This case should ideally not happen if userRepositoryProvider is correctly set up
         debugPrint('UserRepository not initialized in UserController build');
         return AppUser.guest(); 
       }
@@ -47,11 +42,11 @@ class UserController extends _$UserController {
     }
   }
 
-  /// Update user profile information (including phone number)
+  /// Update user profile information
   Future<void> updateProfile({
     String? userName,
     String? email,
-    String? phoneNumber, // Added phoneNumber
+    String? phoneNumber,
     String? preferredLanguage,
   }) async {
     // Get current state
@@ -59,7 +54,6 @@ class UserController extends _$UserController {
     if (currentUser == null || currentUser.isGuest) {
       return;
     }
-    // Add null check for safety
     if (_userRepository == null) {
       debugPrint('UserRepository not initialized in updateProfile');
       state = AsyncValue.error('UserRepository not initialized', StackTrace.current);
@@ -77,7 +71,7 @@ class UserController extends _$UserController {
         preferredLanguage: preferredLanguage,
       );
 
-      // Save to repository (saveUser should handle all fields in AppUser)
+      // Save to repository
       await _userRepository!.saveUser(updatedUser);
 
       // Refresh state
@@ -121,7 +115,6 @@ class UserController extends _$UserController {
       }
     } catch (e, st) {
       state = AsyncValue.error(e, st);
-      // Optionally rethrow or handle specific errors
     }
   }
 
@@ -159,7 +152,7 @@ class UserController extends _$UserController {
     }
   }
 
-  /// Update user role (admin function)
+  /// Update user role
   Future<void> updateRole(String role) async {
     final currentUser = state.value;
     if (currentUser == null || currentUser.isGuest) {
@@ -188,10 +181,6 @@ class UserController extends _$UserController {
       state = AsyncValue.error(e, st);
     }
   }
-
-  // Note: updatePreferredLanguage is now handled within updateProfile
-  // If separate update is still desired, it can remain, but updateProfile also covers it.
-  // Future<void> updatePreferredLanguage(String language) async { ... }
 }
 
 /// A widget that displays user data with error handling
@@ -214,7 +203,6 @@ class UserControllerWidget extends ConsumerWidget {
         child: CircularProgressIndicator(),
       ),
       errorWidget: (error, stackTrace) {
-        // Print the actual error and stack trace to the console for debugging
         debugPrint('UserControllerWidget Error: $error');
         debugPrint(stackTrace.toString());
         
@@ -225,7 +213,6 @@ class UserControllerWidget extends ConsumerWidget {
               const Icon(Icons.error_outline, color: Colors.red, size: 48),
               const SizedBox(height: 16),
               Text(
-                // Display a user-friendly message, but log the specific error
                 'Failed to load user profile: ${error.runtimeType}', 
                 textAlign: TextAlign.center,
               ),

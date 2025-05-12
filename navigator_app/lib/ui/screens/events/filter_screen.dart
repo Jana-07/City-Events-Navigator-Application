@@ -18,40 +18,6 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
   String? _selectedCity;
-  RangeValues _priceRange = const RangeValues(0, 50);
-
-  // Map the UI selections to filter values used by the EventsController
-  //String _getCategoryFilter() {
-  // You can customize this mapping based on your needs
-  // switch (_selectedCategory) {
-  //   case 'Sports':
-  //     return 'sports';
-  //   case 'Festivals':
-  //     return 'festivals';
-  //   case 'Art':
-  //     return 'art';
-  //   case 'Conference':
-  //     return 'conference';
-  //   case 'Food':
-  //     return 'food';
-  //   default:
-  //     return 'all';
-  // }
-  //}
-
-  String _getDateFilter() {
-    // Map UI date selection to filter values
-    switch (_selectedDate) {
-      case 'Today':
-        return 'today';
-      case 'Tomorrow':
-        return 'tomorrow';
-      case 'This week':
-        return 'this_week';
-      default:
-        return 'all';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,13 +56,6 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // const Text(
-                  //   'Filter',
-                  //   style: TextStyle(
-                  //     fontSize: 24,
-                  //     fontWeight: FontWeight.bold,
-                  //   ),
-                  // ),
                   const SizedBox(height: 24),
                   _buildCategorySelector(),
                   const SizedBox(height: 24),
@@ -270,7 +229,6 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
     if (start == null || end == null) {
       return 'Choose date range'; // Placeholder text
     }
-    // Format the start and end dates (e.g., YYYY-MM-DD)
     final startDateStr = start.toLocal().toString().split(' ')[0];
     final endDateStr = end.toLocal().toString().split(' ')[0];
     return '$startDateStr - $endDateStr'; // Display the selected range
@@ -284,21 +242,18 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           start: _startDate ?? DateTime.now(),
           end: _endDate ?? DateTime.now().add(const Duration(days: 7)),
         );
-        // Ensure start is not after end for the initial range
         if (initialRange.start.isAfter(initialRange.end)) {
           initialRange = DateTimeRange(
             start: initialRange.start,
-            end: initialRange.start
-                .add(const Duration(days: 1)), // Adjust end if invalid
+            end: initialRange.start.add(const Duration(days: 1)),
           );
         }
 
         final DateTimeRange? picked = await showDateRangePicker(
-          context: context, // Make sure context is available
+          context: context,
           initialDateRange: initialRange,
-          firstDate: DateTime(2020), // Adjust as needed
-          lastDate: DateTime.now()
-              .add(const Duration(days: 365 * 5)), // Adjust as needed
+          firstDate: DateTime(2020),
+          lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
           helpText: 'Events In Date Range',
           saveText: 'Done',
         );
@@ -449,81 +404,6 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
     );
   }
 
-  Widget _buildPriceRangeSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Select price range',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              '\$${_priceRange.start.toInt()}-\$${_priceRange.end.toInt()}',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(
-                  7,
-                  (index) => Container(
-                    width: 4,
-                    height: index % 2 == 0 ? 16 : 12,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[400],
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SliderTheme(
-              data: SliderThemeData(
-                trackHeight: 4,
-                activeTrackColor: Colors.green,
-                inactiveTrackColor: Colors.grey[300],
-                thumbColor: Colors.white,
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-                rangeTrackShape: const RoundedRectRangeSliderTrackShape(),
-              ),
-              child: RangeSlider(
-                values: _priceRange,
-                min: 0,
-                max: 200,
-                onChanged: (RangeValues values) {
-                  setState(() {
-                    _priceRange = values;
-                  });
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
   DateTime _startOfDay(DateTime date) =>
       DateTime(date.year, date.month, date.day);
   DateTime _endOfDay(DateTime date) =>
@@ -540,7 +420,6 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                 _selectedCategories = {};
                 _selectedDate = null;
                 _selectedCity = null;
-                _priceRange = const RangeValues(0, 100);
               });
             },
             style: ElevatedButton.styleFrom(
@@ -591,12 +470,12 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                     ? null
                     : List.from(_selectedCategories),
                 city: _selectedCity,
-                //maxPrice: _priceRange.end,
-                //minPrice: _priceRange.start,
                 startDate: _startDate,
                 endDate: _endDate,
               );
-              ref.read(eventFiltersProvider('all').notifier).applyFilters(newFilter);
+              ref
+                  .read(eventFiltersProvider('all').notifier)
+                  .applyFilters(newFilter);
               context.pop();
             },
             style: ElevatedButton.styleFrom(

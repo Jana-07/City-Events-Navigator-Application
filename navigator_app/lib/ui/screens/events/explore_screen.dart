@@ -43,31 +43,10 @@ class ExploreScreen extends ConsumerWidget {
               ),
               Column(
                 children: [
-                  // Padding(
-                  //   padding: EdgeInsets.only(
-                  //       left: 24,
-                  //       right: 24,
-                  //       top: MediaQuery.of(context).padding.top),
-                  //   child: Row(
-                  //     children: [
-                  //       Spacer(),
-                  //       Spacer(),
-                  //       LocationButton(),
-                  //       Spacer(),
-                  //       IconButton(
-                  //         onPressed: () {},
-                  //         icon: Icon(Icons.notifications_none),
-                  //         color: colorScheme.onPrimary,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  // SizedBox(height: screenHeight * 0.03),
                   Padding(
                     padding: EdgeInsets.only(
                       left: 36,
                       right: 36,
-                      //top: MediaQuery.of(context).padding.top,
                       top: screenHeight * 0.12,
                     ),
                     child: Row(
@@ -107,34 +86,13 @@ class ExploreScreen extends ConsumerWidget {
             onTab: () => context.pushNamed(Routes.eventListName),
           ),
           SizedBox(
-            //width: 400,
             height: 280,
-            //child: EventsList(),
+            // List recommendation evnets
             child: LimitedEventList(),
           ),
           const SizedBox(
             height: 20,
           ),
-          // TextButton(
-          //     onPressed: () async {
-          //       final eventRepository = ref.watch(eventRepositoryProvider);
-
-          //       try {
-          //         for (final event in eventsList) {
-
-          //           final eventId = await eventRepository.saveEvent(event);
-          //           File imageFile =
-          //               await loadAssetWithPossibleExtensions(event.title);
-          //           final imageUrl = await eventRepository.uploadEventMainImage(
-          //             imageFile,
-          //             eventId,
-          //           );
-          //         }
-          //       } catch (e) {
-          //         print(e);
-          //       }
-          //     },
-          //     child: Text('Add Events')),
         ],
       ),
     );

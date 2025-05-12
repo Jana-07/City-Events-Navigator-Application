@@ -11,7 +11,6 @@ part 'favorite_controller.g.dart';
 class EventFavoriteStatus extends _$EventFavoriteStatus {
   @override
   FutureOr<bool> build(String eventId) async {
-    // Initial state from controller
     return ref
         .read(favoriteControllerProvider.notifier)
         .isEventFavorite(eventId);
@@ -121,7 +120,6 @@ class FavoriteController extends _$FavoriteController {
       ref.invalidate(userFavoritesStreamProvider);
     } catch (e) {
       debugPrint('Error toggling favorite: $e');
-      // Rethrow so the FavoriteButton can catch it and revert the optimistic update
       rethrow;
     }
   }
@@ -149,7 +147,7 @@ class FavoriteController extends _$FavoriteController {
     if (!_isUserLoggedIn()) return Stream.value([]);
 
     final userId = _getCurrentUserId()!;
-    if(limit != null) {
+    if (limit != null) {
       return _userRepository.streamUserFavorites(userId, limit: limit);
     }
     return _userRepository.streamUserFavorites(userId);
@@ -159,7 +157,6 @@ class FavoriteController extends _$FavoriteController {
 /// Provider to check if an event is favorited
 @riverpod
 Future<bool> isEventFavorite(Ref ref, String eventId) async {
-  // Use read instead of watch to avoid circular dependency
   return ref.read(favoriteControllerProvider.notifier).isEventFavorite(eventId);
 }
 
@@ -167,7 +164,7 @@ Future<bool> isEventFavorite(Ref ref, String eventId) async {
 @riverpod
 Stream<List<FavoriteEvent>> userFavoritesStream(Ref ref, int? limit) {
   final favoriteController = ref.watch(favoriteControllerProvider.notifier);
-  if(limit != null) {
+  if (limit != null) {
     return favoriteController.streamFavorites(limit: limit);
   }
 

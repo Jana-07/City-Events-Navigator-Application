@@ -57,6 +57,9 @@ dependencies:
   cached_network_image: ^3.4.1
   google_maps_flutter: ^2.12.1
   path_provider: ^2.1.5
+  flutter_cache_manager: ^3.4.1
+  http: ^1.4.0
+  http_parser: ^4.1.2
 
 dev_dependencies:
   flutter_test:

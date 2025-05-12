@@ -201,7 +201,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         _selectedCategory = event.category;
         _selectedTags = List<String>.from(event.tags);
 
-        // --- Load images for editing ---
+        // Load images for editing
         List<dynamic> loadedImages = [];
         // Add the main image URL first if it exists and is not empty
         if (event.imageURL != null && event.imageURL!.isNotEmpty) {
@@ -218,7 +218,6 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
         }
         _images = loadedImages; // Update the state list
         print('Loaded images for editing: $_images'); // Debug print
-        // --- End Load images ---
 
         // Set location if available
         _selectedLocation =
@@ -334,7 +333,6 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           height: 120,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            // Use _images list which contains Files or String URLs
             itemCount: _images.length + 1,
             itemBuilder: (context, index) {
               // Show add button at the end
@@ -400,7 +398,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
                                 )
                               : null,
                         ),
-                        child: imageWidget, // Use the determined image widget
+                        child: imageWidget,
                       ),
                     ),
                   ),
@@ -409,7 +407,7 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
                     right: 12,
                     child: GestureDetector(
                       onTap: () => _removeImage(
-                          index), // Uses the correct index for _images
+                          index),
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(
@@ -637,10 +635,9 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           hint: const Text('Select a city'),
           isExpanded: true,
           underline: Container(),
-          dropdownColor: const Color(0xFFF1F4F8), // Match background color
+          dropdownColor: const Color(0xFFF1F4F8),
           style: const TextStyle(
-            // Add this style
-            color: Colors.black, // Set text color to black
+            color: Colors.black,
             fontSize: 14,
           ),
           items: saudiCities.map((String city) {
@@ -693,7 +690,6 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
           },
           myLocationEnabled: false,
           zoomControlsEnabled: false,
-          // Add onTap handler for map
           onTap: (LatLng position) {
             setState(() {
               _selectedLocation = position;
@@ -900,15 +896,12 @@ class _CreateEditEventScreenState extends ConsumerState<CreateEditEventScreen> {
 
     final ImagePicker picker = ImagePicker();
     try {
-      // Allow picking multiple images if needed in the future, for now just one
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
       if (image != null) {
         final File imageFile = File(image.path);
         setState(() {
-          // Add the File object to the list for local preview
           _images.add(imageFile);
-          // No upload happens here, only state update for preview
         });
       }
     } catch (e) {

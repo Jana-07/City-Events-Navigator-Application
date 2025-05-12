@@ -13,5 +13,6 @@ class CloudinaryConfig {
   
   // Folder structure for events
   static String eventImagePath(String eventId)  => 'events/$eventId';
+  // Folder structure for user profile pictures
   static String profileImagePath(String userId)  => 'usersProfileImage/$userId';
 }

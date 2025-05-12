@@ -5,6 +5,7 @@ import 'package:navigator_app/data/category_data.dart';
 import 'package:navigator_app/router/routes.dart';
 import 'package:navigator_app/ui/controllers/auth_controller.dart';
 import 'package:navigator_app/ui/controllers/user_controller.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -21,8 +22,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return UserControllerWidget(builder: (user) {
       // Determine user role
       final bool isGuest = user.isGuest;
-      final bool isOrganizer = user.role == 'organizer';
-      final bool isRegularUser = user.role == 'user';
 
       return Scaffold(
         appBar: AppBar(
@@ -32,78 +31,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         body: ListView(
           children: [
-            // Account Section - Show for all users but with different options
-            // _buildSectionHeader(context, 'Account'),
-
-            // // Profile Information - Show for all users
-            // ListTile(
-            //   leading: const Icon(Icons.person),
-            //   title: const Text('Profile Information'),
-            //   subtitle: Text(isGuest ? 'Guest' : user.userName),
-            //   trailing: const Icon(Icons.chevron_right),
-            //   onTap: () {
-            //     // For guests, redirect to sign in
-            //     if (isGuest) {
-            //       showDialog(
-            //         context: context,
-            //         builder: (ctx) => AlertDialog(
-            //           title: const Text('Sign In Required'),
-            //           content: const Text(
-            //               'You need to sign in or register to access your profile.'),
-            //           actions: [
-            //             TextButton(
-            //               onPressed: () => Navigator.of(context).pop(),
-            //               child: const Text('Cancel'),
-            //             ),
-            //             ElevatedButton(
-            //               onPressed: () {
-            //                 //Navigator.of(context).pop(); // close dialog
-            //                 context.go(Routes.splash); // navigate to sign in
-            //               },
-            //               child: const Text('Sign In'),
-            //             ),
-            //           ],
-            //         ),
-            //       );
-            //       //context.go(Routes.splash);
-            //     } else {
-            //       // Navigate to profile edit screen for registered users
-            //     }
-            //   },
-            // ),
-            // const Divider(),
-
-            // Language settings - Show for all users
-            // ListTile(
-            //   leading: const Icon(Icons.language),
-            //   title: const Text('Preferred Language'),
-            //   subtitle: Text(isGuest ? 'English' : user.preferredLanguage),
-            //   trailing: const Icon(Icons.chevron_right),
-            //   onTap: () {
-            //     // For guests, show language selector but don't save
-            //     if (isGuest) {
-            //       _showGuestLanguageSelector(context);
-            //     } else {
-            //       _showLanguageSelector(
-            //           context, ref, user.uid, user.preferredLanguage);
-            //     }
-            //   },
-            // ),
-            // const Divider(),
-
-            // Organizer settings - Only show for organizers
-            // if (isOrganizer)
-            //   ListTile(
-            //     leading: const Icon(Icons.event),
-            //     title: const Text('Event Management'),
-            //     subtitle: const Text('Manage your events'),
-            //     trailing: const Icon(Icons.chevron_right),
-            //     onTap: () {
-            //       // Navigate to event management screen
-            //     },
-            //   ),
-            // if (isOrganizer) const Divider(),
-
             // Preferences Section - Show for registered users only
             if (!isGuest) ...[
               _buildSectionHeader(context, 'Preferences'),
@@ -122,51 +49,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const Divider(),
             ],
 
-            // Notifications Section - Show for registered users only
-            // if (!isGuest) ...[
-            //   _buildSectionHeader(context, 'Notifications'),
-            //   SwitchListTile(
-            //     title: const Text('Event Reminders'),
-            //     subtitle: const Text('Get notified about your favorite events'),
-            //     value: true,
-            //     onChanged: (value) {
-            //       // Update notification settings
-            //     },
-            //   ),
-            //   const Divider(),
-            //   // SwitchListTile(
-            //   //   title: const Text('New Events'),
-            //   //   subtitle:
-            //   //       const Text('Get notified about new events in your area'),
-            //   //   value: false, // This should be stored in user preferences
-            //   //   onChanged: (value) {
-            //   //     // Update notification settings
-            //   //   },
-            //   // ),
-            //   // const Divider(),
-            // ],
-
             // App Settings Section - Show for all users
             _buildSectionHeader(context, 'App Settings'),
-            // ListTile(
-            //   leading: const Icon(Icons.color_lens),
-            //   title: const Text('Theme'),
-            //   subtitle: const Text('Light'),
-            //   trailing: const Icon(Icons.chevron_right),
-            //   onTap: () {
-            //     // Show theme selector
-            //   },
-            // ),
-            // const Divider(),
             ListTile(
               leading: const Icon(Icons.delete),
               title: const Text('Clear Cache'),
               subtitle: const Text('Free up storage space'),
-              onTap: () {
+              onTap: () async {
                 // Clear app cache
+                DefaultCacheManager().emptyCache();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Cache cleared')),
                 );
+                try {
+                  await DefaultCacheManager().emptyCache();
+                } catch (e) {
+                  print(e);
+                }
               },
             ),
             const Divider(),
@@ -218,24 +117,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: Text(isGuest ? 'Sign In' : 'Sign Out'),
               ),
             ),
-
-            // Additional button for organizers to switch to user view
-            // if (isOrganizer)
-            //   Padding(
-            //     padding:
-            //         const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            //     child: OutlinedButton(
-            //       style: OutlinedButton.styleFrom(
-            //         side: BorderSide(color: theme.primaryColor),
-            //       ),
-            //       onPressed: () {
-            //         // Switch to user view temporarily
-            //         _showSwitchViewDialog(context, ref, user.uid);
-            //       },
-            //       child: const Text('Switch to User View'),
-            //     ),
-            //   ),
-
             const SizedBox(height: 24),
           ],
         ),
@@ -252,109 +133,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               color: Theme.of(context).primaryColor,
               fontWeight: FontWeight.bold,
             ),
-      ),
-    );
-  }
-
-  void _showLanguageSelector(BuildContext context, WidgetRef ref, String userId,
-      String currentLanguage) {
-    final languages = [
-      {'code': 'en', 'name': 'English'},
-      {'code': 'ar', 'name': 'Arabic'},
-    ];
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Language'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: languages.length,
-            itemBuilder: (context, index) {
-              final language = languages[index];
-              return RadioListTile<String>(
-                title: Text(language['name']!),
-                value: language['code']!,
-                groupValue: currentLanguage,
-                onChanged: (value) {
-                  if (value != null) {
-                    // ref
-                    //     .read(userControllerProvider.notifier)
-                    //     .updatePreferredLanguage(value);
-
-                    Navigator.of(context).pop();
-                  }
-                },
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Special language selector for guests that doesn't save preferences
-  void _showGuestLanguageSelector(BuildContext context) {
-    final languages = [
-      {'code': 'en', 'name': 'English'},
-      {'code': 'ar', 'name': 'Arabic'},
-    ];
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Language'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Sign in to save your language preference',
-                style: TextStyle(fontStyle: FontStyle.italic),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: languages.length,
-                  itemBuilder: (context, index) {
-                    final language = languages[index];
-                    return RadioListTile<String>(
-                      title: Text(language['name']!),
-                      value: language['code']!,
-                      groupValue: 'en', // Default to English for guests
-                      onChanged: (value) {
-                        if (value != null) {
-                          Navigator.of(context).pop();
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () =>
-                {Navigator.of(context).pop(), context.push('/signin')},
-            child: const Text('Sign In'),
-          ),
-        ],
       ),
     );
   }
@@ -409,63 +187,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // Prompt for guests to sign in
-  void _showSignInPrompt(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Sign In Required'),
-        content: const Text(
-          'You need to sign in to save your preferences and access all features.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Later'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              context.push('/signin');
-            },
-            child: const Text('Sign In'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Dialog for organizers to switch to user view
-  void _showSwitchViewDialog(
-      BuildContext context, WidgetRef ref, String userId) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Switch View'),
-        content: const Text(
-          'You can temporarily switch to user view to see how regular users experience the app. This does not change your actual role.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Implement view switching logic here
-              // This could be a temporary UI state change or a special flag
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Switched to user view')),
-              );
-            },
-            child: const Text('Switch View'),
-          ),
-        ],
       ),
     );
   }

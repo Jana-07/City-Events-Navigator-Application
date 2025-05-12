@@ -48,7 +48,7 @@ class UserRepository {
       user.toMap(),
     );
   }
-  
+
   // Update user role
   Future<void> updateUserRole(String userId, String role) async {
     if (userId == 'guest') {
@@ -76,7 +76,7 @@ class UserRepository {
     );
   }
 
-   Future<List<String>> getUserPreferences(String userId) async {
+  Future<List<String>> getUserPreferences(String userId) async {
     if (userId == 'guest') {
       return []; // Return empty list for guest users
     }
@@ -96,7 +96,7 @@ class UserRepository {
       return []; // Return empty list if 'preferences' field is not a list
     }
   }
-  
+
   // Update user profile photo URL
   Future<void> updateUserProfilePhoto(
     String userId,
@@ -154,8 +154,6 @@ class UserRepository {
 
     await _firestoreService.deleteDocument('users/$userId');
   }
-
-  // FAVORITES SUBCOLLECTION METHODS
 
   // Get all favorites for a user
   Future<List<FavoriteEvent>> getUserFavorites(String userId) async {

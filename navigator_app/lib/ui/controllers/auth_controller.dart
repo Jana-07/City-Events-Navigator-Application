@@ -15,7 +15,6 @@ class AuthController extends _$AuthController {
 
   @override
   AuthLoadingState build() {
-    // Initialize or re-assign on build
     _authRepository = ref.watch(authRepositoryProvider);
     _userRepository = ref.watch(userRepositoryProvider);
 
@@ -51,7 +50,6 @@ class AuthController extends _$AuthController {
     required String phoneNumber,
     required List<String> preferences,
   }) async {
-    // Add null checks
     if (_authRepository == null || _userRepository == null) {
        state = AuthLoadingState(LoadingStateEnum.error, AuthException('Repositories not initialized'));
        return;
@@ -72,7 +70,6 @@ class AuthController extends _$AuthController {
               password: password,
             ));
 
-    // Use null-aware operator just in case, though user should be non-null on success
     if (user != null) {
        await _userRepository!.saveUser(user.copyWith(
          userName: userName,
@@ -80,13 +77,11 @@ class AuthController extends _$AuthController {
          preferences: preferences,
        ));
     } else {
-       // Handle unexpected null user case if necessary
        state = AuthLoadingState(LoadingStateEnum.error, AuthException('User creation failed unexpectedly'));
     }
   }
 
   Future<void> signOut() async {
-    // Add null check
     if (_authRepository == null) {
        state = AuthLoadingState(LoadingStateEnum.error, AuthException('Auth repository not initialized'));
        return;

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigator_app/core/utils/global_error_handler.dart';
-import 'package:navigator_app/data/models/event.dart'; // Ensure Event has 'snapshot' field
+import 'package:navigator_app/data/models/event.dart';
 import 'package:navigator_app/data/repositories/event_repository.dart';
 import 'package:navigator_app/providers/filter_provider.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
@@ -10,7 +10,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'event_controller.g.dart';
 
-// Define a record to hold pagination state together
 typedef _PaginationState = ({
   DocumentSnapshot? lastDoc,
   bool hasMore,
@@ -21,12 +20,10 @@ typedef _PaginationState = ({
 class EventsController extends _$EventsController {
   static const int _limit = 10;
 
-  // Combined pagination state
   _PaginationState _paginationState =
       (lastDoc: null, hasMore: true, filter: null);
   bool _isLoadingMore = false;
 
-  // Helper to get repository
   EventRepository get _repository => ref.read(eventRepositoryProvider);
 
   @override
@@ -35,37 +32,30 @@ class EventsController extends _$EventsController {
     debugPrint(
         "EventsController Build START: New Filter=$currentFilter, Previous Filter=${_paginationState.filter}, CurrentState=$state");
 
-    // Reset pagination state COMPLETELY only if the filter has actually changed
     if (currentFilter != _paginationState.filter) {
       debugPrint(
           "EventsController Build: Filter changed. Resetting pagination. Stored Filter=${_paginationState.filter}");
       _paginationState = (lastDoc: null, hasMore: true, filter: currentFilter);
-      _isLoadingMore = false; // Ensure loading more is reset
+      _isLoadingMore = false;
     } else {
       debugPrint(
           "EventsController Build: Filter unchanged. Using existing pagination state.");
-      // If filter is the same, we might be rebuilding due to other reasons (e.g., invalidate)
-      // Keep the existing pagination state unless it's the very first build.
       if (_paginationState.filter == null) {
-        // Handle initial build case
         _paginationState =
             (lastDoc: null, hasMore: true, filter: currentFilter);
       }
     }
 
-    // Use the filter associated with the current pagination state for the initial fetch
-    final filterForFetch =
-        _paginationState.filter ?? currentFilter; // Fallback just in case
+    final filterForFetch = _paginationState.filter ?? currentFilter;
 
     try {
       final initialEvents = await _repository.searchEvents(
         filterForFetch,
       );
 
-      // Update pagination state based on this initial fetch
       final newLastDoc =
           initialEvents.isNotEmpty && initialEvents.length == _limit
-              ? initialEvents.last.snapshot // Assumes Event has 'snapshot'
+              ? initialEvents.last.snapshot
               : null;
       final newHasMore = initialEvents.length == _limit;
       _paginationState =
@@ -76,7 +66,6 @@ class EventsController extends _$EventsController {
       return initialEvents;
     } catch (e, st) {
       debugPrint("EventsController Build ERROR: $e\n$st");
-      // Reset pagination state on error during build
       _paginationState = (lastDoc: null, hasMore: false, filter: null);
       _isLoadingMore = false;
       rethrow;
@@ -84,24 +73,19 @@ class EventsController extends _$EventsController {
   }
 
   Future<void> fetchMore() async {
-    // Prevent concurrent fetches or fetching when in error state
     if (_isLoadingMore || state is AsyncLoading || state is AsyncError) {
       debugPrint(
           "FetchMore: Bailing out (isLoadingMore: $_isLoadingMore, state is loading or error)");
       return;
     }
 
-    // Get the pagination state that corresponds to the currently displayed list
     final currentState = _paginationState;
 
-    // Read the *latest* filter setting from the provider
     final latestFilter = ref.read(eventFiltersProvider(listId));
 
-    // *** CRITICAL CHECK: Ensure the filter hasn't changed AND pagination is possible ***
     if (latestFilter != currentState.filter) {
       debugPrint(
           "FetchMore: Filter changed during pagination! Bailing out. Latest Filter=$latestFilter, State Filter=${currentState.filter}");
-      // Let the 'build' method handle the reset and fetch for the new filter.
       return;
     }
 
@@ -112,8 +96,7 @@ class EventsController extends _$EventsController {
     }
 
     _isLoadingMore = true;
-    final previousState = state; // Keep previous data for UI
-    // Optionally show loading indicator appended to the list, or keep the main loading state
+    final previousState = state;
     state = AsyncLoading<List<Event>>().copyWithPrevious(previousState);
 
     final currentEvents = previousState.valueOrNull ?? [];
@@ -122,18 +105,15 @@ class EventsController extends _$EventsController {
         "FetchMore: Loading more... Filter=${currentState.filter}, StartAfter=${currentState.lastDoc?.id}");
 
     try {
-      // Use the filter associated with the current pagination state
       final newEvents = await _repository.searchEvents(
         currentState.filter!,
         startAfterDocument: currentState.lastDoc,
       );
 
-      // Update pagination state based on the NEW fetch results
       final newLastDoc = newEvents.isNotEmpty && newEvents.length == _limit
           ? newEvents.last.snapshot
           : null;
       final newHasMore = newEvents.length == _limit;
-      // IMPORTANT: Update pagination state, keeping the SAME filter reference
       _paginationState = (
         lastDoc: newLastDoc,
         hasMore: newHasMore,
@@ -143,13 +123,10 @@ class EventsController extends _$EventsController {
       debugPrint(
           "FetchMore: Fetched ${newEvents.length} new events. HasMore: ${_paginationState.hasMore}, LastDoc=${_paginationState.lastDoc?.id}");
 
-      // Update state with combined list
       state = AsyncData([...currentEvents, ...newEvents]);
     } catch (e, st) {
       debugPrint('Error fetching more events: $e\n$st');
-      // Revert to previous data on error, but keep error state
       state = AsyncError<List<Event>>(e, st).copyWithPrevious(previousState);
-      // Update pagination state to prevent further attempts on error
       _paginationState = (
         lastDoc: currentState.lastDoc,
         hasMore: false,
@@ -160,7 +137,6 @@ class EventsController extends _$EventsController {
     }
   }
 
-  // --- CRUD methods --- (Invalidate self to trigger rebuild)
   Future<void> addEvent(Event event) async {
     state = const AsyncLoading<List<Event>>().copyWithPrevious(state);
     try {
@@ -201,12 +177,10 @@ class EventsController extends _$EventsController {
     }
   }
 
-  // --- Status getters ---
   bool get hasMoreEvents => _paginationState.hasMore;
   bool get isLoadingMore => _isLoadingMore;
 }
 
-// --- EventsControllerWidget (unchanged) ---
 class EventsControllerWidget extends ConsumerWidget {
   final Widget Function(List<Event>) builder;
   final String type;

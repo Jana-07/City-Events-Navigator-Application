@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:navigator_app/data/models/event.dart';
 import 'package:navigator_app/providers/filter_provider.dart';
 import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
+import 'package:navigator_app/data/category_data.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 final selectedCategoryProvider = StateProvider<String?>((ref) => null);
@@ -22,19 +23,19 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
   bool _isLoading = false;
   List<Event> _searchResults = [];
 
-  final List<String> _categories = [
-    'All',
-    'Music',
-    'Sports',
-    'Food',
-    'Art',
-    'Technology',
-    'Business',
-    'Health',
-    'Education',
-    'Entertainment',
-    'Travel',
-  ];
+  // final List<String> _categories = [
+  //   'All',
+  //   'Music',
+  //   'Sports',
+  //   'Food',
+  //   'Art',
+  //   'Technology',
+  //   'Business',
+  //   'Health',
+  //   'Education',
+  //   'Entertainment',
+  //   'Travel',
+  // ];
 
   @override
   void initState() {
@@ -318,7 +319,8 @@ class _SearchFilterScreenState extends ConsumerState<SearchFilterScreen> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: _categories.map((category) {
+                children: categories.map((categoryE) {
+                  final category = categoryE.name;
                   final isSelected = ref.read(selectedCategoryProvider) == category;
                   return FilterChip(
                     label: Text(category),

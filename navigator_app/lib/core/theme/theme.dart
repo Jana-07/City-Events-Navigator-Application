@@ -43,7 +43,6 @@ abstract final class AppTheme {
         fontWeight: FontWeight.w700,
       ),
     ),
-    //primary: primary,
     secondaryContainer: const Color.fromARGB(255, 199, 225, 207),
     colors: FlexSchemeColor.from(
       primary: primary,

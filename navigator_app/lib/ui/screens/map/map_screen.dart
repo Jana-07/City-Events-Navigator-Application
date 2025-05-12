@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:navigator_app/data/category_data.dart';
 import 'package:navigator_app/router/routes.dart';
 
 class MapScreen extends StatefulWidget {
@@ -224,61 +225,13 @@ class _MapScreenState extends State<MapScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      CategoryChip(
-                        icon: Icons.sports_basketball,
-                        label: 'Sports',
-                        color: Colors.red,
-                        isSelected: _selectedCategory == 'Sports',
-                        onTap: () => _filterMarkers('Sports'),
-                      ),
-                      const SizedBox(width: 10),
-                      CategoryChip(
-                        icon: Icons.music_note,
-                        label: 'Festivals',
-                        color: Colors.purple,
-                        isSelected: _selectedCategory == 'Festivals',
-                        onTap: () => _filterMarkers('Festivals'),
-                      ),
-                      const SizedBox(width: 10),
-                      CategoryChip(
-                        icon: Icons.restaurant,
-                        label: 'Food',
-                        color: Colors.green,
-                        isSelected: _selectedCategory == 'Food',
-                        onTap: () => _filterMarkers('Food'),
-                      ),
-                      const SizedBox(width: 10),
-                      CategoryChip(
-                        icon: Icons.palette,
-                        label: 'Art',
-                        color: Colors.orange,
-                        isSelected: _selectedCategory == 'Art',
-                        onTap: () => _filterMarkers('Art'),
-                      ),
-                      const SizedBox(width: 10),
-                      CategoryChip(
-                        icon: Icons.people,
-                        label: 'Conference',
-                        color: Colors.blue,
-                        isSelected: _selectedCategory == 'Conference',
-                        onTap: () => _filterMarkers('Conference'),
-                      ),
-                      const SizedBox(width: 10),
-                      CategoryChip(
-                        icon: Icons.school,
-                        label: 'Education',
-                        color: Colors.green,
-                        isSelected: _selectedCategory == 'Education',
-                        onTap: () => _filterMarkers('Education'),
-                      ),
-                      const SizedBox(width: 10),
-                      CategoryChip(
-                        icon: Icons.more_horiz,
-                        label: 'Others',
-                        color: Colors.red,
-                        isSelected: _selectedCategory == 'Others',
-                        onTap: () => _filterMarkers('Others'),
-                      ),
+                      ...categories.map((category) => CategoryChip(
+                            color: category.color,
+                            label: category.name,
+                            icon: category.icon,
+                            isSelected: _selectedCategory == category.name,
+                            onTap: () => _filterMarkers(category.name),
+                          ))
                     ],
                   ),
                 ),

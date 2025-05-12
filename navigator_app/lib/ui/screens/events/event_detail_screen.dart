@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -150,44 +149,12 @@ class EventDetailsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 24),
 
-                      // --- Organizer Section ---
-                      // const Text('Organizer',
-                      //     style: TextStyle(
-                      //         fontSize: 18, fontWeight: FontWeight.bold)),
-                      // const SizedBox(height: 8),
-                      // _buildOrganizerItem(
-                      //   role: 'Organizer',
-                      //   name: event.organizerName,
-                      //   imageUrl: event.organizerProfilePictureUrl,
-                      // ),
-                      // const SizedBox(height: 24),
-
                       // --- About Event Section ---
                       const Text('About Event',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
-                      // Rating Bar
-                      // Row(
-                      //   children: [
-                      //     RatingBarIndicator(
-                      //       rating: event.averageRating,
-                      //       itemCount: 5,
-                      //       itemSize: 20,
-                      //       direction: Axis.horizontal,
-                      //       itemBuilder: (context, _) => const Icon(
-                      //           Icons.star_rate_rounded,
-                      //           color: Colors.amber),
-                      //     ),
-                      //     const SizedBox(width: 8),
-                      //     Text(
-                      //       '${event.averageRating.toStringAsFixed(1)} (${event.reviewsCount} reviews)', // Added review count
-                      //       style: TextStyle(
-                      //           color: Colors.grey[600],
-                      //           fontWeight: FontWeight.bold),
-                      //     ),
-                      //   ],
-                      // ),
+                      
                       const SizedBox(height: 16),
                       // Description
                       Text(event.description,
@@ -251,46 +218,6 @@ class EventDetailsScreen extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 32),
-
-                      // --- Ticket Button (New) ---
-                      // if (event.ticketURL.isNotEmpty) ...[
-                      //   SizedBox(
-                      //     width: double.infinity,
-                      //     child: ElevatedButton.icon(
-                      //       icon:
-                      //           const Icon(Icons.confirmation_number_outlined),
-                      //       label: const Text('GET TICKETS / REGISTER'),
-                      //       onPressed: () async {
-                      //         final Uri url = Uri.parse(event.ticketURL);
-                      //         if (!await launchUrl(url,
-                      //             mode: LaunchMode.externalApplication)) {
-                      //           // Handle error if URL can't be launched
-                      //           if (context.mounted) {
-                      //             ScaffoldMessenger.of(context).showSnackBar(
-                      //               SnackBar(
-                      //                   content: Text(
-                      //                       'Could not launch ${event.ticketURL}')),
-                      //             );
-                      //           }
-                      //         }
-                      //       },
-                      //       style: ElevatedButton.styleFrom(
-                      //         backgroundColor: Theme.of(context)
-                      //             .colorScheme
-                      //             .primary, // Use primary color
-                      //         foregroundColor:
-                      //             Theme.of(context).colorScheme.onPrimary,
-                      //         padding: const EdgeInsets.symmetric(vertical: 16),
-                      //         shape: RoundedRectangleBorder(
-                      //           borderRadius: BorderRadius.circular(12),
-                      //         ),
-                      //         textStyle: const TextStyle(
-                      //             fontSize: 16, fontWeight: FontWeight.bold),
-                      //       ),
-                      //     ),
-                      //   ),
-                      //   const SizedBox(height: 24),
-                      // ],
 
                       // --- Go To Map Button ---
                       _buildGoToMapButton(context, eventId),
