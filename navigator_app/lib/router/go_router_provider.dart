@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:navigator_app/screens/event_list_screen.dart';
-import 'package:navigator_app/screens/explore_screen.dart';
-import 'package:navigator_app/screens/login/login_screen.dart';
-import 'package:navigator_app/screens/profile_screen.dart';
-import 'package:navigator_app/screens/admin_profile.dart';
-import 'package:navigator_app/screens/navigation.dart';
-import 'package:navigator_app/router/routes.dart';
-import 'package:navigator_app/screens/sign_up/sign_up_screen.dart';
-import 'package:navigator_app/screens/splash_screem.dart';
-import 'package:navigator_app/services/firebase_auth_repository.dart';
-import 'package:navigator_app/services/first_launch_provider.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:navigator_app/ui/screens/cities_screen.dart';
+import 'package:navigator_app/ui/screens/map/map_screen2.dart';
+import 'package:navigator_app/ui/screens/profile/edit_profile_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import 'package:navigator_app/router/routes.dart';
+import 'package:navigator_app/providers/firebase_rivrpod_provider.dart';
+import 'package:navigator_app/providers/first_launch_provider.dart';
+
+import 'package:navigator_app/ui/screens/screens.dart';
 
 part 'go_router_provider.g.dart';
 
@@ -28,100 +27,175 @@ GoRouter goRouter(Ref ref) {
       navigatorKey: _rootNavigatorKey,
       routes: [
         GoRoute(
-          path: '/loading',
+          path: Routes.loading,
           builder: (context, state) => const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           ),
         ),
       ],
-      initialLocation: '/loading',
+      initialLocation: Routes.loading,
     );
   }
 
   final isFirstLaunch = firstLaunchAsync.value!;
+  final isGuestUser = authState.value == null;
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: isFirstLaunch ? Routes.splashScreen : Routes.exploreScreen,
+    initialLocation: isFirstLaunch ? Routes.splash : Routes.home,
+    debugLogDiagnostics: true,
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             Navigation(navigationShell: navigationShell),
         branches: [
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.settingScreen,
-                builder: (context, state) => Container(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.eventsScreen,
-                builder: (context, state) => Container(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.exploreScreen,
-                builder: (context, state) => const ExploreScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.profileScreen,
-                builder: (context, state) => const ProfileScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.adminpScreen,
-                builder: (context, state) => const AdminProfile(),
-              ),
-            ],
-          ),
+          //Setting Route
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.settings,
+              builder: (context, state) => const SettingsScreen(),
+            ),
+          ]),
+          //Events Route
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.cities,
+              builder: (context, state) => CitiesScreen(),
+            ),
+          ]),
+          //Explore Events Route
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.home,
+              builder: (context, state) => const ExploreScreen(),
+            ),
+          ]),
+          //Event Map Route (soon)
+          StatefulShellBranch(routes: [
+            GoRoute(
+                path: Routes.map,
+                name: Routes.mapName,
+                builder: (context, state) {
+                  final String? eventId =
+                      state.extra is String ? state.extra as String : null;
+
+                  return MapScreenTwo(eventId: eventId);
+                }),
+          ]),
+
+          //Profile Route
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.profile,
+              builder: (context, state) => const ProfileScreen(),
+              routes: [
+                GoRoute(
+                    path: Routes.editEvent,
+                    name: Routes.editEventName,
+                    builder: (context, state) {
+                      final String eventId =
+                          state.pathParameters['eventId'] ?? '';
+
+                      return CreateEditEventScreen(eventId: eventId);
+                    }),
+              ],
+            ),
+          ]),
         ],
       ),
       GoRoute(
-        path: Routes.splashScreen,
+        path: Routes.editProfile,
+        name: Routes.editProfileName,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: Routes.createEvent,
+        name: Routes.createEventName,
+        builder: (context, state) {
+          final LatLng? location =
+              state.extra is LatLng ? state.extra as LatLng : null;
+
+          return CreateEditEventScreen(location: location);
+        },
+      ),
+      GoRoute(
+        path: Routes.splash,
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
-        path: Routes.loginScreen,
+        path: Routes.login,
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
-        path: Routes.registerScreen,
+        path: Routes.register,
         builder: (context, state) => const SignUpScreen(),
       ),
       GoRoute(
-        path: '/event',
+        path: Routes.eventsList,
+        name: Routes.eventListName,
         builder: (context, state) {
           final title = state.uri.queryParameters['title'] ?? 'Events';
           final filter = state.uri.queryParameters['filter'] ?? 'all';
-          return EventListScreen(title: title, initialFilter: filter);
+          return EventListScreenTwo(title: title, initialFilter: filter);
+        },
+      ),
+      GoRoute(
+        path: Routes.filters,
+        builder: (context, state) => const FilterScreen(),
+      ),
+      GoRoute(
+        path: Routes.eventDetails,
+        name: Routes.eventDetailsName,
+        builder: (context, state) {
+          final eventId = state.pathParameters['eventId']!;
+          return EventDetailsScreen(eventId: eventId);
         },
       ),
     ],
     redirect: (context, state) {
       final currentLocation = state.uri.toString();
-      if (authState.valueOrNull == null &&
-          currentLocation != Routes.splashScreen &&
-          currentLocation != Routes.loginScreen &&
-          currentLocation != Routes.registerScreen) {
-        return Routes.splashScreen;
-      } else if (authState.valueOrNull != null &&
-          currentLocation == Routes.registerScreen) {
-        return Routes.exploreScreen;
+      final isLoggedIn = authState.valueOrNull != null;
+
+      // Define public routes
+      final publicRoutes = [
+        Routes.splash,
+        Routes.login,
+        Routes.register,
+      ];
+
+      // Define guest-accessible routes
+      final guestAccessibleRoutes = [
+        Routes.home,
+        Routes.eventsList,
+        Routes.eventDetails,
+        Routes.filters,
+        Routes.exploreSearch,
+      ];
+
+      // Check if current location is a public route
+      final isPublicRoute = publicRoutes.any((route) =>
+          currentLocation == route || currentLocation.startsWith(route));
+
+      // Check if current location is a guest-accessible route
+      final isGuestAccessibleRoute = guestAccessibleRoutes.any((route) =>
+          currentLocation == route || currentLocation.startsWith(route));
+
+      // Allow access to public routes regardless of authentication
+      if (isPublicRoute) {
+        return null;
       }
+
+      // If user has chosen guest mode and is trying to access a guest-accessible route
+      if (isGuestUser && isGuestAccessibleRoute) {
+        return null;
+      }
+
+      // If logged in, don't allow access to login/register
+      if (isLoggedIn && isPublicRoute) {
+        return Routes.home;
+      }
+
+      // For all other cases, allow the navigation
       return null;
     },
   );
